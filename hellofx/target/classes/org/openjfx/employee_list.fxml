@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" prefWidth="500.0" prefHeight="400.0">
+    <top>
+        <Label text="Danh sách nhân viên" BorderPane.alignment="CENTER" />
+    </top>
+    <center>
+        <TableView fx:id="employeeTable">
+            <columns>
+                <TableColumn text="Họ tên" prefWidth="250" fx:id="colName" />
+                <TableColumn text="Chức vụ" prefWidth="150" fx:id="colPosition" />
+                <TableColumn text="Lương" prefWidth="120" fx:id="colSalary" />
+            </columns>
+        </TableView>
+    </center>
+    <padding>
+        <Insets top="10" bottom="10" left="10" right="10" />
+    </padding>
+</BorderPane>
+
+

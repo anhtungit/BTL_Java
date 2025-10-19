@@ -20,7 +20,6 @@
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
-            <Button text="Đăng xuất" onAction="#logout" />
          </children>
          <padding>
             <Insets top="5" bottom="5" left="5" right="5" />
@@ -31,8 +30,8 @@
       <VBox spacing="8" BorderPane.alignment="CENTER" prefWidth="260.0">
          <children>
             <Button fx:id="btnTrangChu" text="Trang chủ" maxWidth="Infinity" onAction="#showTrangChu" />
-            <Button fx:id="btnTrangCaNhan" text="Trang cá nhân" maxWidth="Infinity" onAction="#noop" />
-            <Button fx:id="btnQuanLyNhanVien" text="Quản lý nhân viên" maxWidth="Infinity" onAction="#noop" />
+            <Button fx:id="btnTrangCaNhan" text="Trang cá nhân" maxWidth="Infinity" onAction="#showTrangCaNhan" />
+            <Button fx:id="btnQuanLyNhanVien" text="Quản lý nhân viên" maxWidth="Infinity" onAction="#empShowList" />
             <Button fx:id="btnQuanLyBanHang" text="Quản lý bán hàng" maxWidth="Infinity" onAction="#noop" />
             <Button fx:id="btnQuanLyTrangThietBi" text="Quản lý trang thiết bị" maxWidth="Infinity" onAction="#noop" />
             <Button fx:id="btnQuanLyKhoHang" text="Quản lý kho hàng" maxWidth="Infinity" onAction="#noop" />
@@ -56,15 +55,7 @@
                   <Font name="System" size="16.0" />
                </font>
             </Label>
-            <StackPane prefWidth="700" prefHeight="480" style="-fx-background-color: #ccffff;">
-               <children>
-                  <Label text="XIN CHÀO, admin !" opacity="0.4">
-                     <font>
-                        <Font name="System Bold" size="60.0" />
-                     </font>
-                  </Label>
-               </children>
-            </StackPane>
+            <StackPane fx:id="contentPane" prefWidth="700" prefHeight="480" style="-fx-background-color: #ccffff;" />
          </children>
          <padding>
             <Insets top="10" right="10" bottom="10" left="10" />
