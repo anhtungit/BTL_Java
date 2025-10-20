@@ -1,6 +1,12 @@
-# ae nhớ clone về tạo nhánh riêng r đẩy code lên nhánh riêng của mình nhá
-# nhớ pull request luôn mỗi khi đẩy lên cho tránh xung đột
-# tạo nhánh mới: 
-git clone -b ten-la-gi-cung-duoc https://github.com/anhtungit/BTL_Java.git
+## Getting Started
 
-git push origin ten-vua-tao
+First, run the command to clone this project:
+```bash
+git clone https://github.com/anhtungit/BTL_Java.git
+```
+
+Create a new branch (recommend):
+```bash
+git checkout -b yourbranch
+git push origin yourbranch
+```
