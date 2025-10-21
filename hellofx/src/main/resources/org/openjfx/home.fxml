@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" prefWidth="700.0" prefHeight="480.0">
+    <children>
+        <Label text="XIN CHÀO!" opacity="0.4">
+            <font>
+                <Font name="System Bold" size="60.0" />
+            </font>
+        </Label>
+    </children>
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10" />
+    </padding>
+</StackPane>
+
+
