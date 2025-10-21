@@ -26,6 +26,12 @@ public class PrimaryController {
         alert.showAndWait();
     }
 
+    @FXML
+    private void showQuanLyBanHang() throws IOException {
+        Node salesView = FXMLLoader.load(getClass().getResource("sales-management.fxml"));
+        contentPane.getChildren().setAll(salesView);
+    }
+
     // Role-based visibility: Manager sees all; Staff limited
     @FXML private Button btnTrangChu;
     @FXML private Button btnTrangCaNhan;
@@ -89,9 +95,7 @@ public class PrimaryController {
 
     @FXML
     private void showTrangCaNhan() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("profile.fxml"));
-        loader.setController(this);
-        Node profileView = loader.load();
+        Node profileView = FXMLLoader.load(getClass().getResource("profile.fxml"));
         contentPane.getChildren().setAll(profileView);
     }
 

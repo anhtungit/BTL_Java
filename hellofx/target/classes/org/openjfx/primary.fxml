@@ -32,7 +32,7 @@
             <Button fx:id="btnTrangChu" text="Trang chủ" maxWidth="Infinity" onAction="#showTrangChu" />
             <Button fx:id="btnTrangCaNhan" text="Trang cá nhân" maxWidth="Infinity" onAction="#showTrangCaNhan" />
             <Button fx:id="btnQuanLyNhanVien" text="Quản lý nhân viên" maxWidth="Infinity" onAction="#empShowList" />
-            <Button fx:id="btnQuanLyBanHang" text="Quản lý bán hàng" maxWidth="Infinity" onAction="#noop" />
+            <Button fx:id="btnQuanLyBanHang" text="Quản lý bán hàng" maxWidth="Infinity" onAction="#showQuanLyBanHang" />
             <Button fx:id="btnQuanLyTrangThietBi" text="Quản lý trang thiết bị" maxWidth="Infinity" onAction="#noop" />
             <Button fx:id="btnQuanLyKhoHang" text="Quản lý kho hàng" maxWidth="Infinity" onAction="#noop" />
             <Button fx:id="btnQuanLyThucDon" text="Quản lý thực đơn" maxWidth="Infinity" onAction="#noop" />
