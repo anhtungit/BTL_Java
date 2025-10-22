@@ -2,18 +2,36 @@ package org.openjfx;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import java.io.IOException;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,18 +42,12 @@ public class SalesController implements Initializable {
     @FXML private GridPane tableGrid;
     @FXML private Button btnViewTable;
     @FXML private Button btnTransferTable;
-    @FXML private Button btnSplitTable;
-    @FXML private Button btnCombineTable;
     @FXML private Button btnCancelTable;
     @FXML private Button btnReserveTable;
     @FXML private Button btnSelectMenu;
-    @FXML private Button btnPayment;
-    @FXML private Button btnPrint;
     @FXML private Label lblSelectedTable;
     @FXML private Label lblTableStatus;
     @FXML private Label lblCustomerName;
-    @FXML private VBox reserveDialog;
-    @FXML private TextField txtCustomerName;
     
     private TableStore tableStore;
     private Table selectedTable;
@@ -84,8 +96,6 @@ public class SalesController implements Initializable {
         
         if (table.isEmpty()) {
             style += "-fx-background-color: #e0e0e0; -fx-border-color: #9e9e9e;";
-        } else if (table.isOccupied()) {
-            style += "-fx-background-color: #ffcdd2; -fx-border-color: #f44336;";
         } else if (table.isReserved()) {
             style += "-fx-background-color: #fff3e0; -fx-border-color: #ff9800;";
         }
@@ -117,7 +127,6 @@ public class SalesController implements Initializable {
     private String getStatusText(String status) {
         switch (status) {
             case "empty": return "Trống";
-            case "occupied": return "Có khách";
             case "reserved": return "Đã đặt";
             default: return "Không xác định";
         }
@@ -135,22 +144,70 @@ public class SalesController implements Initializable {
             return;
         }
         
-        String info = "Bàn: " + selectedTable.getTableNumber() + "\n" +
-                     "Trạng thái: " + getStatusText(selectedTable.getStatus()) + "\n" +
-                     "Khách hàng: " + (selectedTable.getCustomerName().isEmpty() ? "Chưa có" : selectedTable.getCustomerName()) + "\n" +
-                     "Sức chứa: " + selectedTable.getCapacity() + " người";
+        // Popup "Xem thông tin bàn"
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Xem thông tin bàn " + String.format("%02d", selectedTable.getTableNumber()));
         
-        showAlert("Thông tin bàn", info);
+        VBox content = new VBox(12);
+        content.setPadding(new Insets(20));
+        
+        // Vùng các món đã gọi
+        Label orderedLabel = new Label("Các món đã gọi");
+        orderedLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+        
+        TableView<OrderItem> orderTable = new TableView<>();
+        orderTable.setPrefHeight(200);
+        // Lấy dữ liệu mới nhất từ TableStore
+        java.util.List<OrderItem> items = tableStore.getItemsForTable(selectedTable.getTableNumber());
+        orderTable.setItems(FXCollections.observableArrayList(items));
+        
+        TableColumn<OrderItem, String> itemNameCol = new TableColumn<>("Tên món");
+        itemNameCol.setCellValueFactory(cd -> cd.getValue().itemNameProperty());
+        itemNameCol.setPrefWidth(220);
+        
+        TableColumn<OrderItem, Integer> qtyCol = new TableColumn<>("SL");
+        qtyCol.setCellValueFactory(cd -> cd.getValue().quantityProperty().asObject());
+        qtyCol.setPrefWidth(80);
+        
+        orderTable.getColumns().addAll(itemNameCol, qtyCol);
+        
+        // Thông tin đặt trước
+        Label reserveInfo = new Label();
+        String customer = selectedTable.getCustomerName().isEmpty() ? "-" : selectedTable.getCustomerName();
+        reserveInfo.setText("Đặt trước\n" + customer);
+        
+        // Nút đóng
+        ButtonType closeType = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(closeType);
+        
+        content.getChildren().addAll(orderedLabel, orderTable, reserveInfo);
+        dialog.getDialogPane().setContent(content);
+        dialog.showAndWait();
     }
 
     @FXML
     private void transferTable() {
-        if (selectedTable == null || !selectedTable.isOccupied()) {
-            showAlert("Lỗi", "Vui lòng chọn bàn có khách để chuyển!");
+        if (selectedTable == null || !selectedTable.isReserved()) {
+            showAlert("Lỗi", "Vui lòng chọn bàn đã đặt để chuyển!");
             return;
         }
         
-        // Hiển thị dialog chọn bàn đích
+        // Tạo popup chuyển bàn như trong ảnh 1
+        Dialog<Integer> dialog = new Dialog<>();
+        dialog.setTitle("Chuyển bàn " + String.format("%02d", selectedTable.getTableNumber()));
+        
+        // Tạo layout cho popup
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+        
+        // Label hướng dẫn
+        Label instructionLabel = new Label("Chọn bàn cần chuyển đến:");
+        instructionLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+        content.getChildren().add(instructionLabel);
+        
+        // Dropdown chọn bàn
+        ChoiceBox<Integer> tableChoiceBox = new ChoiceBox<>();
         List<Integer> availableTables = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
             Table table = tableStore.getTable(i);
@@ -164,81 +221,47 @@ public class SalesController implements Initializable {
             return;
         }
         
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(availableTables.get(0), availableTables);
-        dialog.setTitle("Chuyển bàn");
-        dialog.setHeaderText("Chọn bàn đích:");
-        dialog.setContentText("Bàn nguồn: " + selectedTable.getTableNumber());
+        tableChoiceBox.getItems().addAll(availableTables);
+        tableChoiceBox.setValue(availableTables.get(0));
+        content.getChildren().add(tableChoiceBox);
         
-        Optional<Integer> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            tableStore.transferTable(selectedTable.getTableNumber(), result.get());
-            selectedTable = tableStore.getTable(result.get());
+        // Nút Chuyển và Hủy
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        Button transferButton = new Button("Chuyển");
+        transferButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
+        transferButton.setOnAction(e -> {
+            Integer selectedTableNumber = tableChoiceBox.getValue();
+            if (selectedTableNumber != null) {
+                tableStore.transferTable(selectedTable.getTableNumber(), selectedTableNumber);
+                selectedTable = tableStore.getTable(selectedTableNumber);
             updateTableInfo();
             refreshTableGrid();
+                dialog.close();
             showAlert("Thành công", "Đã chuyển bàn thành công!");
-        }
+            }
+        });
+        
+        Button cancelButton = new Button("Hủy");
+        cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 16;");
+        cancelButton.setOnAction(e -> dialog.close());
+        
+        buttonBox.getChildren().addAll(transferButton, cancelButton);
+        content.getChildren().add(buttonBox);
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE); // Thêm nút đóng
+        dialog.setResizable(false);
+        
+        // Xử lý khi đóng dialog bằng nút X
+        dialog.setOnCloseRequest(e -> {
+            // Không cần làm gì đặc biệt khi đóng
+        });
+        
+        dialog.showAndWait();
     }
 
-    @FXML
-    private void splitTable() {
-        if (selectedTable == null || !selectedTable.isOccupied()) {
-            showAlert("Lỗi", "Vui lòng chọn bàn có khách để tách!");
-            return;
-        }
-        
-        // Hiển thị dialog chọn bàn để tách
-        List<Integer> availableTables = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            Table table = tableStore.getTable(i);
-            if (table != null && table.isEmpty() && i != selectedTable.getTableNumber()) {
-                availableTables.add(i);
-            }
-        }
-        
-        if (availableTables.isEmpty()) {
-            showAlert("Lỗi", "Không có bàn trống để tách!");
-            return;
-        }
-        
-        // Tạo dialog tùy chỉnh để chọn nhiều bàn
-        Dialog<List<Integer>> dialog = new Dialog<>();
-        dialog.setTitle("Tách bàn");
-        dialog.setHeaderText("Chọn các bàn để tách:");
-        
-        // Tạo checkbox cho mỗi bàn trống
-        VBox vbox = new VBox();
-        List<CheckBox> checkBoxes = new ArrayList<>();
-        
-        for (Integer tableNum : availableTables) {
-            CheckBox checkBox = new CheckBox("Bàn " + String.format("%02d", tableNum));
-            checkBoxes.add(checkBox);
-            vbox.getChildren().add(checkBox);
-        }
-        
-        dialog.getDialogPane().setContent(vbox);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        
-        Optional<List<Integer>> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            List<Integer> selectedTables = new ArrayList<>();
-            for (int i = 0; i < checkBoxes.size(); i++) {
-                if (checkBoxes.get(i).isSelected()) {
-                    selectedTables.add(availableTables.get(i));
-                }
-            }
-            
-            if (!selectedTables.isEmpty()) {
-                tableStore.splitTable(selectedTable.getTableNumber(), selectedTables);
-                refreshTableGrid();
-                showAlert("Thành công", "Đã tách bàn thành công!");
-            }
-        }
-    }
-
-    @FXML
-    private void combineTable() {
-        showAlert("Thông báo", "Chức năng gộp bàn đang được phát triển!");
-    }
 
     @FXML
     private void cancelTable() {
@@ -263,6 +286,8 @@ public class SalesController implements Initializable {
             if (order != null) {
                 tableStore.removeOrder(order);
             }
+            // Xóa dữ liệu món ăn của bàn
+            tableStore.setItemsForTable(selectedTable.getTableNumber(), new java.util.ArrayList<>());
             selectedTable.setStatus("empty");
             selectedTable.setCustomerName("");
             updateTableInfo();
@@ -283,30 +308,103 @@ public class SalesController implements Initializable {
             return;
         }
         
-        reserveDialog.setVisible(true);
-    }
-
-    @FXML
-    private void confirmReserve() {
-        String customerName = txtCustomerName.getText().trim();
+        // Tạo popup đặt bàn như trong ảnh 2
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Đặt bàn " + String.format("%02d", selectedTable.getTableNumber()));
+        
+        // Tạo layout cho popup
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+        
+        // Tạo các trường input
+        HBox customerBox = new HBox(10);
+        customerBox.setAlignment(Pos.CENTER_LEFT);
+        Label customerLabel = new Label("Khách hàng:");
+        customerLabel.setPrefWidth(80);
+        TextField customerField = new TextField();
+        customerField.setPrefWidth(200);
+        customerBox.getChildren().addAll(customerLabel, customerField);
+        
+        HBox phoneBox = new HBox(10);
+        phoneBox.setAlignment(Pos.CENTER_LEFT);
+        Label phoneLabel = new Label("SĐT:");
+        phoneLabel.setPrefWidth(80);
+        TextField phoneField = new TextField();
+        phoneField.setPrefWidth(200);
+        phoneBox.getChildren().addAll(phoneLabel, phoneField);
+        
+        HBox dateBox = new HBox(10);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
+        Label dateLabel = new Label("Ngày:");
+        dateLabel.setPrefWidth(80);
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+        datePicker.setPrefWidth(200);
+        dateBox.getChildren().addAll(dateLabel, datePicker);
+        
+        HBox timeBox = new HBox(10);
+        timeBox.setAlignment(Pos.CENTER_LEFT);
+        Label timeLabel = new Label("Giờ:");
+        timeLabel.setPrefWidth(80);
+        TextField timeField = new TextField();
+        timeField.setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+        timeField.setPrefWidth(200);
+        timeBox.getChildren().addAll(timeLabel, timeField);
+        
+        content.getChildren().addAll(customerBox, phoneBox, dateBox, timeBox);
+        
+        // Nút Đặt bàn và Hủy
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        Button reserveButton = new Button("Đặt bàn");
+        reserveButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 8 16;");
+        reserveButton.setOnAction(e -> {
+            String customerName = customerField.getText().trim();
+            String phone = phoneField.getText().trim();
+            
         if (customerName.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập tên khách hàng!");
             return;
         }
         
+            if (phone.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập số điện thoại!");
+                return;
+            }
+            
+            // Đặt bàn
         tableStore.reserveTable(selectedTable.getTableNumber(), customerName);
         updateTableInfo();
         refreshTableGrid();
-        reserveDialog.setVisible(false);
-        txtCustomerName.clear();
+            dialog.close();
+            
+            // Hiển thị thông báo thành công sau khi đóng dialog
+            javafx.application.Platform.runLater(() -> {
         showAlert("Thành công", "Đã đặt bàn thành công!");
+            });
+        });
+        
+        Button cancelButton = new Button("Hủy");
+        cancelButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 16;");
+        cancelButton.setOnAction(e -> dialog.close());
+        
+        buttonBox.getChildren().addAll(reserveButton, cancelButton);
+        content.getChildren().add(buttonBox);
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE); // Thêm nút đóng
+        dialog.setResizable(false);
+        
+        // Xử lý khi đóng dialog bằng nút X
+        dialog.setOnCloseRequest(e -> {
+            // Không cần làm gì đặc biệt khi đóng
+        });
+        
+        dialog.showAndWait();
     }
 
-    @FXML
-    private void cancelReserve() {
-        reserveDialog.setVisible(false);
-        txtCustomerName.clear();
-    }
 
     @FXML
     private void selectMenu() {
@@ -315,8 +413,212 @@ public class SalesController implements Initializable {
             return;
         }
         
-        showAlert("Thông báo", "Chức năng chọn thực đơn đang được phát triển!");
+        if (!selectedTable.isReserved()) {
+            showAlert("Lỗi", "Bàn này chưa được đặt!");
+            return;
+        }
+        
+        // Tạo popup chọn thực đơn như trong ảnh
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Chọn món bàn " + String.format("%02d", selectedTable.getTableNumber()));
+        
+        // Tạo layout cho popup
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        
+        // Label "Bàn XX"
+        Label tableLabel = new Label("Bàn " + String.format("%02d", selectedTable.getTableNumber()));
+        tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+        content.getChildren().add(tableLabel);
+        
+        // Tạo danh sách món ăn
+        ObservableList<MenuItem> menuItems = FXCollections.observableArrayList();
+        menuItems.add(new MenuItem("Cà phê sữa", 25000));
+        menuItems.add(new MenuItem("Sinh tố", 30000));
+        menuItems.add(new MenuItem("Pepsi", 15000));
+        menuItems.add(new MenuItem("Trà Lipton", 20000));
+        menuItems.add(new MenuItem("Bánh mì", 20000));
+        menuItems.add(new MenuItem("Phở", 45000));
+        menuItems.add(new MenuItem("Bún bò", 40000));
+        menuItems.add(new MenuItem("Cơm tấm", 35000));
+        menuItems.add(new MenuItem("Gà nướng", 60000));
+        menuItems.add(new MenuItem("Cá chiên", 55000));
+
+        // Nạp số lượng đã lưu trước đó (nếu có)
+        java.util.List<OrderItem> existingItems = tableStore.getItemsForTable(selectedTable.getTableNumber());
+        if (existingItems != null && !existingItems.isEmpty()) {
+            for (MenuItem mi : menuItems) {
+                for (OrderItem oi : existingItems) {
+                    if (oi.getItemName().equals(mi.getName())) {
+                        mi.setSelected(oi.getQuantity() > 0);
+                        mi.setQuantity(oi.getQuantity());
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Tạo TableView
+        TableView<MenuItem> tableView = new TableView<>();
+        tableView.setItems(menuItems);
+        tableView.setPrefHeight(300);
+        tableView.setMaxHeight(300); // Giới hạn chiều cao để tự động scroll
+        tableView.setMaxWidth(320); // Giới hạn chiều rộng tối đa
+        
+        // Cột checkbox
+        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
+        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+        selectColumn.setCellFactory(column -> {
+            return new javafx.scene.control.TableCell<MenuItem, Boolean>() {
+                private CheckBox checkBox;
+                private MenuItem currentMenuItem;
+                
+                @Override
+                protected void updateItem(Boolean item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                        currentMenuItem = null;
+                    } else {
+                        if (checkBox == null) {
+                            checkBox = new CheckBox();
+                        }
+                        
+                        // Lưu reference đến MenuItem hiện tại
+                        currentMenuItem = getTableView().getItems().get(getIndex());
+                        
+                        // Cập nhật trạng thái checkbox từ MenuItem
+                        checkBox.setSelected(item);
+                        
+                        // Xóa listener cũ để tránh vòng lặp
+                        checkBox.setOnAction(null);
+                        // Thêm listener mới
+                        checkBox.setOnAction(e -> {
+                            if (currentMenuItem != null) {
+                                currentMenuItem.setSelected(checkBox.isSelected());
+                                if (!checkBox.isSelected()) {
+                                    currentMenuItem.setQuantity(0);
+                                } else if (currentMenuItem.getQuantity() == 0) {
+                                    currentMenuItem.setQuantity(1);
+                                }
+                                // Refresh table để cập nhật spinner
+                                getTableView().refresh();
+                            }
+                        });
+                        
+                        setGraphic(checkBox);
+                    }
+                }
+            };
+        });
+        
+        // Cột tên món
+        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
+        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        nameColumn.setPrefWidth(150);
+        
+        // Cột số lượng
+        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
+        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
+        quantityColumn.setPrefWidth(60);
+        quantityColumn.setCellFactory(column -> {
+            return new javafx.scene.control.TableCell<MenuItem, Integer>() {
+                private Spinner<Integer> spinner;
+                private MenuItem currentMenuItem;
+                
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                        currentMenuItem = null;
+                    } else {
+                        if (spinner == null) {
+                            spinner = new Spinner<>(0, 10, 0);
+                            // Làm cho spinner nhỏ hơn
+                            spinner.setPrefWidth(50);
+                            spinner.setMaxWidth(50);
+                        }
+                        
+                        // Lưu reference đến MenuItem hiện tại
+                        currentMenuItem = getTableView().getItems().get(getIndex());
+                        
+                        // Cập nhật giá trị spinner từ MenuItem
+                        spinner.getValueFactory().setValue(item);
+                        
+                        // Xóa listener cũ để tránh vòng lặp
+                        spinner.valueProperty().removeListener(this::onSpinnerValueChanged);
+                        // Thêm listener mới
+                        spinner.valueProperty().addListener(this::onSpinnerValueChanged);
+                        
+                        setGraphic(spinner);
+                    }
+                }
+                
+                private void onSpinnerValueChanged(javafx.beans.Observable obs, Integer oldVal, Integer newVal) {
+                    if (currentMenuItem != null) {
+                        currentMenuItem.setQuantity(newVal);
+                        if (newVal > 0) {
+                            currentMenuItem.setSelected(true);
+                        } else {
+                            currentMenuItem.setSelected(false);
+                        }
+                        // Refresh table để cập nhật checkbox
+                        getTableView().refresh();
+                    }
+                }
+            };
+        });
+        
+        tableView.getColumns().addAll(selectColumn, nameColumn, quantityColumn);
+        
+        // Thêm TableView trực tiếp vào content (không cần ScrollPane)
+        content.getChildren().add(tableView);
+        
+        // Nút Lưu và Hủy
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        Button saveButton = new Button("Lưu");
+        saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
+        saveButton.setOnAction(e -> {
+            // Lưu thực đơn đã chọn vào TableStore
+            java.util.List<OrderItem> itemsToSave = new java.util.ArrayList<>();
+            StringBuilder selectedItems = new StringBuilder("Đã chọn:\n");
+            for (MenuItem item : menuItems) {
+                if (item.isSelected() && item.getQuantity() > 0) {
+                    itemsToSave.add(new OrderItem(item.getName(), item.getPrice(), item.getQuantity()));
+                    selectedItems.append("- ").append(item.getName())
+                               .append(" x").append(item.getQuantity())
+                               .append(" = ").append(String.format("%.0f VND", item.getTotalPrice()))
+                               .append("\n");
+                }
+            }
+
+            tableStore.setItemsForTable(selectedTable.getTableNumber(), itemsToSave);
+            
+            dialog.close();
+            showAlert("Thành công", selectedItems.toString());
+        });
+        
+        Button cancelButton = new Button("Hủy");
+        cancelButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 16;");
+        cancelButton.setOnAction(e -> dialog.close());
+        
+        buttonBox.getChildren().addAll(saveButton, cancelButton);
+        content.getChildren().add(buttonBox);
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.setResizable(false);
+        
+        dialog.setOnCloseRequest(e -> {
+            // Không cần làm gì đặc biệt khi đóng
+        });
+        
+        dialog.showAndWait();
     }
+
 
     @FXML
     private void payment() {
@@ -325,34 +627,59 @@ public class SalesController implements Initializable {
             return;
         }
         
-        Order order = tableStore.getOrderByTable(selectedTable.getTableNumber());
-        if (order == null) {
-            showAlert("Lỗi", "Bàn này chưa có đơn hàng!");
+        if (!selectedTable.isReserved()) {
+            showAlert("Lỗi", "Bàn này chưa được đặt!");
             return;
         }
-        
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Xác nhận thanh toán");
-        alert.setHeaderText("Thanh toán cho bàn " + selectedTable.getTableNumber());
-        alert.setContentText("Tổng tiền: " + String.format("%.0f VND", order.getTotalAmount()));
-        
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            tableStore.payOrder(order);
-            updateTableInfo();
-            refreshTableGrid();
-            showAlert("Thành công", "Thanh toán thành công!");
-        }
-    }
 
-    @FXML
-    private void print() {
-        if (selectedTable == null) {
-            showAlert("Lỗi", "Vui lòng chọn bàn để in!");
+        // Get order items for the table
+        List<OrderItem> items = tableStore.getItemsForTable(selectedTable.getTableNumber());
+        if (items == null || items.isEmpty()) {
+            showAlert("Lỗi", "Không có món ăn nào để thanh toán!");
             return;
         }
-        
-        showAlert("Thông báo", "Chức năng in ấn đang được phát triển!");
+
+        try {
+            // Load payment dialog FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("payment_dialog.fxml"));
+            Parent root = loader.load();
+            
+            // Get the controller
+            PaymentDialogController dialogController = loader.getController();
+            
+            // Set up the dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableNumber());
+            dialog.setDialogPane((DialogPane) root);
+            
+            // Initialize dialog with order items
+            dialogController.setTable(selectedTable);
+            
+            // Show dialog and wait for it to close
+            dialog.showAndWait();
+            
+            // Reset bàn nếu đã chọn option đó
+            if (dialogController.isResetTableSelected()) {
+                // Xóa order và reset bàn
+                Order order = tableStore.getOrderByTable(selectedTable.getTableNumber());
+                if (order != null) {
+                    tableStore.removeOrder(order);
+                }
+                
+                // Reset bàn về trạng thái trống
+                selectedTable.setStatus("empty");
+                selectedTable.setCustomerName("");
+                tableStore.setItemsForTable(selectedTable.getTableNumber(), new ArrayList<>());
+                
+                // Cập nhật giao diện
+                updateTableInfo();
+                refreshTableGrid();
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Lỗi", "Không thể mở cửa sổ thanh toán!");
+        }
     }
 
     private void showAlert(String title, String message) {
