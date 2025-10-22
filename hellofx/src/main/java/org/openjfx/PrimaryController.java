@@ -105,30 +105,23 @@ public class PrimaryController {
         contentPane.getChildren().setAll(homeView);
     }
 
+    @FXML
+    private void showQuanLyKhoHang() throws IOException {
+        Node inventoryView = FXMLLoader.load(getClass().getResource("inventory-view.fxml"));
+        contentPane.getChildren().setAll(inventoryView);
+    }
+
     // EMPLOYEE MODULE HOST
     @FXML
     private void empShowList() throws IOException {
-        loadEmployeeModule("employee_list.fxml");
-    }
-
-    @FXML
-    private void empShowAdd() throws IOException {
-        loadEmployeeModule("employee_add.fxml");
-    }
-
-    @FXML
-    private void empShowEdit() throws IOException {
-        loadEmployeeModule("employee_edit.fxml");
+        Node empManagementView = FXMLLoader.load(getClass().getResource("employee-management.fxml"));
+        contentPane.getChildren().setAll(empManagementView);
     }
 
     @FXML
     private void empShowDelete() throws IOException {
+        // Load the employee module root and set the center to the delete view (binds delete table)
         loadEmployeeModule("employee_delete.fxml");
-    }
-
-    @FXML
-    private void empShowSearch() throws IOException {
-        loadEmployeeModule("employee_search.fxml");
     }
 
     private void loadEmployeeModule(String centerFxml) throws IOException {
