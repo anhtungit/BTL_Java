@@ -16,9 +16,11 @@ public class App extends Application {
     private static Scene scene;
     private static String currentUsername;
     private static String currentRole; // MANAGER or STAFF
+    private static Stage primaryStage;
 
     @Override
     public void start(Stage stage) throws IOException {
+        primaryStage = stage;
         scene = new Scene(loadFXML("login"), 900, 550);
         stage.setTitle("Phần mềm quản lý quán cà phê ver 1.0");
         stage.setScene(scene);
@@ -32,6 +34,11 @@ public class App extends Application {
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
+    }
+
+    public static void openInventoryManagement() throws IOException {
+        scene.setRoot(loadFXML("inventory-view"));
+        primaryStage.setTitle("Quản lý kho hàng - Phần mềm quản lý quán cà phê ver 1.0");
     }
 
     public static void main(String[] args) {
