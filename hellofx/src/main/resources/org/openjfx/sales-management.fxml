@@ -30,19 +30,16 @@
          <children>
             <Button fx:id="btnViewTable" text="Xem bàn" onAction="#viewTable" />
             <Button fx:id="btnTransferTable" text="Chuyển bàn" onAction="#transferTable" />
-            <Button fx:id="btnSplitTable" text="Tách bàn" onAction="#splitTable" />
-            <Button fx:id="btnCombineTable" text="Gộp bàn" onAction="#combineTable" />
             <Button fx:id="btnCancelTable" text="Hủy bàn" onAction="#cancelTable" />
             <Button fx:id="btnReserveTable" text="Đặt bàn" onAction="#reserveTable" />
          </children>
       </HBox>
       
-      <!-- Nút đơn hàng và thanh toán -->
+      <!-- Nút chọn thực đơn và thanh toán -->
       <HBox spacing="10" alignment="CENTER">
          <children>
             <Button fx:id="btnSelectMenu" text="Chọn thực đơn..." onAction="#selectMenu" />
-            <Button fx:id="btnPayment" text="Thanh toán..." onAction="#payment" />
-            <Button fx:id="btnPrint" text="In ấn..." onAction="#print" />
+            <Button fx:id="btnPayment" text="Thanh toán" onAction="#payment" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
          </children>
       </HBox>
       
@@ -67,24 +64,6 @@
          </children>
       </VBox>
       
-      <!-- Dialog cho đặt bàn -->
-      <VBox fx:id="reserveDialog" visible="false" spacing="10" style="-fx-background-color: #e8f4fd; -fx-padding: 15; -fx-border-color: #2196F3; -fx-border-width: 2;">
-         <children>
-            <Label text="Đặt bàn">
-               <font>
-                  <Font name="System Bold" size="16.0" />
-               </font>
-            </Label>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-               <children>
-                  <Label text="Tên khách hàng:" />
-                  <TextField fx:id="txtCustomerName" promptText="Nhập tên khách hàng" prefWidth="200" />
-                  <Button text="Xác nhận" onAction="#confirmReserve" />
-                  <Button text="Hủy" onAction="#cancelReserve" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
    </children>
    <padding>
       <Insets top="10" right="10" bottom="10" left="10" />

@@ -2,17 +2,21 @@ package org.openjfx;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class TableStore {
     private static TableStore instance;
     private final ObservableList<Table> tables;
     private final ObservableList<Order> orders;
+    // Lưu danh sách món theo từng bàn (đơn giản hoá thay cho Order)
+    private final Map<Integer, List<OrderItem>> tableNumberToItems;
 
     private TableStore() {
         this.tables = FXCollections.observableArrayList();
         this.orders = FXCollections.observableArrayList();
+        this.tableNumberToItems = new HashMap<>();
         initializeTables();
     }
 
@@ -24,11 +28,16 @@ public class TableStore {
     }
 
     private void initializeTables() {
-        // Tạo 20 bàn như trong ảnh
         for (int i = 1; i <= 20; i++) {
-            Table table = new Table(i, 4); // Mỗi bàn có sức chứa 4 người
+            Table table = new Table(i, 4);
             tables.add(table);
         }
+        
+        reserveTable(3, "Nguyễn Văn A");
+        reserveTable(7, "Trần Thị B");
+        reserveTable(12, "Lê Văn C");
+        reserveTable(15, "Phạm Thị D");
+        reserveTable(18, "Hoàng Văn E");
     }
 
     public ObservableList<Table> getTables() {
@@ -37,6 +46,15 @@ public class TableStore {
 
     public ObservableList<Order> getOrders() {
         return orders;
+    }
+
+    // --- API cho món đã chọn của từng bàn ---
+    public List<OrderItem> getItemsForTable(int tableNumber) {
+        return tableNumberToItems.getOrDefault(tableNumber, FXCollections.observableArrayList());
+    }
+
+    public void setItemsForTable(int tableNumber, List<OrderItem> items) {
+        tableNumberToItems.put(tableNumber, items);
     }
 
     public Table getTable(int tableNumber) {
@@ -57,7 +75,7 @@ public class TableStore {
         orders.add(order);
         Table table = getTable(order.getTableNumber());
         if (table != null) {
-            table.setStatus("occupied");
+            table.setStatus("reserved");
             table.setCustomerName(order.getCustomerName());
         }
     }
@@ -88,75 +106,39 @@ public class TableStore {
     }
 
     public void transferTable(int fromTable, int toTable) {
+        Table fromTableObj = getTable(fromTable);
+        Table toTableObj = getTable(toTable);
+        
+        if (fromTableObj == null || toTableObj == null || !toTableObj.isEmpty()) {
+            return;
+        }
+
+        // Chuyển thông tin đơn hàng (nếu có)
         Order order = getOrderByTable(fromTable);
         if (order != null) {
             order.setTableNumber(toTable);
-            Table fromTableObj = getTable(fromTable);
-            Table toTableObj = getTable(toTable);
-            
-            if (fromTableObj != null) {
-                fromTableObj.setStatus("empty");
-                fromTableObj.setCustomerName("");
-            }
-            
-            if (toTableObj != null && toTableObj.isEmpty()) {
-                toTableObj.setStatus("occupied");
-                toTableObj.setCustomerName(order.getCustomerName());
-            }
         }
-    }
 
-    public void splitTable(int tableNumber, List<Integer> newTables) {
-        Order order = getOrderByTable(tableNumber);
-        if (order != null) {
-            // Tạo đơn hàng mới cho các bàn được tách
-            for (int newTable : newTables) {
-                Table newTableObj = getTable(newTable);
-                if (newTableObj != null && newTableObj.isEmpty()) {
-                    Order newOrder = new Order(
-                            generateOrderId(),
-                            newTable,
-                            order.getCustomerName()
-                    );
-                    addOrder(newOrder);
-                }
-            }
-        }
-    }
-
-    public void combineTables(List<Integer> tableNumbers, int targetTable) {
-        // Gộp các đơn hàng từ nhiều bàn vào một bàn
-        List<Order> ordersToCombine = new ArrayList<>();
-        for (int tableNumber : tableNumbers) {
-            Order order = getOrderByTable(tableNumber);
-            if (order != null) {
-                ordersToCombine.add(order);
-            }
-        }
+        // Chuyển thông tin bàn
+        String customerName = fromTableObj.getCustomerName();
+        String status = fromTableObj.getStatus();
         
-        if (!ordersToCombine.isEmpty()) {
-            Order combinedOrder = ordersToCombine.get(0);
-            combinedOrder.setTableNumber(targetTable);
-            
-            // Gộp các món ăn từ các đơn hàng khác
-            for (int i = 1; i < ordersToCombine.size(); i++) {
-                Order orderToMerge = ordersToCombine.get(i);
-                combinedOrder.getItems().addAll(orderToMerge.getItems());
-                removeOrder(orderToMerge);
-            }
-            
-            // Cập nhật trạng thái bàn
-            for (int tableNumber : tableNumbers) {
-                if (tableNumber != targetTable) {
-                    Table table = getTable(tableNumber);
-                    if (table != null) {
-                        table.setStatus("empty");
-                        table.setCustomerName("");
-                    }
-                }
-            }
+        // Cập nhật bàn mới
+        toTableObj.setStatus(status);
+        toTableObj.setCustomerName(customerName);
+        
+        // Đặt lại bàn cũ thành trống
+        fromTableObj.setStatus("empty");
+        fromTableObj.setCustomerName("");
+        
+        // Chuyển dữ liệu món ăn từ bàn cũ sang bàn mới
+        java.util.List<OrderItem> itemsFromOldTable = getItemsForTable(fromTable);
+        if (itemsFromOldTable != null && !itemsFromOldTable.isEmpty()) {
+            setItemsForTable(toTable, itemsFromOldTable);
+            setItemsForTable(fromTable, new java.util.ArrayList<>()); // Xóa dữ liệu bàn cũ
         }
     }
+
 
     public void payOrder(Order order) {
         order.setStatus("paid");
@@ -167,9 +149,6 @@ public class TableStore {
         }
     }
 
-    private String generateOrderId() {
-        return "ORD" + System.currentTimeMillis();
-    }
 
     public List<Table> getEmptyTables() {
         return tables.stream()
@@ -177,11 +156,6 @@ public class TableStore {
                 .toList();
     }
 
-    public List<Table> getOccupiedTables() {
-        return tables.stream()
-                .filter(Table::isOccupied)
-                .toList();
-    }
 
     public List<Table> getReservedTables() {
         return tables.stream()

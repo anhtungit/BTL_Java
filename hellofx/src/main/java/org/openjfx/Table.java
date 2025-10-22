@@ -4,7 +4,7 @@ import javafx.beans.property.*;
 
 public class Table {
     private final IntegerProperty tableNumber;
-    private final StringProperty status; // "empty", "occupied", "reserved"
+    private final StringProperty status; // "empty", "reserved"
     private final StringProperty customerName;
     private final IntegerProperty capacity;
     private final StringProperty notes;
@@ -80,10 +80,6 @@ public class Table {
 
     public boolean isEmpty() {
         return "empty".equals(getStatus());
-    }
-
-    public boolean isOccupied() {
-        return "occupied".equals(getStatus());
     }
 
     public boolean isReserved() {
