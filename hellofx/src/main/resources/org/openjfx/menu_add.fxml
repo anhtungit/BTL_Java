@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.openjfx.MenuAddController">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Tên món:" />
+                <TextField fx:id="txtTenMon" promptText="Nhập tên món..." prefWidth="200" />
+                <Label text="Giá tiền:" />
+                <TextField fx:id="txtGiaTien" promptText="Nhập giá (VNĐ)" prefWidth="120" />
+            </children>
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="8" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Thành phần:" style="-fx-font-weight: bold;"/>
+                <TableView fx:id="tableThanhPhan" prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="colTenThanhPhan" text="Tên thành phần" prefWidth="200"/>
+                        <TableColumn fx:id="colKhoiLuong" text="Khối lượng" prefWidth="150"/>
+                        <TableColumn fx:id="colDonVi" text="Đơn vị tính" prefWidth="150"/>
+                    </columns>
+                </TableView>
+            </children>
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="20" alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+            <children>
+                <Button text="Thêm món" fx:id="btnThemMon" onAction="#handleThemMon"/>
+                <Button text="Hủy" fx:id="btnHuy" onAction="#handleHuy"/>
+            </children>
+            <padding>
+                <Insets top="10" bottom="10" right="10"/>
+            </padding>
+        </HBox>
+    </bottom>
+
+</BorderPane>

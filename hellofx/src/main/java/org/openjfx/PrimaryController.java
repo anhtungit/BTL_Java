@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 
 public class PrimaryController {
@@ -288,4 +289,11 @@ public class PrimaryController {
     private long parseLong(String s) {
         try { return Long.parseLong(s.replace(".", "").replace(",", "").trim()); } catch (Exception e) { return 0; }
     }
+
+    @FXML
+    private void showQuanLyThucDon() throws IOException {
+        Parent view = FXMLLoader.load(getClass().getResource("menu_management.fxml"));
+        contentPane.getChildren().setAll(view);
+    }
+
 }
