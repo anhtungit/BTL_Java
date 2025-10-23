@@ -33,17 +33,15 @@ public class ProfileController implements Initializable {
     }
 
     private void loadUserData() {
-        // Load current user data from App
-        String username = App.getCurrentUsername();
+        UserStore store = UserStore.getInstance();
         
-        // For demo purposes, set some sample data
-        // In real application, you would load from database
-        lblFullName.setText("Lê Văn Thể");
-        lblAddress.setText("12 Ngô Quyền, tp Đà Nẵng");
-        lblPhone.setText("0945423984");
-        lblUsername.setText(username != null ? username : "vanthe14");
-        lblPosition.setText("Nhân viên pha chế");
-        lblSalary.setText("5.000.000");
+        // Load from UserStore
+        lblFullName.setText(store.getFullName());
+        lblAddress.setText(store.getAddress());
+        lblPhone.setText(store.getPhone());
+        lblUsername.setText(store.getUsername());
+        lblPosition.setText(store.getPosition());
+        lblSalary.setText(store.getSalary());
         lblPassword.setText("*********");
     }
 
@@ -60,12 +58,14 @@ public class ProfileController implements Initializable {
         isEditing = true;
         btnEdit.setText("Lưu");
         
-        // Replace labels with text fields
-        replaceLabelWithTextField(lblFullName, "Lê Văn Thể");
-        replaceLabelWithTextField(lblAddress, "12 Ngô Quyền, tp Đà Nẵng");
-        replaceLabelWithTextField(lblPhone, "0945423984");
-        replaceLabelWithTextField(lblPosition, "Nhân viên pha chế");
-        replaceLabelWithTextField(lblSalary, "5.000.000");
+        UserStore store = UserStore.getInstance();
+        
+        // Replace labels with text fields containing current values
+        replaceLabelWithTextField(lblFullName, store.getFullName());
+        replaceLabelWithTextField(lblAddress, store.getAddress());
+        replaceLabelWithTextField(lblPhone, store.getPhone());
+        replaceLabelWithTextField(lblPosition, store.getPosition());
+        replaceLabelWithTextField(lblSalary, store.getSalary());
         replaceLabelWithPasswordField(lblPassword);
     }
 
@@ -102,7 +102,47 @@ public class ProfileController implements Initializable {
         
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // In real application, save to database here
+            UserStore store = UserStore.getInstance();
+            
+            // Get the edited values from text fields
+            if (lblFullName.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblFullName.getParent();
+                TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblFullName));
+                store.setFullName(tf.getText());
+            }
+            
+            if (lblAddress.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblAddress.getParent();
+                TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblAddress));
+                store.setAddress(tf.getText());
+            }
+            
+            if (lblPhone.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblPhone.getParent();
+                TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblPhone));
+                store.setPhone(tf.getText());
+            }
+            
+            if (lblPosition.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblPosition.getParent();
+                TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblPosition));
+                store.setPosition(tf.getText());
+            }
+            
+            if (lblSalary.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblSalary.getParent();
+                TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblSalary));
+                store.setSalary(tf.getText());
+            }
+            
+            if (lblPassword.getParent() instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblPassword.getParent();
+                PasswordField pf = (PasswordField) parent.getChildren().get(parent.getChildren().indexOf(lblPassword));
+                if (!pf.getText().isEmpty()) {
+                    store.setPassword(pf.getText());
+                }
+            }
+            
             showAlert("Thành công", "Đã lưu thông tin thành công!");
             
             // Reset to view mode

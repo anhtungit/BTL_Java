@@ -27,9 +27,11 @@ public class InventoryController {
 
     @FXML
     public void initialize() {
-        inventoryItems = FXCollections.observableArrayList();
+        // Get inventory items from store
+        inventoryItems = InventoryStore.getInstance().getItems();
         filteredItems = new FilteredList<>(inventoryItems);
 
+        // Setup table columns
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         importDateColumn.setCellValueFactory(new PropertyValueFactory<>("importDate"));
         exportDateColumn.setCellValueFactory(new PropertyValueFactory<>("exportDate"));
@@ -37,6 +39,31 @@ public class InventoryController {
         unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
+
+        // Format the columns
+        priceColumn.setCellFactory(column -> new TableCell<InventoryItem, Double>() {
+            @Override
+            protected void updateItem(Double price, boolean empty) {
+                super.updateItem(price, empty);
+                if (empty || price == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,d VNĐ", price.longValue()));
+                }
+            }
+        });
+
+        totalColumn.setCellFactory(column -> new TableCell<InventoryItem, Double>() {
+            @Override
+            protected void updateItem(Double total, boolean empty) {
+                super.updateItem(total, empty);
+                if (empty || total == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,d VNĐ", total.longValue()));
+                }
+            }
+        });
 
         inventoryTable.setItems(filteredItems);
 
@@ -113,7 +140,7 @@ public class InventoryController {
 
         Optional<InventoryItem> result = dialog.showAndWait();
         result.ifPresent(item -> {
-            inventoryItems.add(item);
+            InventoryStore.getInstance().addItem(item);
         });
     }
 
@@ -248,7 +275,7 @@ public class InventoryController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            inventoryItems.remove(selectedItem);
+            InventoryStore.getInstance().removeItem(selectedItem);
         }
     }
 
