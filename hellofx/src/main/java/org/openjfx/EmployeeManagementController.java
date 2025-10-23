@@ -30,7 +30,7 @@ public class EmployeeManagementController implements Initializable {
     @FXML
     private void showEmployeeList() {
         try {
-            Node view = FXMLLoader.load(getClass().getResource("employee-list.fxml"));
+            Node view = FXMLLoader.load(getClass().getResource("employee_list.fxml"));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +41,7 @@ public class EmployeeManagementController implements Initializable {
     @FXML
     private void showAddEmployee() {
         try {
-            Node view = FXMLLoader.load(getClass().getResource("employee-add.fxml"));
+            Node view = FXMLLoader.load(getClass().getResource("employee_add.fxml"));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,7 +52,7 @@ public class EmployeeManagementController implements Initializable {
     @FXML
     private void showEditEmployee() {
         try {
-            Node view = FXMLLoader.load(getClass().getResource("employee-edit.fxml"));
+            Node view = FXMLLoader.load(getClass().getResource("employee_edit.fxml"));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class EmployeeManagementController implements Initializable {
     @FXML
     private void showDeleteEmployee() {
         try {
-            Node view = FXMLLoader.load(getClass().getResource("employee-delete.fxml"));
+            Node view = FXMLLoader.load(getClass().getResource("employee_delete.fxml"));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
             e.printStackTrace();

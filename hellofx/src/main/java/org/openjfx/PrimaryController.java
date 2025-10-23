@@ -114,14 +114,28 @@ public class PrimaryController {
     // EMPLOYEE MODULE HOST
     @FXML
     private void empShowList() throws IOException {
-        Node empManagementView = FXMLLoader.load(getClass().getResource("employee-management.fxml"));
-        contentPane.getChildren().setAll(empManagementView);
+        loadEmployeeModule("employee_list.fxml");
+    }
+
+    @FXML
+    private void empShowAdd() throws IOException {
+        loadEmployeeModule("employee_add.fxml");
+    }
+
+    @FXML
+    private void empShowEdit() throws IOException {
+        loadEmployeeModule("employee_edit.fxml");
     }
 
     @FXML
     private void empShowDelete() throws IOException {
         // Load the employee module root and set the center to the delete view (binds delete table)
         loadEmployeeModule("employee_delete.fxml");
+    }
+
+    @FXML
+    private void empShowSearch() throws IOException {
+        loadEmployeeModule("employee_search.fxml");
     }
 
     private void loadEmployeeModule(String centerFxml) throws IOException {
