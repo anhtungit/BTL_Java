@@ -1,0 +1,16 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# IntelliJ
+.idea/
+*.iml
+
+# Maven
+target/
+
+# Java build files
+*.class
+
+# OS junk files
+.DS_Store
+Thumbs.db
