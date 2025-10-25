@@ -16,24 +16,21 @@ public class MenuSearchController {
     @FXML private TableColumn<MenuItem, String> colTenMon;
     @FXML private TableColumn<MenuItem, String> colGiaTien;
 
-    private ObservableList<MenuItem> allItems;     // Danh sách gốc
-    private ObservableList<MenuItem> filteredItems; // Kết quả lọc
+    private ObservableList<MenuItem> allItems;
+    private ObservableList<MenuItem> filteredItems;
 
     @FXML
     public void initialize() {
-        //định dạng cột
         colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colGiaTien.setCellValueFactory(cell -> 
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
-        //lấy dữ liệu gốc từ MenuStore
         allItems = MenuStore.getItems();
         filteredItems = FXCollections.observableArrayList(allItems);
 
         tableKetQua.setItems(filteredItems);
 
-        //tự động lọc khi người dùng gõ Enter
         txtTimKiem.setOnAction(e -> handleTimKiem());
     }
 

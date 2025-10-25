@@ -15,7 +15,6 @@ public class MenuItem {
         this.selected = new SimpleBooleanProperty(false);
     }
 
-    // Getters and Setters
     public String getName() {
         return name.get();
     }

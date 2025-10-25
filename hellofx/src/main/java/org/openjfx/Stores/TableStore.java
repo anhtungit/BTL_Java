@@ -15,7 +15,6 @@ public class TableStore {
     private static TableStore instance;
     private final ObservableList<Table> tables;
     private final ObservableList<Order> orders;
-    // Lưu danh sách món theo từng bàn (đơn giản hoá thay cho Order)
     private final Map<Integer, List<OrderItem>> tableNumberToItems;
 
     private TableStore() {
@@ -53,7 +52,6 @@ public class TableStore {
         return orders;
     }
 
-    // --- API cho món đã chọn của từng bàn ---
     public List<OrderItem> getItemsForTable(int tableNumber) {
         return tableNumberToItems.getOrDefault(tableNumber, FXCollections.observableArrayList());
     }
@@ -118,29 +116,24 @@ public class TableStore {
             return;
         }
 
-        // Chuyển thông tin đơn hàng (nếu có)
         Order order = getOrderByTable(fromTable);
         if (order != null) {
             order.setTableNumber(toTable);
         }
 
-        // Chuyển thông tin bàn
         String customerName = fromTableObj.getCustomerName();
         String status = fromTableObj.getStatus();
         
-        // Cập nhật bàn mới
         toTableObj.setStatus(status);
         toTableObj.setCustomerName(customerName);
         
-        // Đặt lại bàn cũ thành trống
         fromTableObj.setStatus("empty");
         fromTableObj.setCustomerName("");
         
-        // Chuyển dữ liệu món ăn từ bàn cũ sang bàn mới
         java.util.List<OrderItem> itemsFromOldTable = getItemsForTable(fromTable);
         if (itemsFromOldTable != null && !itemsFromOldTable.isEmpty()) {
             setItemsForTable(toTable, itemsFromOldTable);
-            setItemsForTable(fromTable, new java.util.ArrayList<>()); // Xóa dữ liệu bàn cũ
+            setItemsForTable(fromTable, new java.util.ArrayList<>());
         }
     }
 

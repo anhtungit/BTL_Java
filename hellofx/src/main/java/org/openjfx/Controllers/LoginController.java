@@ -20,9 +20,6 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Simple hardcoded accounts for demo purposes
-        // manager: admin / 123456
-        // staff:   user_one / 123456
         String role = null;
         if ("admin".equals(username) && "123456".equals(password)) {
             role = "MANAGER";
@@ -40,7 +37,7 @@ public class LoginController {
                 alert.setHeaderText(null);
                 alert.setContentText("Không thể chuyển đến trang chính: " + e.getMessage());
                 alert.showAndWait();
-                e.printStackTrace(); // Print stack trace for debugging
+                e.printStackTrace(); 
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);

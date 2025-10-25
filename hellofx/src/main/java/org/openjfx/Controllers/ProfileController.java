@@ -38,7 +38,6 @@ public class ProfileController implements Initializable {
     private void loadUserData() {
         UserStore store = UserStore.getInstance();
         
-        // Load from UserStore
         lblFullName.setText(store.getFullName());
         lblAddress.setText(store.getAddress());
         lblPhone.setText(store.getPhone());
@@ -63,7 +62,6 @@ public class ProfileController implements Initializable {
         
         UserStore store = UserStore.getInstance();
         
-        // Replace labels with text fields containing current values
         replaceLabelWithTextField(lblFullName, store.getFullName());
         replaceLabelWithTextField(lblAddress, store.getAddress());
         replaceLabelWithTextField(lblPhone, store.getPhone());
@@ -76,7 +74,6 @@ public class ProfileController implements Initializable {
         TextField textField = new TextField(defaultValue);
         textField.setPrefWidth(200);
         
-        // Replace the label in its parent container
         if (label.getParent() instanceof javafx.scene.layout.HBox) {
             javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) label.getParent();
             int index = parent.getChildren().indexOf(label);
@@ -87,9 +84,8 @@ public class ProfileController implements Initializable {
     private void replaceLabelWithPasswordField(Label label) {
         PasswordField passwordField = new PasswordField();
         passwordField.setPrefWidth(200);
-        passwordField.setText("123456"); // Default password for editing
+        passwordField.setText("123456");
         
-        // Replace the label in its parent container
         if (label.getParent() instanceof javafx.scene.layout.HBox) {
             javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) label.getParent();
             int index = parent.getChildren().indexOf(label);
@@ -107,7 +103,6 @@ public class ProfileController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             UserStore store = UserStore.getInstance();
             
-            // Get the edited values from text fields
             if (lblFullName.getParent() instanceof javafx.scene.layout.HBox) {
                 javafx.scene.layout.HBox parent = (javafx.scene.layout.HBox) lblFullName.getParent();
                 TextField tf = (TextField) parent.getChildren().get(parent.getChildren().indexOf(lblFullName));
@@ -148,7 +143,6 @@ public class ProfileController implements Initializable {
             
             showAlert("Thành công", "Đã lưu thông tin thành công!");
             
-            // Reset to view mode
             isEditing = false;
             btnEdit.setText("Chỉnh sửa");
             loadUserData();
@@ -165,9 +159,7 @@ public class ProfileController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Clear current user session
                 App.setCurrentUser(null, null);
-                // Navigate back to login
                 App.setRoot("login");
             } catch (IOException e) {
                 showAlert("Lỗi", "Không thể đăng xuất!");

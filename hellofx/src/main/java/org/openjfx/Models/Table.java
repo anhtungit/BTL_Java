@@ -4,7 +4,7 @@ import javafx.beans.property.*;
 
 public class Table {
     private final IntegerProperty tableNumber;
-    private final StringProperty status; // "empty", "reserved"
+    private final StringProperty status;
     private final StringProperty customerName;
     private final IntegerProperty capacity;
     private final StringProperty notes;
@@ -17,7 +17,6 @@ public class Table {
         this.notes = new SimpleStringProperty("");
     }
 
-    // Getters and Setters
     public int getTableNumber() {
         return tableNumber.get();
     }

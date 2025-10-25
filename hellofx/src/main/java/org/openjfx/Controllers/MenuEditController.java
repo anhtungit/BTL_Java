@@ -28,17 +28,14 @@ public class MenuEditController {
 
     @FXML
     public void initialize() {
-        // Gán dữ liệu cho các cột
         colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colGiaTien.setCellValueFactory(cell ->
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
-        // Lấy dữ liệu từ MenuStore
         menuItems = MenuStore.getItems();
         tableMonAn.setItems(menuItems);
 
-        // Khi chọn 1 món → hiển thị vào TextField
         tableMonAn.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 txtTenMon.setText(newSel.getName());

@@ -15,7 +15,6 @@ public class OrderItem {
         this.notes = new SimpleStringProperty("");
     }
 
-    // Getters and Setters
     public String getItemName() {
         return itemName.get();
     }

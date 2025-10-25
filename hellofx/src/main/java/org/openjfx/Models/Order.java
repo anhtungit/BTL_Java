@@ -10,7 +10,7 @@ public class Order {
     private final IntegerProperty tableNumber;
     private final StringProperty customerName;
     private final ObjectProperty<LocalDateTime> orderTime;
-    private final StringProperty status; // "pending", "confirmed", "served", "paid"
+    private final StringProperty status;
     private final DoubleProperty totalAmount;
     private final List<OrderItem> items;
     private final StringProperty notes;
@@ -26,7 +26,6 @@ public class Order {
         this.notes = new SimpleStringProperty("");
     }
 
-    // Getters and Setters
     public String getOrderId() {
         return orderId.get();
     }

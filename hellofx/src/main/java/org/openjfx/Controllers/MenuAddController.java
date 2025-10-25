@@ -31,15 +31,12 @@ public class MenuAddController {
         colDonVi.setCellValueFactory(cell -> cell.getValue().donViProperty());
         tableThanhPhan.setItems(ingredients);
 
-        //Cho phép chỉnh sửa bảng
         tableThanhPhan.setEditable(true);
 
-        //Cho phép nhập text trực tiếp vào ô
         colTenThanhPhan.setCellFactory(TextFieldTableCell.forTableColumn());
         colKhoiLuong.setCellFactory(TextFieldTableCell.forTableColumn());
         colDonVi.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        //cập nhật ingredient khi sửa nội dung ô
         colTenThanhPhan.setOnEditCommit(event -> event.getRowValue().setTenThanhPhan(event.getNewValue()));
         colKhoiLuong.setOnEditCommit(event -> event.getRowValue().setKhoiLuong(event.getNewValue()));
         colDonVi.setOnEditCommit(event -> event.getRowValue().setDonVi(event.getNewValue()));
@@ -54,20 +51,17 @@ public class MenuAddController {
         String ten = txtTenMon.getText().trim();
         String giaText = txtGiaTien.getText().trim();
 
-        // Kiểm tra tên món
         if (ten.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập tên món!");
             return;
         }
 
-        // Kiểm tra giá tiền
         if (giaText.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập giá tiền!");
             return;
         }
 
         try {
-            // Xử lý chuỗi giá tiền - loại bỏ dấu phẩy và ký tự không phải số
             String cleanGiaText = giaText.replaceAll("[^0-9]", "");
             double gia = Double.parseDouble(cleanGiaText);
             
@@ -78,7 +72,6 @@ public class MenuAddController {
 
             MenuStore.addItem(new MenuItem(ten, gia));
             
-            // Xóa form sau khi thêm thành công
             txtTenMon.clear();
             txtGiaTien.clear();
             ingredients.clear();

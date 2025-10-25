@@ -15,7 +15,6 @@ public class UserStore {
     private StringProperty password = new SimpleStringProperty();
 
     private UserStore() {
-        // Default values
         fullName.set("Lê Văn Thể");
         address.set("12 Ngô Quyền, tp Đà Nẵng");
         phone.set("0945423984");
@@ -32,7 +31,6 @@ public class UserStore {
         return instance;
     }
 
-    // Getters and setters with property access
     public String getFullName() { return fullName.get(); }
     public void setFullName(String value) { fullName.set(value); }
     public StringProperty fullNameProperty() { return fullName; }

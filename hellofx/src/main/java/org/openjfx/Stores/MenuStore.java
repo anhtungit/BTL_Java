@@ -9,7 +9,6 @@ public class MenuStore {
     private static final ObservableList<MenuItem> items = FXCollections.observableArrayList();
 
     static {
-        // Món ăn chính
         items.add(new MenuItem("Phở bò tái", 45000));
         items.add(new MenuItem("Phở gà", 40000));
         items.add(new MenuItem("Bún bò Huế", 50000));
@@ -19,7 +18,6 @@ public class MenuStore {
         items.add(new MenuItem("Bún chả", 45000));
         items.add(new MenuItem("Bánh mì thịt", 25000));
 
-        // Đồ uống
         items.add(new MenuItem("Cà phê đen", 20000));
         items.add(new MenuItem("Cà phê sữa", 25000));
         items.add(new MenuItem("Trà đá", 5000));
@@ -27,7 +25,6 @@ public class MenuStore {
         items.add(new MenuItem("Nước cam", 25000));
         items.add(new MenuItem("Sinh tố bơ", 30000));
         
-        // Món tráng miệng
         items.add(new MenuItem("Chè thái", 20000));
         items.add(new MenuItem("Rau câu flan", 15000));
         items.add(new MenuItem("Sữa chua", 15000));

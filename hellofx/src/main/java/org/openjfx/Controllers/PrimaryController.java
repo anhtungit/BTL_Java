@@ -21,8 +21,6 @@ public class PrimaryController {
         App.setRoot("secondary");
     }
 
-    
-
     @FXML
     private void noop() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -38,7 +36,6 @@ public class PrimaryController {
         contentPane.getChildren().setAll(salesView);
     }
 
-    // Role-based visibility: Manager sees all; Staff limited
     @FXML private Button btnTrangChu;
     @FXML private Button btnTrangCaNhan;
     @FXML private Button btnQuanLyNhanVien;
@@ -53,13 +50,12 @@ public class PrimaryController {
     @FXML private Button btnGioiThieu;
 
     @FXML private StackPane contentPane;
-    @FXML private javafx.scene.layout.BorderPane employeeContent; // in employee_root.fxml
+    @FXML private javafx.scene.layout.BorderPane employeeContent;
 
     @FXML
     private void initialize() {
         String role = App.getCurrentRole();
         if ("STAFF".equals(role)) {
-            // Staff can see: Trang chủ, Trang cá nhân, Quản lý bán hàng, Giới thiệu
             setVisible(btnTrangChu, true);
             setVisible(btnTrangCaNhan, true);
             setVisible(btnQuanLyBanHang, true);
@@ -74,9 +70,6 @@ public class PrimaryController {
             setVisible(btnQuanLyDuLieu, false);
             setVisible(btnThongKeBaoCao, false);
         }
-        // Managers: no changes; all buttons remain visible
-
-        // default content is home greeting
         try {
             showTrangChu();
         } catch (IOException ignored) {}
@@ -92,7 +85,6 @@ public class PrimaryController {
     @FXML
     private void logout() {
         try {
-            // clear in-memory session
             App.setCurrentUser(null, null);
             App.setRoot("login");
         } catch (IOException ignored) {
@@ -117,7 +109,6 @@ public class PrimaryController {
         contentPane.getChildren().setAll(inventoryView);
     }
 
-    // EMPLOYEE MODULE HOST
     @FXML
     private void empShowList() throws IOException {
         loadEmployeeModule("employee_list.fxml");
@@ -135,7 +126,6 @@ public class PrimaryController {
 
     @FXML
     private void empShowDelete() throws IOException {
-        // Load the employee module root and set the center to the delete view (binds delete table)
         loadEmployeeModule("employee_delete.fxml");
     }
 
@@ -157,13 +147,11 @@ public class PrimaryController {
             employeeContent.setCenter(center);
         }
         contentPane.getChildren().setAll(root);
-        // populate tables if needed
         if ("employee_list.fxml".equals(centerFxml)) bindEmployeeTable();
         if ("employee_delete.fxml".equals(centerFxml)) bindDeleteTable();
         if ("employee_search.fxml".equals(centerFxml)) bindSearchTable(EmployeeStore.getEmployees());
     }
 
-    // TABLE BINDINGS
     @FXML private javafx.scene.control.TableView<Employee> employeeTable;
     @FXML private javafx.scene.control.TableColumn<Employee, String> colName;
     @FXML private javafx.scene.control.TableColumn<Employee, String> colPosition;
@@ -182,7 +170,6 @@ public class PrimaryController {
         return nf.format(vnd);
     }
 
-    // DELETE TABLE
     @FXML private javafx.scene.control.TableView<Employee> deleteTable;
     @FXML private javafx.scene.control.TableColumn<Employee, String> delColName;
     @FXML private javafx.scene.control.TableColumn<Employee, String> delColPosition;
@@ -195,7 +182,6 @@ public class PrimaryController {
         delColSalary.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(formatSalary(c.getValue().getSalary())));
         deleteTable.setItems(EmployeeStore.getEmployees());
 
-        // Only trigger confirm when clicking a real row (not empty space)
         deleteTable.setRowFactory(tv -> {
             final javafx.scene.control.TableRow<Employee> row = new javafx.scene.control.TableRow<>();
             row.setOnMouseClicked(evt -> {
@@ -224,7 +210,6 @@ public class PrimaryController {
         empShowDelete();
     }
 
-    // SEARCH TABLE
     @FXML private javafx.scene.control.TextField searchField;
     @FXML private javafx.scene.control.TableView<Employee> searchTable;
     @FXML private javafx.scene.control.TableColumn<Employee, String> sColName;
@@ -246,7 +231,6 @@ public class PrimaryController {
         bindSearchTable(filtered);
     }
 
-    // ADD / EDIT actions (minimal demo behavior)
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addPosition, addSalary, addPhone, addUsername;
     @FXML private javafx.scene.control.PasswordField addPassword;
     @FXML private javafx.scene.control.TextField editFullName, editAddress, editPosition, editSalary, editPhone, editUsername;
@@ -268,7 +252,6 @@ public class PrimaryController {
 
     @FXML
     private void empEditSubmit() throws IOException {
-        // For brevity, edit updates first selected in list view
         if (employeeTable != null) {
             Employee selected = employeeTable.getSelectionModel().getSelectedItem();
             if (selected != null) {

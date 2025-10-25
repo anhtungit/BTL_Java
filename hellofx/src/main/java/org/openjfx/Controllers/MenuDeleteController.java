@@ -18,13 +18,11 @@ public class MenuDeleteController {
 
     @FXML
     public void initialize() {
-        //thiết lập dữ liệu cho các cột
         colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colGiaTien.setCellValueFactory(cell ->
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
-        //lấy danh sách món từ MenuStore
         menuItems = MenuStore.getItems();
         tableMonAn.setItems(menuItems);
     }
@@ -38,7 +36,6 @@ public class MenuDeleteController {
             return;
         }
 
-        //thông báo xác nhận
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Xác nhận xóa");
         confirm.setHeaderText("Bạn có chắc muốn xóa món này?");

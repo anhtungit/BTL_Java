@@ -77,10 +77,8 @@ public class SalesController implements Initializable {
         button.setPrefSize(120, 80);
         button.setFont(Font.font("System", FontWeight.BOLD, 12));
         
-        // Thiết lập màu sắc dựa trên trạng thái
         updateTableButtonStyle(button, table);
         
-        // Xử lý sự kiện click
         button.setOnAction(e -> selectTable(table));
         
         return button;
@@ -139,20 +137,18 @@ public class SalesController implements Initializable {
             return;
         }
         
-        // Popup "Xem thông tin bàn"
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Xem thông tin bàn " + String.format("%02d", selectedTable.getTableNumber()));
         
         VBox content = new VBox(12);
         content.setPadding(new Insets(20));
         
-        // Vùng các món đã gọi
         Label orderedLabel = new Label("Các món đã gọi");
         orderedLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         
         TableView<OrderItem> orderTable = new TableView<>();
         orderTable.setPrefHeight(200);
-        // Lấy dữ liệu mới nhất từ TableStore
+
         java.util.List<OrderItem> items = tableStore.getItemsForTable(selectedTable.getTableNumber());
         orderTable.setItems(FXCollections.observableArrayList(items));
         
@@ -164,17 +160,14 @@ public class SalesController implements Initializable {
         qtyCol.setCellValueFactory(cd -> cd.getValue().quantityProperty().asObject());
         qtyCol.setPrefWidth(80);
         
-    // Thêm các cột vào TableView để hiển thị dữ liệu
     orderTable.getColumns().add(itemNameCol);
     orderTable.getColumns().add(qtyCol);
         
         
-        // Thông tin đặt trước
         Label reserveInfo = new Label();
         String customer = selectedTable.getCustomerName().isEmpty() ? "-" : selectedTable.getCustomerName();
         reserveInfo.setText("Đặt trước\n" + customer);
         
-        // Nút đóng
         ButtonType closeType = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().add(closeType);
         
@@ -190,21 +183,17 @@ public class SalesController implements Initializable {
             return;
         }
         
-        // Tạo popup chuyển bàn như trong ảnh 1
         Dialog<Integer> dialog = new Dialog<>();
         dialog.setTitle("Chuyển bàn " + String.format("%02d", selectedTable.getTableNumber()));
         
-        // Tạo layout cho popup
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.CENTER);
         
-        // Label hướng dẫn
         Label instructionLabel = new Label("Chọn bàn cần chuyển đến:");
         instructionLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
         content.getChildren().add(instructionLabel);
         
-        // Dropdown chọn bàn
         ChoiceBox<Integer> tableChoiceBox = new ChoiceBox<>();
         List<Integer> availableTables = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
@@ -223,7 +212,6 @@ public class SalesController implements Initializable {
         tableChoiceBox.setValue(availableTables.get(0));
         content.getChildren().add(tableChoiceBox);
         
-        // Nút Chuyển và Hủy
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         
@@ -249,12 +237,10 @@ public class SalesController implements Initializable {
         content.getChildren().add(buttonBox);
         
         dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE); // Thêm nút đóng
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.setResizable(false);
         
-        // Xử lý khi đóng dialog bằng nút X
         dialog.setOnCloseRequest(e -> {
-            // Không cần làm gì đặc biệt khi đóng
         });
         
         dialog.showAndWait();
@@ -284,7 +270,6 @@ public class SalesController implements Initializable {
             if (order != null) {
                 tableStore.removeOrder(order);
             }
-            // Xóa dữ liệu món ăn của bàn
             tableStore.setItemsForTable(selectedTable.getTableNumber(), new java.util.ArrayList<>());
             selectedTable.setStatus("empty");
             selectedTable.setCustomerName("");
@@ -306,16 +291,13 @@ public class SalesController implements Initializable {
             return;
         }
         
-        // Tạo popup đặt bàn như trong ảnh 2
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Đặt bàn " + String.format("%02d", selectedTable.getTableNumber()));
         
-        // Tạo layout cho popup
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.CENTER);
         
-        // Tạo các trường input
         HBox customerBox = new HBox(10);
         customerBox.setAlignment(Pos.CENTER_LEFT);
         Label customerLabel = new Label("Khách hàng:");
@@ -352,7 +334,6 @@ public class SalesController implements Initializable {
         
         content.getChildren().addAll(customerBox, phoneBox, dateBox, timeBox);
         
-        // Nút Đặt bàn và Hủy
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         
@@ -372,13 +353,11 @@ public class SalesController implements Initializable {
                 return;
             }
             
-            // Đặt bàn
         tableStore.reserveTable(selectedTable.getTableNumber(), customerName);
         updateTableInfo();
         refreshTableGrid();
             dialog.close();
             
-            // Hiển thị thông báo thành công sau khi đóng dialog
             javafx.application.Platform.runLater(() -> {
         showAlert("Thành công", "Đã đặt bàn thành công!");
             });
@@ -392,12 +371,10 @@ public class SalesController implements Initializable {
         content.getChildren().add(buttonBox);
         
         dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE); // Thêm nút đóng
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.setResizable(false);
         
-        // Xử lý khi đóng dialog bằng nút X
         dialog.setOnCloseRequest(e -> {
-            // Không cần làm gì đặc biệt khi đóng
         });
         
         dialog.showAndWait();
@@ -416,23 +393,18 @@ public class SalesController implements Initializable {
             return;
         }
         
-        // Tạo popup chọn thực đơn như trong ảnh
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Chọn món bàn " + String.format("%02d", selectedTable.getTableNumber()));
         
-        // Tạo layout cho popup
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
         
-        // Label "Bàn XX"
         Label tableLabel = new Label("Bàn " + String.format("%02d", selectedTable.getTableNumber()));
         tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
         content.getChildren().add(tableLabel);
         
-        // Lấy danh sách món ăn từ MenuStore
         ObservableList<MenuItem> menuItems = MenuStore.getItems();
 
-        // Nạp số lượng đã lưu trước đó (nếu có)
         java.util.List<OrderItem> existingItems = tableStore.getItemsForTable(selectedTable.getTableNumber());
         if (existingItems != null && !existingItems.isEmpty()) {
             for (MenuItem mi : menuItems) {
@@ -446,23 +418,19 @@ public class SalesController implements Initializable {
             }
         }
         
-        // Tạo TabPane để phân loại món ăn
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         
-        // Tab món chính
         Tab mainDishTab = new Tab("Món chính");
         TableView<MenuItem> mainDishTable = new TableView<>();
         setupMenuTable(mainDishTable, MenuStore.getMainDishes());
         mainDishTab.setContent(mainDishTable);
         
-        // Tab đồ uống
         Tab drinksTab = new Tab("Đồ uống");
         TableView<MenuItem> drinksTable = new TableView<>();
         setupMenuTable(drinksTable, MenuStore.getDrinks());
         drinksTab.setContent(drinksTable);
         
-        // Tab tráng miệng
         Tab dessertsTab = new Tab("Tráng miệng");
         TableView<MenuItem> dessertsTable = new TableView<>();
         setupMenuTable(dessertsTable, MenuStore.getDesserts());
@@ -473,7 +441,6 @@ public class SalesController implements Initializable {
         tabPane.setMaxHeight(300);
         tabPane.setMaxWidth(320);
         
-        // Cột checkbox
         TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
         selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         selectColumn.setCellFactory(column -> {
@@ -492,15 +459,11 @@ public class SalesController implements Initializable {
                             checkBox = new CheckBox();
                         }
                         
-                        // Lưu reference đến MenuItem hiện tại
                         currentMenuItem = getTableView().getItems().get(getIndex());
                         
-                        // Cập nhật trạng thái checkbox từ MenuItem
                         checkBox.setSelected(item);
                         
-                        // Xóa listener cũ để tránh vòng lặp
                         checkBox.setOnAction(null);
-                        // Thêm listener mới
                         checkBox.setOnAction(e -> {
                             if (currentMenuItem != null) {
                                 currentMenuItem.setSelected(checkBox.isSelected());
@@ -509,7 +472,6 @@ public class SalesController implements Initializable {
                                 } else if (currentMenuItem.getQuantity() == 0) {
                                     currentMenuItem.setQuantity(1);
                                 }
-                                // Refresh table để cập nhật spinner
                                 getTableView().refresh();
                             }
                         });
@@ -520,12 +482,10 @@ public class SalesController implements Initializable {
             };
         });
         
-        // Cột tên món
         TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         nameColumn.setPrefWidth(150);
         
-        // Cột số lượng
         TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
         quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
         quantityColumn.setPrefWidth(60);
@@ -543,20 +503,14 @@ public class SalesController implements Initializable {
                     } else {
                         if (spinner == null) {
                             spinner = new Spinner<>(0, 10, 0);
-                            // Làm cho spinner nhỏ hơn
                             spinner.setPrefWidth(50);
                             spinner.setMaxWidth(50);
                         }
                         
-                        // Lưu reference đến MenuItem hiện tại
                         currentMenuItem = getTableView().getItems().get(getIndex());
                         
-                        // Cập nhật giá trị spinner từ MenuItem
                         spinner.getValueFactory().setValue(item);
-                        
-                        // Xóa listener cũ để tránh vòng lặp
                         spinner.valueProperty().removeListener(this::onSpinnerValueChanged);
-                        // Thêm listener mới
                         spinner.valueProperty().addListener(this::onSpinnerValueChanged);
                         
                         setGraphic(spinner);
@@ -571,7 +525,6 @@ public class SalesController implements Initializable {
                         } else {
                             currentMenuItem.setSelected(false);
                         }
-                        // Refresh table để cập nhật checkbox
                         getTableView().refresh();
                     }
                 }
@@ -579,22 +532,18 @@ public class SalesController implements Initializable {
         });
         
         
-        // Thêm TabPane vào content
         content.getChildren().add(tabPane);
         
-        // Nút Lưu và Hủy
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         
         Button saveButton = new Button("Lưu");
         saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
         saveButton.setOnAction(e -> {
-            // Lưu thực đơn đã chọn vào TableStore
             java.util.List<OrderItem> itemsToSave = new java.util.ArrayList<>();
             StringBuilder selectedItems = new StringBuilder("Đã chọn:\n");
             double totalAmount = 0;
 
-            // Collect selected items from all tabs
             for (Tab tab : tabPane.getTabs()) {
                 TableView<MenuItem> currentTable = (TableView<MenuItem>) tab.getContent();
                 for (MenuItem item : currentTable.getItems()) {
@@ -633,7 +582,6 @@ public class SalesController implements Initializable {
         dialog.setResizable(false);
         
         dialog.setOnCloseRequest(e -> {
-            // Không cần làm gì đặc biệt khi đóng
         });
         
         dialog.showAndWait();
@@ -652,7 +600,6 @@ public class SalesController implements Initializable {
             return;
         }
 
-        // Get order items for the table
         List<OrderItem> items = tableStore.getItemsForTable(selectedTable.getTableNumber());
         if (items == null || items.isEmpty()) {
             showAlert("Lỗi", "Không có món ăn nào để thanh toán!");
@@ -660,38 +607,28 @@ public class SalesController implements Initializable {
         }
 
         try {
-            // Load payment dialog FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openjfx/payment_dialog.fxml"));
             Parent root = loader.load();
             
-            // Get the controller
             PaymentDialogController dialogController = loader.getController();
             
-            // Set up the dialog
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableNumber());
             dialog.setDialogPane((DialogPane) root);
             
-            // Initialize dialog with order items
             dialogController.setTable(selectedTable);
-            
-            // Show dialog and wait for it to close
             dialog.showAndWait();
             
-            // Reset bàn nếu đã chọn option đó
             if (dialogController.isResetTableSelected()) {
-                // Xóa order và reset bàn
                 Order order = tableStore.getOrderByTable(selectedTable.getTableNumber());
                 if (order != null) {
                     tableStore.removeOrder(order);
                 }
                 
-                // Reset bàn về trạng thái trống
                 selectedTable.setStatus("empty");
                 selectedTable.setCustomerName("");
                 tableStore.setItemsForTable(selectedTable.getTableNumber(), new ArrayList<>());
                 
-                // Cập nhật giao diện
                 updateTableInfo();
                 refreshTableGrid();
             }
@@ -716,7 +653,6 @@ public class SalesController implements Initializable {
         tableView.setMaxHeight(300);
         tableView.setMaxWidth(320);
 
-        // Cột checkbox
         TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
         selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         selectColumn.setCellFactory(column -> {
@@ -757,12 +693,10 @@ public class SalesController implements Initializable {
             };
         });
         
-        // Cột tên món
         TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         nameColumn.setPrefWidth(150);
         
-        // Cột giá
         TableColumn<MenuItem, String> priceColumn = new TableColumn<>("Giá");
         priceColumn.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty(
@@ -771,7 +705,6 @@ public class SalesController implements Initializable {
         );
         priceColumn.setPrefWidth(100);
         
-        // Cột số lượng
         TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
         quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
         quantityColumn.setPrefWidth(60);
