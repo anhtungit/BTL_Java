@@ -52,15 +52,44 @@ public class MenuAddController {
     @FXML
     private void handleThemMon() {
         String ten = txtTenMon.getText().trim();
-        double gia = Double.parseDouble(txtGiaTien.getText().trim());
+        String giaText = txtGiaTien.getText().trim();
 
+        // Kiểm tra tên món
         if (ten.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập tên món!");
             return;
         }
 
-        MenuStore.addItem(new MenuItem(ten, gia));
-        showAlert("Thành công!", "Đã thêm món \"" + ten + "\" vào thực đơn!");
+        // Kiểm tra giá tiền
+        if (giaText.isEmpty()) {
+            showAlert("Lỗi", "Vui lòng nhập giá tiền!");
+            return;
+        }
+
+        try {
+            // Xử lý chuỗi giá tiền - loại bỏ dấu phẩy và ký tự không phải số
+            String cleanGiaText = giaText.replaceAll("[^0-9]", "");
+            double gia = Double.parseDouble(cleanGiaText);
+            
+            if (gia <= 0) {
+                showAlert("Lỗi", "Giá tiền phải lớn hơn 0!");
+                return;
+            }
+
+            MenuStore.addItem(new MenuItem(ten, gia));
+            
+            // Xóa form sau khi thêm thành công
+            txtTenMon.clear();
+            txtGiaTien.clear();
+            ingredients.clear();
+            for(int i=0;i<3;i++) {
+                ingredients.add(new Ingredient("", "", ""));
+            }
+            
+            showAlert("Thành công!", "Đã thêm món \"" + ten + "\" vào thực đơn!");
+        } catch (NumberFormatException e) {
+            showAlert("Lỗi", "Giá tiền không hợp lệ! Vui lòng chỉ nhập số.");
+        }
     }
 
     @FXML

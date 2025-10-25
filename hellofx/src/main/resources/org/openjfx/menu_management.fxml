@@ -6,7 +6,7 @@
 <VBox spacing="20" alignment="TOP_CENTER"
       xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.openjfx.MenuController">
+      fx:controller="org.openjfx.Controllers.MenuController">
     
     <!-- Tiêu đề -->
     <Label text="Quản lý thực đơn"

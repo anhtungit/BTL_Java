@@ -5,7 +5,9 @@ module org.openjfx {
     requires javafx.base;
     requires java.sql;
 
+    opens org.openjfx to javafx.fxml;
     opens org.openjfx.Controllers to javafx.fxml;
+    exports org.openjfx;
     exports org.openjfx.Models;
     exports org.openjfx.Controllers;
 }

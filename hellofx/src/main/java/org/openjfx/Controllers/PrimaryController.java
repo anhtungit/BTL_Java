@@ -2,6 +2,7 @@ package org.openjfx.Controllers;
 
 import java.io.IOException;
 
+import org.openjfx.App;
 import org.openjfx.Models.Employee;
 import org.openjfx.Stores.EmployeeStore;
 
@@ -33,7 +34,7 @@ public class PrimaryController {
 
     @FXML
     private void showQuanLyBanHang() throws IOException {
-        Node salesView = FXMLLoader.load(getClass().getResource("sales-management.fxml"));
+        Node salesView = FXMLLoader.load(getClass().getResource("/org/openjfx/sales-management.fxml"));
         contentPane.getChildren().setAll(salesView);
     }
 
@@ -100,19 +101,19 @@ public class PrimaryController {
 
     @FXML
     private void showTrangCaNhan() throws IOException {
-        Node profileView = FXMLLoader.load(getClass().getResource("profile.fxml"));
+        Node profileView = FXMLLoader.load(getClass().getResource("/org/openjfx/profile.fxml"));
         contentPane.getChildren().setAll(profileView);
     }
 
     @FXML
     private void showTrangChu() throws IOException {
-        Node homeView = FXMLLoader.load(getClass().getResource("home.fxml"));
+        Node homeView = FXMLLoader.load(getClass().getResource("/org/openjfx/home.fxml"));
         contentPane.getChildren().setAll(homeView);
     }
 
     @FXML
     private void showQuanLyKhoHang() throws IOException {
-        Node inventoryView = FXMLLoader.load(getClass().getResource("inventory-view.fxml"));
+        Node inventoryView = FXMLLoader.load(getClass().getResource("/org/openjfx/inventory-view.fxml"));
         contentPane.getChildren().setAll(inventoryView);
     }
 
@@ -144,11 +145,11 @@ public class PrimaryController {
     }
 
     private void loadEmployeeModule(String centerFxml) throws IOException {
-        FXMLLoader rootLoader = new FXMLLoader(getClass().getResource("employee_root.fxml"));
+        FXMLLoader rootLoader = new FXMLLoader(getClass().getResource("/org/openjfx/employee_root.fxml"));
         rootLoader.setController(this);
         Node root = rootLoader.load();
 
-        FXMLLoader centerLoader = new FXMLLoader(getClass().getResource(centerFxml));
+        FXMLLoader centerLoader = new FXMLLoader(getClass().getResource("/org/openjfx/" + centerFxml));
         centerLoader.setController(this);
         Node center = centerLoader.load();
 
@@ -296,7 +297,7 @@ public class PrimaryController {
 
     @FXML
     private void showQuanLyThucDon() throws IOException {
-        Parent view = FXMLLoader.load(getClass().getResource("menu_management.fxml"));
+        Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/menu_management.fxml"));
         contentPane.getChildren().setAll(view);
     }
 

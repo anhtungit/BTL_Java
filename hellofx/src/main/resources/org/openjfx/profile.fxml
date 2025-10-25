@@ -11,7 +11,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.ProfileController" spacing="20" alignment="CENTER" style="-fx-background-color: #f0f8ff;">
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.Controllers.ProfileController" spacing="20" alignment="CENTER" style="-fx-background-color: #f0f8ff;">
    <children>
       <!-- Header -->
       <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #e0e0e0; -fx-padding: 15; -fx-background-radius: 5;">

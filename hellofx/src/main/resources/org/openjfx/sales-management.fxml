@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.SalesController" spacing="10" prefWidth="700" prefHeight="600">
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.Controllers.SalesController" spacing="10" prefWidth="700" prefHeight="600">
    <children>
       <Label text="Quản lý bán hàng">
          <font>

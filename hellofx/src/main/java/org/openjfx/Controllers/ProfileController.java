@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
+import org.openjfx.App;
 import org.openjfx.Stores.UserStore;
 
 public class ProfileController implements Initializable {

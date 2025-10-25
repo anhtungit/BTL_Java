@@ -27,7 +27,7 @@ public class MenuController {
 
     private void loadView(String fxml) {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource(fxml));
+            Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/" + fxml));
             StackPane parentStack = (StackPane) btnXemDanhSach.getScene().lookup("#contentPane");
             if (parentStack != null) {
                 parentStack.getChildren().setAll(view);

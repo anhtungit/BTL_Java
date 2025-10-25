@@ -4,7 +4,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.openjfx.MenuDeleteController"
+      fx:controller="org.openjfx.Controllers.MenuDeleteController"
       spacing="12" alignment="CENTER_LEFT" style="-fx-background-color: #f8f8f8;"
       prefWidth="700" prefHeight="480">
 

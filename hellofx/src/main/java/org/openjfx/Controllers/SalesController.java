@@ -164,6 +164,10 @@ public class SalesController implements Initializable {
         qtyCol.setCellValueFactory(cd -> cd.getValue().quantityProperty().asObject());
         qtyCol.setPrefWidth(80);
         
+    // Thêm các cột vào TableView để hiển thị dữ liệu
+    orderTable.getColumns().add(itemNameCol);
+    orderTable.getColumns().add(qtyCol);
+        
         
         // Thông tin đặt trước
         Label reserveInfo = new Label();
@@ -657,7 +661,7 @@ public class SalesController implements Initializable {
 
         try {
             // Load payment dialog FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("payment_dialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openjfx/payment_dialog.fxml"));
             Parent root = loader.load();
             
             // Get the controller
@@ -813,6 +817,9 @@ public class SalesController implements Initializable {
             };
         });
         
-        tableView.getColumns().addAll(selectColumn, nameColumn, priceColumn, quantityColumn);
+    tableView.getColumns().add(selectColumn);
+    tableView.getColumns().add(nameColumn);
+    tableView.getColumns().add(priceColumn);
+    tableView.getColumns().add(quantityColumn);
     }
 }

@@ -1,5 +1,7 @@
 package org.openjfx.Controllers;
 
+import org.openjfx.App;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -32,7 +34,13 @@ public class LoginController {
             try {
                 App.setCurrentUser(username, role);
                 App.setRoot("primary");
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Lỗi hệ thống");
+                alert.setHeaderText(null);
+                alert.setContentText("Không thể chuyển đến trang chính: " + e.getMessage());
+                alert.showAndWait();
+                e.printStackTrace(); // Print stack trace for debugging
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);

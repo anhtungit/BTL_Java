@@ -159,20 +159,27 @@ public class PaymentDialogController implements Initializable {
         alert.setTitle("Thành công");
         alert.setHeaderText(null);
         
-        // Tạo nội dung thông báo chi tiết
-        StringBuilder message = new StringBuilder();
-        message.append("Thanh toán thành công!\n\n");
-        message.append(String.format("Tổng tiền: %s đ\n", currencyFormat.format(totalAmount)));
-        
-        String amountPaid = amountPaidField.getText();
-        long paid = Long.parseLong(amountPaid);
-        long change = paid - (long)totalAmount;
-        
-        message.append(String.format("Khách đưa: %s đ\n", currencyFormat.format(paid)));
-        message.append(String.format("Tiền thừa: %s đ", currencyFormat.format(change)));
-        
-        alert.setContentText(message.toString());
-        alert.showAndWait();
+        try {
+            // Tạo nội dung thông báo chi tiết
+            StringBuilder message = new StringBuilder();
+            message.append("Thanh toán thành công!\n\n");
+            message.append(String.format("Tổng tiền: %s đ\n", currencyFormat.format(totalAmount)));
+            
+            // Xử lý số tiền khách đưa - loại bỏ tất cả ký tự không phải số
+            String amountPaid = amountPaidField.getText().replaceAll("[^0-9]", "");
+            long paid = Long.parseLong(amountPaid);
+            long change = paid - (long)totalAmount;
+            
+            message.append(String.format("Khách đưa: %s đ\n", currencyFormat.format(paid)));
+            message.append(String.format("Tiền thừa: %s đ", currencyFormat.format(change)));
+            
+            alert.setContentText(message.toString());
+            alert.showAndWait();
+        } catch (Exception ex) {
+            // Nếu có lỗi, hiển thị thông báo đơn giản
+            alert.setContentText("Thanh toán thành công!");
+            alert.showAndWait();
+        }
     }
     
     public void setTable(Table table) {
