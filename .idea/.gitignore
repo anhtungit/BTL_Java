@@ -13,4 +13,6 @@ target/
 
 # OS junk files
 .DS_Store
-Thumbs.db
+Thumbs.db# Default ignored files
+/shelf/
+/workspace.xml
