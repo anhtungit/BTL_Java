@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.openjfx.Controllers.ReportController"
+      spacing="15" alignment="TOP_LEFT"
+      prefWidth="900" prefHeight="550">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Thống kê - Báo cáo" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <!-- Chọn mục -->
+    <TitledPane text="Chọn mục" expanded="true">
+        <content>
+            <FlowPane hgap="10" vgap="8">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+
+                <CheckBox text="Tất cả" fx:id="chkAll"/>
+                <CheckBox text="Nhập - Xuất" fx:id="chkImportExport"/>
+                <CheckBox text="Nhập" fx:id="chkImport"/>
+                <CheckBox text="Lương" fx:id="chkSalary"/>
+                <CheckBox text="TT nhân viên" fx:id="chkEmployee"/>
+                <CheckBox text="Xuất" fx:id="chkExport"/>
+                <CheckBox text="Phí khác" fx:id="chkOther"/>
+            </FlowPane>
+        </content>
+    </TitledPane>
+
+    <!-- Chọn ngày -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Từ ngày:"/>
+        <DatePicker fx:id="dateFrom"/>
+        <Label text="Đến ngày:"/>
+        <DatePicker fx:id="dateTo"/>
+        <Button text="Xem" fx:id="btnView" onAction="#handleView"/>
+    </HBox>
+
+    <!-- Bảng thống kê -->
+    <TableView fx:id="tableReport" prefHeight="250" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colDate" text="Ngày" prefWidth="200"/>
+            <TableColumn fx:id="colIncome" text="Thu (₫)" prefWidth="200"/>
+            <TableColumn fx:id="colExpense" text="Chi (₫)" prefWidth="200"/>
+        </columns>
+    </TableView>
+
+    <!-- Tổng -->
+    <HBox spacing="20" alignment="CENTER_RIGHT">
+        <Label text="Tổng thu:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="lblTotalIncome" text="0"/>
+        <Label text="Tổng chi:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="lblTotalExpense" text="0"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true">
+        <content>
+            <HBox spacing="40" alignment="CENTER_LEFT">
+                <!-- Xuất & In -->
+                <HBox spacing="40" alignment="CENTER_LEFT">
+
+                    <!-- Xuất file -->
+                    <VBox spacing="8" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-border-width:1; -fx-background-color: #f8f8f8;">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <Label text="Xuất file" style="-fx-font-weight: bold;"/>
+                        <CheckBox text=".txt - Text File" fx:id="chkTxt"/>
+                        <CheckBox text=".xls - Excel File" fx:id="chkXls"/>
+                        <CheckBox text=".sql - SQL File" fx:id="chkSql"/>
+                        <Button text="Xuất file" fx:id="btnExport" onAction="#handleExport"/>
+                    </VBox>
+
+                    <!-- In file -->
+                    <VBox spacing="8" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-border-width:1; -fx-background-color: #f8f8f8;">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <Label text="In file" style="-fx-font-weight: bold;"/>
+
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Label text="Khổ giấy:"/>
+                        <ChoiceBox fx:id="choicePaper" prefWidth="100"/>
+                    </HBox>
+
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Label text="Máy in:"/>
+                        <TextField fx:id="txtPrinter" promptText="Nhập tên máy in"/>
+                    </HBox>
+
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Label text="Số lượng:"/>
+                        <Spinner fx:id="spinnerCopies"/>
+                    </HBox>
+
+                        <Button text="In file" fx:id="btnPrint" onAction="#handlePrint"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+        </content>
+    </ScrollPane>
+
+</VBox>

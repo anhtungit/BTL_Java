@@ -1,0 +1,21 @@
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.openjfx.Controllers.MenuItemViewController"
+      spacing="10" alignment="CENTER" style="-fx-background-color: #ffffff;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+    <children>
+        <TableView fx:id="tableMenuItem" prefWidth="600" prefHeight="400">
+            <columns>
+                <TableColumn text="Tên món" fx:id="colItemName" prefWidth="300" />
+                <TableColumn text="Giá (VNĐ)" fx:id="colCurrentPrice" prefWidth="150" />
+            </columns>
+        </TableView>
+    </children>
+</VBox>

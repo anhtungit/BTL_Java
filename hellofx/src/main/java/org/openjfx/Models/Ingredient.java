@@ -4,25 +4,50 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Ingredient {
-    private final StringProperty tenThanhPhan;
-    private final StringProperty khoiLuong;
-    private final StringProperty donVi;
 
-    public Ingredient(String ten, String kl, String dv) {
-        this.tenThanhPhan = new SimpleStringProperty(ten);
-        this.khoiLuong = new SimpleStringProperty(kl);
-        this.donVi = new SimpleStringProperty(dv);
+    private final StringProperty inventoryItemName;
+    private final StringProperty amount;
+    private final StringProperty unitName;
+
+    public Ingredient(String inventoryItemName, String amount, String unitName) {
+        this.inventoryItemName = new SimpleStringProperty(inventoryItemName);
+        this.amount = new SimpleStringProperty(amount);
+        this.unitName = new SimpleStringProperty(unitName);
     }
 
-    public String getTenThanhPhan() { return tenThanhPhan.get(); }
-    public void setTenThanhPhan(String value) { tenThanhPhan.set(value);}
-    public StringProperty tenThanhPhanProperty() { return tenThanhPhan; }
+    public String getInventoryItemName() { 
+        return inventoryItemName.get(); 
+    }
 
-    public String getKhoiLuong() { return khoiLuong.get(); }
-    public void setKhoiLuong(String value) { khoiLuong.set(value);}
-    public StringProperty khoiLuongProperty() { return khoiLuong; }
+    public void setInventoryItemName(String value) { 
+        inventoryItemName.set(value); 
+    }
 
-    public String getDonVi() { return donVi.get(); }
-    public void setDonVi(String value) { donVi.set(value);}
-    public StringProperty donViProperty() { return donVi; }
+    public StringProperty inventoryItemNameProperty() { 
+        return inventoryItemName; 
+    }
+
+    public String getAmount() { 
+        return amount.get(); 
+    }
+
+    public void setAmount(String value) { 
+        amount.set(value); 
+    }
+
+    public StringProperty amountProperty() { 
+        return amount; 
+    }
+
+    public String getUnitName() { 
+        return unitName.get(); 
+    }
+
+    public void setUnitName(String value) { 
+        unitName.set(value); 
+    }
+
+    public StringProperty unitNameProperty() { 
+        return unitName; 
+    }
 }
