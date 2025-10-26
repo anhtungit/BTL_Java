@@ -18,7 +18,7 @@
     <TableView fx:id="tableMenuItem" prefHeight="250">
         <columns>
             <TableColumn fx:id="colItemName" text="Tên món" prefWidth="220"/>
-            <TableColumn fx:id="colCurentPrice" text="Giá tiền" prefWidth="100"/>
+            <TableColumn fx:id="colCurrentPrice" text="Giá tiền" prefWidth="100"/>
         </columns>
     </TableView>
 

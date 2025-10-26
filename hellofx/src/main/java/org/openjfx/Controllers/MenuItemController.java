@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
 public class MenuItemController {
@@ -15,6 +16,9 @@ public class MenuItemController {
     @FXML private Button btnEditMenuItem;
     @FXML private Button btnDeleteMenuItem;
     @FXML private Button btnSearchMenuItem;
+
+    @FXML private StackPane contentPane;
+    @FXML private GridPane buttonPanel;
 
     @FXML
     private void initialize() {
@@ -28,12 +32,9 @@ public class MenuItemController {
     private void loadView(String fxml) {
         try {
             Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/" + fxml));
-            StackPane parentStack = (StackPane) btnViewMenuItem.getScene().lookup("#contentPane");
-            if (parentStack != null) {
-                parentStack.getChildren().setAll(view);
-            } else {
-                System.err.println("Khong tim thay contentPane trong Scene");
-            }
+            buttonPanel.setVisible(false);
+            buttonPanel.setManaged(false); 
+            contentPane.getChildren().setAll(view);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

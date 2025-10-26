@@ -280,8 +280,25 @@ public class PrimaryController {
 
     @FXML
     private void showQuanLyThucDon() throws IOException {
-        Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/menu_management.fxml"));
+        Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/menuitem_management.fxml"));
         contentPane.getChildren().setAll(view);
+    }
+
+    @FXML
+    private void showQuanLyNganSach() throws IOException {
+        Parent view = FXMLLoader.load(getClass().getResource("/org/openjfx/budget_management.fxml"));
+        contentPane.getChildren().setAll(view);
+    }
+
+    @FXML
+    private void handleReportModule() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openjfx/report.fxml"));
+            Parent view = loader.load();
+            contentPane.getChildren().setAll(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

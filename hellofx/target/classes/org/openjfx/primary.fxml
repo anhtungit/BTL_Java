@@ -37,9 +37,9 @@
             <Button fx:id="btnQuanLyKhoHang" text="Quản lý kho hàng" maxWidth="Infinity" onAction="#showQuanLyKhoHang" />
             <Button fx:id="btnQuanLyThucDon" text="Quản lý thực đơn" maxWidth="Infinity" onAction="#showQuanLyThucDon" />
             <Button fx:id="btnQuanLyMarketing" text="Quản lý Marketing" maxWidth="Infinity" onAction="#noop" />
-            <Button fx:id="btnQuanLyNganSach" text="Quản lý ngân sách" maxWidth="Infinity" onAction="#noop" />
+            <Button fx:id="btnQuanLyNganSach" text="Quản lý ngân sách" maxWidth="Infinity" onAction="#showQuanLyNganSach" />
             <Button fx:id="btnQuanLyDuLieu" text="Quản lý dữ liệu" maxWidth="Infinity" onAction="#noop" />
-            <Button fx:id="btnThongKeBaoCao" text="Thống kê, báo cáo" maxWidth="Infinity" onAction="#noop" />
+            <Button fx:id="btnThongKeBaoCao" text="Thống kê, báo cáo" maxWidth="Infinity" onAction="#handleReportModule" />
             <Button fx:id="btnGioiThieu" text="Giới thiệu" maxWidth="Infinity" onAction="#noop" />
          </children>
          <padding>

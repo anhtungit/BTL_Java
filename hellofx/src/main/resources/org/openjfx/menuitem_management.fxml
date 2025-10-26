@@ -13,7 +13,7 @@
            style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
 
     <!-- Lưới chứa các nút chức năng -->
-    <GridPane hgap="20" vgap="20" alignment="CENTER">
+    <GridPane fx:id="buttonPanel" hgap="20" vgap="20" alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints halignment="CENTER" prefWidth="250"/>
             <ColumnConstraints halignment="CENTER" prefWidth="250"/>
