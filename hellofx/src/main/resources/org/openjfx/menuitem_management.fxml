@@ -6,7 +6,7 @@
 <VBox spacing="20" alignment="TOP_CENTER"
       xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.openjfx.Controllers.MenuController">
+      fx:controller="org.openjfx.Controllers.MenuItemController">
     
     <!-- Tiêu đề -->
     <Label text="Quản lý thực đơn"
@@ -23,7 +23,7 @@
         <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10" alignment="CENTER"
               style="-fx-background-color: #e3f2fd; -fx-padding: 15; -fx-background-radius: 5;">
             <Label text="Xem danh sách thực đơn" style="-fx-font-weight: bold;"/>
-            <Button fx:id="btnXemDanhSach" text="Xem danh sách"
+            <Button fx:id="btnViewMenuItem" text="Xem danh sách"
                     prefWidth="200"
                     style="-fx-background-color: #2196f3; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </VBox>
@@ -32,7 +32,7 @@
         <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" spacing="10" alignment="CENTER"
               style="-fx-background-color: #e8f5e9; -fx-padding: 15; -fx-background-radius: 5;">
             <Label text="Thêm danh mục" style="-fx-font-weight: bold;"/>
-            <Button fx:id="btnThemDanhMuc" text="Thêm danh mục"
+            <Button fx:id="btnAddMenuItem" text="Thêm danh mục"
                     prefWidth="200"
                     style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </VBox>
@@ -41,7 +41,7 @@
         <VBox GridPane.rowIndex="1" GridPane.columnIndex="0" spacing="10" alignment="CENTER"
               style="-fx-background-color: #fff3e0; -fx-padding: 15; -fx-background-radius: 5;">
             <Label text="Chỉnh sửa danh mục" style="-fx-font-weight: bold;"/>
-            <Button fx:id="btnChinhSuaDanhMuc" text="Chỉnh sửa"
+            <Button fx:id="btnEditMenuItem" text="Chỉnh sửa"
                     prefWidth="200"
                     style="-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </VBox>
@@ -50,7 +50,7 @@
         <VBox GridPane.rowIndex="1" GridPane.columnIndex="1" spacing="10" alignment="CENTER"
               style="-fx-background-color: #ffebee; -fx-padding: 15; -fx-background-radius: 5;">
             <Label text="Xóa danh mục" style="-fx-font-weight: bold;"/>
-            <Button fx:id="btnXoaDanhMuc" text="Xóa danh mục"
+            <Button fx:id="btnDeleteMenuItem" text="Xóa danh mục"
                     prefWidth="200"
                     style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </VBox>
@@ -60,7 +60,7 @@
               spacing="10" alignment="CENTER"
               style="-fx-background-color: #ede7f6; -fx-padding: 15; -fx-background-radius: 5;">
             <Label text="Tìm kiếm danh mục" style="-fx-font-weight: bold;"/>
-            <Button fx:id="btnTimKiemDanhMuc" text="Tìm kiếm danh mục"
+            <Button fx:id="btnSearchMenuItem" text="Tìm kiếm danh mục"
                     prefWidth="200"
                     style="-fx-background-color: #673ab7; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </VBox>

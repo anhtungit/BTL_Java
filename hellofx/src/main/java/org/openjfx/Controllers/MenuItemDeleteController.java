@@ -8,28 +8,28 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-public class MenuDeleteController {
+public class MenuItemDeleteController {
 
-    @FXML private TableView<MenuItem> tableMonAn;
-    @FXML private TableColumn<MenuItem, String> colTenMon;
-    @FXML private TableColumn<MenuItem, String> colGiaTien;
+    @FXML private TableView<MenuItem> tableMenuItem;
+    @FXML private TableColumn<MenuItem, String> colItemName;
+    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
 
     private ObservableList<MenuItem> menuItems;
 
     @FXML
     public void initialize() {
-        colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colGiaTien.setCellValueFactory(cell ->
+        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colCurrentPrice.setCellValueFactory(cell ->
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
         menuItems = MenuStore.getItems();
-        tableMonAn.setItems(menuItems);
+        tableMenuItem.setItems(menuItems);
     }
 
     @FXML
-    private void handleXoa() {
-        MenuItem selected = tableMonAn.getSelectionModel().getSelectedItem();
+    private void handleDelete() {
+        MenuItem selected = tableMenuItem.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
             showAlert(Alert.AlertType.WARNING, "Thông báo", "Vui lòng chọn món cần xóa!");
@@ -48,15 +48,15 @@ public class MenuDeleteController {
         confirm.showAndWait().ifPresent(response -> {
             if (response == yes) {
                 MenuStore.removeItem(selected);
-                tableMonAn.refresh();
+                tableMenuItem.refresh();
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa món \"" + selected.getName() + "\"!");
             }
         });
     }
 
     @FXML
-    private void handleHuy() {
-        tableMonAn.getSelectionModel().clearSelection();
+    private void handleCancel() {
+        tableMenuItem.getSelectionModel().clearSelection();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

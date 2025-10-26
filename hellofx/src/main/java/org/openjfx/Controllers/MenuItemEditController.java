@@ -12,48 +12,48 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class MenuEditController {
+public class MenuItemEditController {
 
-    @FXML private TableView<MenuItem> tableMonAn;
-    @FXML private TableColumn<MenuItem, String> colTenMon;
-    @FXML private TableColumn<MenuItem, String> colGiaTien;
+    @FXML private TableView<MenuItem> tableMenuItem;
+    @FXML private TableColumn<MenuItem, String> colItemName;
+    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
 
-    @FXML private TextField txtTenMon;
-    @FXML private TextField txtGiaTien;
+    @FXML private TextField txtItemName;
+    @FXML private TextField txtCurrentPrice;
 
-    @FXML private Button btnLuu;
-    @FXML private Button btnHuy;
+    @FXML private Button btnSave;
+    @FXML private Button btnCancel;
 
     private ObservableList<MenuItem> menuItems;
 
     @FXML
     public void initialize() {
-        colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colGiaTien.setCellValueFactory(cell ->
+        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colCurrentPrice.setCellValueFactory(cell ->
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
         menuItems = MenuStore.getItems();
-        tableMonAn.setItems(menuItems);
+        tableMenuItem.setItems(menuItems);
 
-        tableMonAn.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+        tableMenuItem.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
-                txtTenMon.setText(newSel.getName());
-                txtGiaTien.setText(String.valueOf(newSel.getPrice()));
+                txtItemName.setText(newSel.getName());
+                txtCurrentPrice.setText(String.valueOf(newSel.getPrice()));
             }
         });
     }
 
     @FXML
-    private void handleLuu() {
-        MenuItem selected = tableMonAn.getSelectionModel().getSelectedItem();
+    private void handleSave() {
+        MenuItem selected = tableMenuItem.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert("Thông báo", "Vui lòng chọn món cần chỉnh sửa!");
             return;
         }
 
-        String tenMoi = txtTenMon.getText().trim();
-        String giaMoiStr = txtGiaTien.getText().trim();
+        String tenMoi = txtItemName.getText().trim();
+        String giaMoiStr = txtCurrentPrice.getText().trim();
 
         if (tenMoi.isEmpty() || giaMoiStr.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập đầy đủ tên món và giá tiền!");
@@ -69,21 +69,21 @@ public class MenuEditController {
 
             selected.setName(tenMoi);
             selected.setPrice(giaMoi);
-            tableMonAn.refresh();
+            tableMenuItem.refresh();
 
             showAlert("Thành công", "Đã cập nhật món \"" + tenMoi + "\"!");
-            txtTenMon.clear();
-            txtGiaTien.clear();
+            txtItemName.clear();
+            txtCurrentPrice.clear();
         } catch (NumberFormatException e) {
             showAlert("Lỗi", "Giá tiền phải là số hợp lệ!");
         }
     }
 
     @FXML
-    private void handleHuy() {
-        txtTenMon.clear();
-        txtGiaTien.clear();
-        tableMonAn.getSelectionModel().clearSelection();
+    private void handleCancel() {
+        txtItemName.clear();
+        txtCurrentPrice.clear();
+        tableMenuItem.getSelectionModel().clearSelection();
     }
 
     private void showAlert(String title, String message) {

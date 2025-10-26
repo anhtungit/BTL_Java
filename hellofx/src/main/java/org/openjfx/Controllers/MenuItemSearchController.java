@@ -9,34 +9,34 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-public class MenuSearchController {
+public class MenuItemSearchController {
 
-    @FXML private TextField txtTimKiem;
-    @FXML private TableView<MenuItem> tableKetQua;
-    @FXML private TableColumn<MenuItem, String> colTenMon;
-    @FXML private TableColumn<MenuItem, String> colGiaTien;
+    @FXML private TextField txtSearchKeyword;
+    @FXML private TableView<MenuItem> tableResult;
+    @FXML private TableColumn<MenuItem, String> colItemName;
+    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
 
     private ObservableList<MenuItem> allItems;
     private ObservableList<MenuItem> filteredItems;
 
     @FXML
     public void initialize() {
-        colTenMon.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colGiaTien.setCellValueFactory(cell -> 
+        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colCurrentPrice.setCellValueFactory(cell -> 
             new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
         );
 
         allItems = MenuStore.getItems();
         filteredItems = FXCollections.observableArrayList(allItems);
 
-        tableKetQua.setItems(filteredItems);
+        tableResult.setItems(filteredItems);
 
-        txtTimKiem.setOnAction(e -> handleTimKiem());
+        txtSearchKeyword.setOnAction(e -> handleSearch());
     }
 
     @FXML
-    private void handleTimKiem() {
-        String keyword = txtTimKiem.getText().trim().toLowerCase();
+    private void handleSearch() {
+        String keyword = txtSearchKeyword.getText().trim().toLowerCase();
 
         if (keyword.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Thông báo", "Vui lòng nhập từ khóa để tìm kiếm!");
@@ -53,8 +53,8 @@ public class MenuSearchController {
     }
 
     @FXML
-    private void handleLamMoi() {
-        txtTimKiem.clear();
+    private void handleRefresh() {
+        txtSearchKeyword.clear();
         filteredItems.setAll(allItems);
     }
 
