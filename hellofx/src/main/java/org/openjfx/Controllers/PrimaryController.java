@@ -150,6 +150,79 @@ public class PrimaryController {
         if ("employee_list.fxml".equals(centerFxml)) bindEmployeeTable();
         if ("employee_delete.fxml".equals(centerFxml)) bindDeleteTable();
         if ("employee_search.fxml".equals(centerFxml)) bindSearchTable(EmployeeStore.getEmployees());
+        // Initialize employee form controls when showing add/edit
+        ensureEmpPositionMap();
+        if ("employee_add.fxml".equals(centerFxml)) initAddEmployeeForm();
+        if ("employee_edit.fxml".equals(centerFxml)) initEditEmployeeForm();
+    }
+
+    private final java.util.Map<String, Long> empPositionSalary = new java.util.HashMap<>();
+
+    private void ensureEmpPositionMap() {
+        if (!empPositionSalary.isEmpty()) return;
+        empPositionSalary.put("Quản lý", 10000000L);
+        empPositionSalary.put("Phục vụ bàn", 5000000L);
+        empPositionSalary.put("Thu Ngân", 10000000L);
+        empPositionSalary.put("Bảo vệ", 5000000L);
+        empPositionSalary.put("Pha chế", 7000000L);
+    }
+
+    private void initAddEmployeeForm() {
+        try {
+            if (addPosition != null) {
+                addPosition.getItems().setAll(empPositionSalary.keySet());
+                if (addPosition.getItems().size() > 0 && addPosition.getValue() == null) {
+                    addPosition.setValue(addPosition.getItems().get(0));
+                    addSalary.setText(formatSalary(empPositionSalary.get(addPosition.getValue())));
+                }
+                addPosition.setOnAction(e -> {
+                    String sel = addPosition.getValue();
+                    Long s = empPositionSalary.getOrDefault(sel, 0L);
+                    if (addSalary != null) addSalary.setText(formatSalary(s));
+                });
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void initEditEmployeeForm() {
+        try {
+            // populate position list
+            if (editPosition != null) {
+                editPosition.getItems().setAll(empPositionSalary.keySet());
+            }
+
+            // if user selected an employee in the list, prefill form
+            Employee selected = (employeeTable == null) ? null : employeeTable.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                if (editFullName != null) editFullName.setText(selected.getFullName());
+                if (editAddress != null) editAddress.setText(selected.getAddress());
+                if (editPhone != null) editPhone.setText(selected.getPhone());
+                if (editUsername != null) editUsername.setText(selected.getUsername());
+                if (editPosition != null) {
+                    editPosition.setValue(selected.getPosition());
+                    // update salary according to mapping (fallback to stored salary)
+                    long s = empPositionSalary.getOrDefault(selected.getPosition(), selected.getSalary());
+                    if (editSalary != null) editSalary.setText(formatSalary(s));
+                } else {
+                    if (editSalary != null) editSalary.setText(formatSalary(selected.getSalary()));
+                }
+                if (editPassword != null) editPassword.setText("");
+            } else {
+                // no selection: just initialize edit form position list
+                    if (editPosition != null && editPosition.getItems().size() > 0 && editPosition.getValue() == null) {
+                    editPosition.setValue(editPosition.getItems().get(0));
+                    if (editSalary != null) editSalary.setText(formatSalary(empPositionSalary.get(editPosition.getValue())));
+                }
+            }
+
+            if (editPosition != null) {
+                editPosition.setOnAction(e -> {
+                    String sel = editPosition.getValue();
+                    Long s = empPositionSalary.getOrDefault(sel, 0L);
+                    if (editSalary != null) editSalary.setText(formatSalary(s));
+                });
+            }
+        } catch (Exception ignored) {}
     }
 
     @FXML private javafx.scene.control.TableView<Employee> employeeTable;
@@ -166,7 +239,7 @@ public class PrimaryController {
     }
 
     private String formatSalary(long vnd) {
-        java.text.NumberFormat nf = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+        java.text.NumberFormat nf = java.text.NumberFormat.getInstance(java.util.Locale.forLanguageTag("vi-VN"));
         return nf.format(vnd);
     }
 
@@ -231,21 +304,24 @@ public class PrimaryController {
         bindSearchTable(filtered);
     }
 
-    @FXML private javafx.scene.control.TextField addFullName, addAddress, addPosition, addSalary, addPhone, addUsername;
+    @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;
+    @FXML private javafx.scene.control.ComboBox<String> addPosition;
     @FXML private javafx.scene.control.PasswordField addPassword;
-    @FXML private javafx.scene.control.TextField editFullName, editAddress, editPosition, editSalary, editPhone, editUsername;
+    @FXML private javafx.scene.control.TextField editFullName, editAddress, editSalary, editPhone, editUsername;
+    @FXML private javafx.scene.control.ComboBox<String> editPosition;
     @FXML private javafx.scene.control.PasswordField editPassword;
 
     @FXML
     private void empAddSubmit() throws IOException {
         String name = text(addFullName);
-        String position = text(addPosition);
-        long salary = parseLong(text(addSalary));
+        String position = addPosition == null ? "" : addPosition.getValue();
+        long salary = parseLong(addSalary == null ? "0" : addSalary.getText());
         String phone = text(addPhone);
         String username = text(addUsername);
         String password = addPassword == null ? "" : addPassword.getText();
+        String address = text(addAddress);
         if (!name.isEmpty() && !position.isEmpty() && salary > 0) {
-            EmployeeStore.getEmployees().add(new Employee(name, position, salary, phone, username, password));
+            EmployeeStore.getEmployees().add(new Employee(name, address, position, salary, phone, username, password));
             empShowList();
         }
     }
@@ -256,8 +332,10 @@ public class PrimaryController {
             Employee selected = employeeTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 selected.setFullName(text(editFullName));
-                selected.setPosition(text(editPosition));
-                selected.setSalary(parseLong(text(editSalary)));
+                selected.setAddress(text(editAddress));
+                String pos = editPosition == null ? selected.getPosition() : editPosition.getValue();
+                selected.setPosition(pos);
+                selected.setSalary(parseLong(editSalary == null ? String.valueOf(selected.getSalary()) : editSalary.getText()));
                 selected.setPhone(text(editPhone));
                 selected.setUsername(text(editUsername));
                 if (editPassword != null && !editPassword.getText().isEmpty()) {

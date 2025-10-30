@@ -2,14 +2,16 @@ package org.openjfx.Models;
 
 public class Employee {
     private String fullName;
+    private String address;
     private String position;
     private long salary;
     private String phone;
     private String username;
     private String password;
 
-    public Employee(String fullName, String position, long salary, String phone, String username, String password) {
+    public Employee(String fullName, String address, String position, long salary, String phone, String username, String password) {
         this.fullName = fullName;
+        this.address = address;
         this.position = position;
         this.salary = salary;
         this.phone = phone;
@@ -23,6 +25,14 @@ public class Employee {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPosition() {

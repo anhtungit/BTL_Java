@@ -16,6 +16,24 @@ public class LoginController {
     private PasswordField passwordField;
 
     @FXML
+    private javafx.scene.control.Button loginButton;
+
+    @FXML
+    private void initialize() {
+        // Pressing Enter in usernameField moves focus to passwordField
+        if (usernameField != null) {
+            usernameField.setOnAction(e -> {
+                if (passwordField != null) passwordField.requestFocus();
+            });
+        }
+
+        // Pressing Enter in passwordField triggers login
+        if (passwordField != null) {
+            passwordField.setOnAction(e -> onLogin());
+        }
+    }
+
+    @FXML
     private void onLogin() {
         String username = usernameField.getText();
         String password = passwordField.getText();
