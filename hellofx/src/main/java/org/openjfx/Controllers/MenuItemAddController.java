@@ -7,20 +7,25 @@ import org.openjfx.Stores.MenuStore;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 
-public class MenuItemAddController {
+public class MenuItemAddController extends MenuItemControllerBase {
 
-    @FXML private TextField txtItemName;
-    @FXML private TextField txtCurrentPrice;
-    @FXML private TableView<Ingredient> tableRecipe;
-    @FXML private TableColumn<Ingredient, String> colInventoryItemName;
-    @FXML private TableColumn<Ingredient, String> colAmount;
-    @FXML private TableColumn<Ingredient, String> colUnitName;
+    @FXML
+    private TextField txtItemName;
+    @FXML
+    private TextField txtCurrentPrice;
+    @FXML
+    private TableView<Ingredient> tableRecipe;
+    @FXML
+    private TableColumn<Ingredient, String> colInventoryItemName;
+    @FXML
+    private TableColumn<Ingredient, String> colAmount;
+    @FXML
+    private TableColumn<Ingredient, String> colUnitName;
 
     private final ObservableList<Ingredient> ingredients = FXCollections.observableArrayList();
 
@@ -70,8 +75,11 @@ public class MenuItemAddController {
                 return;
             }
 
-            MenuStore.addItem(new MenuItem(name, price));
+            MenuItem newItem = new MenuItem(name, price);
+            MenuStore.addItem(newItem);
+            reloadData();
 
+            // Clear form
             txtItemName.clear();
             txtCurrentPrice.clear();
             ingredients.clear();
@@ -81,7 +89,9 @@ public class MenuItemAddController {
 
             showAlert("Thành công!", "Đã thêm món \"" + name + "\" vào thực đơn!");
         } catch (NumberFormatException e) {
-            showAlert("Lỗi", "Gía tiền không hợp lệ! Vui lòng chỉ nhập số.");
+            showAlert("Lỗi", "Giá tiền không hợp lệ! Vui lòng chỉ nhập số.");
+        } catch (RuntimeException e) {
+            handleDatabaseError(e);
         }
     }
 
@@ -90,13 +100,5 @@ public class MenuItemAddController {
         txtItemName.clear();
         txtCurrentPrice.clear();
         ingredients.clear();
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

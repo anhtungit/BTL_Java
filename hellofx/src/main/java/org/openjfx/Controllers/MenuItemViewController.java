@@ -10,12 +10,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MenuItemViewController {
 
-    @FXML private TableView<MenuItem> tableMenuItem;
-    @FXML private TableColumn<MenuItem, String> colItemName;
-    @FXML private TableColumn<MenuItem, Double> colCurrentPrice;
+    @FXML
+    private TableView<MenuItem> tableMenuItem;
+    @FXML
+    private TableColumn<MenuItem, String> colItemName;
+    @FXML
+    private TableColumn<MenuItem, Double> colCurrentPrice;
 
     @FXML
     private void initialize() {
+        MenuStore.loadFromDatabase();
         colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
         tableMenuItem.setItems(MenuStore.getItems());
