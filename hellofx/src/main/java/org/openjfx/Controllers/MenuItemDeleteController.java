@@ -1,7 +1,8 @@
 package org.openjfx.Controllers;
 
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -19,15 +20,18 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
 
     private ObservableList<MenuItem> menuItems;
 
+
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
     @FXML
     public void initialize() {
-        reloadData();
+        // reloadData();
 
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colCurrentPrice.setCellValueFactory(
                 cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
-        menuItems = MenuStore.getItems();
+        menuItems = (ObservableList<MenuItem>) menuItemService.getAllMenuItem();
         tableMenuItem.setItems(menuItems);
     }
 
@@ -53,8 +57,8 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
             if (response == yes) {
                 try {
                     String itemName = selected.getName();
-                    MenuStore.removeItem(selected);
-                    reloadData();
+                    menuItemService.deleteMenuItem(selected.getId());
+                    // reloadData();
                     tableMenuItem.refresh();
                     showAlert(Alert.AlertType.INFORMATION, "Thành công",
                             "Đã xóa món \"" + itemName + "\"!");
