@@ -11,20 +11,26 @@ import javafx.scene.control.*;
 
 public class MenuItemSearchController {
 
-    @FXML private TextField txtSearchKeyword;
-    @FXML private TableView<MenuItem> tableResult;
-    @FXML private TableColumn<MenuItem, String> colItemName;
-    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
+    @FXML
+    private TextField txtSearchKeyword;
+    @FXML
+    private TableView<MenuItem> tableResult;
+    @FXML
+    private TableColumn<MenuItem, String> colItemName;
+    @FXML
+    private TableColumn<MenuItem, String> colCurrentPrice;
 
     private ObservableList<MenuItem> allItems;
     private ObservableList<MenuItem> filteredItems;
 
     @FXML
     public void initialize() {
+        // Load dữ liệu từ database
+        MenuStore.loadFromDatabase();
+
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colCurrentPrice.setCellValueFactory(cell -> 
-            new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
-        );
+        colCurrentPrice.setCellValueFactory(
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
         allItems = MenuStore.getItems();
         filteredItems = FXCollections.observableArrayList(allItems);
@@ -43,9 +49,7 @@ public class MenuItemSearchController {
             return;
         }
 
-        filteredItems.setAll(allItems.filtered(item ->
-            item.getName().toLowerCase().contains(keyword)
-        ));
+        filteredItems.setAll(allItems.filtered(item -> item.getName().toLowerCase().contains(keyword)));
 
         if (filteredItems.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "Kết quả", "Không tìm thấy món nào phù hợp.");
