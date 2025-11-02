@@ -1,8 +1,10 @@
 package org.openjfx.Controllers;
 
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -17,11 +19,13 @@ public class MenuItemViewController {
     @FXML
     private TableColumn<MenuItem, Double> colCurrentPrice;
 
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
     @FXML
     private void initialize() {
-        MenuStore.loadFromDatabase();
+        // MenuStore.loadFromDatabase();
         colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
-        tableMenuItem.setItems(MenuStore.getItems());
+        tableMenuItem.setItems((ObservableList<MenuItem>) menuItemService.getAllMenuItem());
     }
 }
