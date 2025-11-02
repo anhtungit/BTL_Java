@@ -121,6 +121,14 @@ public class PrimaryController {
 
     @FXML
     private void empShowEdit() throws IOException {
+        if (employeeTable != null && employeeTable.getSelectionModel().getSelectedItem() == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cảnh báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Vui lòng chọn một nhân viên để chỉnh sửa");
+            alert.showAndWait();
+            return;
+        }
         loadEmployeeModule("employee_edit.fxml");
     }
 
