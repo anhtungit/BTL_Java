@@ -8,20 +8,24 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-public class MenuItemDeleteController {
+public class MenuItemDeleteController extends MenuItemControllerBase {
 
-    @FXML private TableView<MenuItem> tableMenuItem;
-    @FXML private TableColumn<MenuItem, String> colItemName;
-    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
+    @FXML
+    private TableView<MenuItem> tableMenuItem;
+    @FXML
+    private TableColumn<MenuItem, String> colItemName;
+    @FXML
+    private TableColumn<MenuItem, String> colCurrentPrice;
 
     private ObservableList<MenuItem> menuItems;
 
     @FXML
     public void initialize() {
+        reloadData();
+
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colCurrentPrice.setCellValueFactory(cell ->
-            new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
-        );
+        colCurrentPrice.setCellValueFactory(
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
         menuItems = MenuStore.getItems();
         tableMenuItem.setItems(menuItems);
@@ -47,9 +51,16 @@ public class MenuItemDeleteController {
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == yes) {
-                MenuStore.removeItem(selected);
-                tableMenuItem.refresh();
-                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa món \"" + selected.getName() + "\"!");
+                try {
+                    String itemName = selected.getName();
+                    MenuStore.removeItem(selected);
+                    reloadData();
+                    tableMenuItem.refresh();
+                    showAlert(Alert.AlertType.INFORMATION, "Thành công",
+                            "Đã xóa món \"" + itemName + "\"!");
+                } catch (RuntimeException e) {
+                    handleDatabaseError(e);
+                }
             }
         });
     }
@@ -57,13 +68,5 @@ public class MenuItemDeleteController {
     @FXML
     private void handleCancel() {
         tableMenuItem.getSelectionModel().clearSelection();
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

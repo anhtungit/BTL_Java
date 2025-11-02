@@ -3,16 +3,38 @@ package org.openjfx.Models;
 import javafx.beans.property.*;
 
 public class MenuItem {
+    private final IntegerProperty id;
     private final StringProperty name;
     private final DoubleProperty price;
     private final IntegerProperty quantity;
     private final BooleanProperty selected;
 
     public MenuItem(String name, double price) {
+        this.id = new SimpleIntegerProperty(0);
         this.name = new SimpleStringProperty(name);
         this.price = new SimpleDoubleProperty(price);
         this.quantity = new SimpleIntegerProperty(0);
         this.selected = new SimpleBooleanProperty(false);
+    }
+
+    public MenuItem(int id, String name, double price) {
+        this.id = new SimpleIntegerProperty(id);
+        this.name = new SimpleStringProperty(name);
+        this.price = new SimpleDoubleProperty(price);
+        this.quantity = new SimpleIntegerProperty(0);
+        this.selected = new SimpleBooleanProperty(false);
+    }
+
+    public int getId() {
+        return id.get();
+    }
+
+    public IntegerProperty idProperty() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id.set(id);
     }
 
     public String getName() {

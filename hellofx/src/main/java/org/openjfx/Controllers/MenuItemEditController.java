@@ -6,32 +6,33 @@ import org.openjfx.Stores.MenuStore;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class MenuItemEditController {
+public class MenuItemEditController extends MenuItemControllerBase {
 
-    @FXML private TableView<MenuItem> tableMenuItem;
-    @FXML private TableColumn<MenuItem, String> colItemName;
-    @FXML private TableColumn<MenuItem, String> colCurrentPrice;
+    @FXML
+    private TableView<MenuItem> tableMenuItem;
+    @FXML
+    private TableColumn<MenuItem, String> colItemName;
+    @FXML
+    private TableColumn<MenuItem, String> colCurrentPrice;
 
-    @FXML private TextField txtItemName;
-    @FXML private TextField txtCurrentPrice;
-
-    @FXML private Button btnSave;
-    @FXML private Button btnCancel;
+    @FXML
+    private TextField txtItemName;
+    @FXML
+    private TextField txtCurrentPrice;
 
     private ObservableList<MenuItem> menuItems;
 
     @FXML
     public void initialize() {
+        reloadData();
+
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colCurrentPrice.setCellValueFactory(cell ->
-            new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice()))
-        );
+        colCurrentPrice.setCellValueFactory(
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
         menuItems = MenuStore.getItems();
         tableMenuItem.setItems(menuItems);
@@ -69,6 +70,8 @@ public class MenuItemEditController {
 
             selected.setName(tenMoi);
             selected.setPrice(giaMoi);
+            MenuStore.updateItem(selected);
+            reloadData();
             tableMenuItem.refresh();
 
             showAlert("Thành công", "Đã cập nhật món \"" + tenMoi + "\"!");
@@ -76,6 +79,8 @@ public class MenuItemEditController {
             txtCurrentPrice.clear();
         } catch (NumberFormatException e) {
             showAlert("Lỗi", "Giá tiền phải là số hợp lệ!");
+        } catch (RuntimeException e) {
+            handleDatabaseError(e);
         }
     }
 
@@ -84,13 +89,5 @@ public class MenuItemEditController {
         txtItemName.clear();
         txtCurrentPrice.clear();
         tableMenuItem.getSelectionModel().clearSelection();
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
