@@ -1,6 +1,10 @@
 package org.openjfx.Models;
 
-public class Employee {
+public class EmployeeForm {
+    private int employeeID;
+    private int positionID;
+    private int accountID;
+
     private String fullName;
     private String address;
     private String position;
@@ -9,7 +13,10 @@ public class Employee {
     private String username;
     private String password;
 
-    public Employee(String fullName, String address, String position, long salary, String phone, String username, String password) {
+    public EmployeeForm() {
+    }
+
+    public EmployeeForm(String fullName, String address, String position, long salary, String phone, String username, String password) {
         this.fullName = fullName;
         this.address = address;
         this.position = position;
@@ -17,6 +24,43 @@ public class Employee {
         this.phone = phone;
         this.username = username;
         this.password = password;
+    }
+
+    public EmployeeForm(int employeeID, int positionID, int accountID, String fullName, String address, String position, long salary, String phone, String username, String password) {
+        this.employeeID = employeeID;
+        this.positionID = positionID;
+        this.accountID = accountID;
+        this.fullName = fullName;
+        this.address = address;
+        this.position = position;
+        this.salary = salary;
+        this.phone = phone;
+        this.username = username;
+        this.password = password;
+    }
+
+    public int getEmployeeID() {
+        return employeeID;
+    }
+
+    public void setEmployeeID(int employeeID) {
+        this.employeeID = employeeID;
+    }
+
+    public int getPositionID() {
+        return positionID;
+    }
+
+    public void setPositionID(int positionID) {
+        this.positionID = positionID;
+    }
+
+    public int getAccountID() {
+        return accountID;
+    }
+
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
     }
 
     public String getFullName() {

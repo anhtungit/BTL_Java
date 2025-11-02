@@ -6,6 +6,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
+import org.openjfx.entity.Account;
+import org.openjfx.entity.Employee;
+import org.openjfx.service.AccountService;
+import org.openjfx.service.EmployeeService;
+import org.openjfx.service.impl.AccountServiceImpl;
+import org.openjfx.service.impl.EmployeeServiceImpl;
 
 public class LoginController {
 
@@ -17,6 +23,9 @@ public class LoginController {
 
     @FXML
     private javafx.scene.control.Button loginButton;
+
+    AccountService accountService = new AccountServiceImpl();
+    EmployeeService employeeService = new EmployeeServiceImpl();
 
     @FXML
     private void initialize() {
@@ -35,19 +44,16 @@ public class LoginController {
 
     @FXML
     private void onLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+//        String username = usernameField.getText();
+//        String password = passwordField.getText();
+        String username = "manager";
+        String password = "hashed_password_456";
+        Account account = accountService.getAccountByUserName(username);
 
-        String role = null;
-        if ("admin".equals(username) && "123456".equals(password)) {
-            role = "MANAGER";
-        } else if ("user_one".equals(username) && "123456".equals(password)) {
-            role = "STAFF";
-        }
-
-        if (role != null) {
+        if (account != null && account.getPassword().equals(password)) {
+            Employee employee = employeeService.getEmployeeByAccountID(account.getAccountId());
+            App.setEmployeeLogin(employee);
             try {
-                App.setCurrentUser(username, role);
                 App.setRoot("primary");
             } catch (Exception e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

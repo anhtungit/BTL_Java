@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.openjfx.entity.Employee;
 
 import java.io.IOException;
 
@@ -14,9 +15,16 @@ import java.io.IOException;
 public class App extends Application {
 
     private static Scene scene;
-    private static String currentUsername;
-    private static String currentRole; // MANAGER or STAFF
     private static Stage primaryStage;
+    private static Employee employeeLogin;
+
+    public static Employee getEmployeeLogin() {
+        return employeeLogin;
+    }
+
+    public static void setEmployeeLogin(Employee employeeLogin) {
+        App.employeeLogin = employeeLogin;
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -43,19 +51,6 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch();
-    }
-
-    public static void setCurrentUser(String username, String role) {
-        currentUsername = username;
-        currentRole = role;
-    }
-
-    public static String getCurrentUsername() {
-        return currentUsername;
-    }
-
-    public static String getCurrentRole() {
-        return currentRole;
     }
 
 }

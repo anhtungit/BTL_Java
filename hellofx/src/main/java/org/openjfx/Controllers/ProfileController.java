@@ -9,12 +9,21 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openjfx.App;
-import org.openjfx.Stores.UserStore;
+import org.openjfx.entity.Account;
+import org.openjfx.entity.Employee;
+import org.openjfx.entity.Position;
+import org.openjfx.service.AccountService;
+import org.openjfx.service.EmployeeService;
+import org.openjfx.service.PositionService;
+import org.openjfx.service.impl.AccountServiceImpl;
+import org.openjfx.service.impl.EmployeeServiceImpl;
+import org.openjfx.service.impl.PositionServiceImpl;
 
 public class ProfileController implements Initializable {
     
@@ -29,30 +38,31 @@ public class ProfileController implements Initializable {
     @FXML private Button btnLogout;
     
     private boolean isEditing = false;
-    private final Map<String, String> positionSalaryMap = new HashMap<>();
     private final Map<Label, Control> editingControls = new HashMap<>();
+
+    private EmployeeService employeeService = new EmployeeServiceImpl();
+    private PositionService positionService = new PositionServiceImpl();
+    private AccountService accountService = new AccountServiceImpl();
+
+    private Account accountLogin;
+    private Position positionLogin;
+    private Employee employeeLogin = App.getEmployeeLogin();
 
     @Override
     public void initialize(URL location, java.util.ResourceBundle resources) {
-        // define positions and their default salaries
-        positionSalaryMap.put("Quản lý", "15.000.000");
-        positionSalaryMap.put("Nhân viên pha chế", "7.000.000");
-        positionSalaryMap.put("Nhân viên phục vụ", "5.000.000");
-        positionSalaryMap.put("Nhân viên bảo vệ", "5.000.000");
-
+        accountLogin = accountService.getAccountByAccountID(employeeLogin.getAccountID());
+        positionLogin = positionService.getPositionByPositionID(employeeLogin.getEmployeeID());
         loadUserData();
     }
 
     private void loadUserData() {
-        UserStore store = UserStore.getInstance();
-        
-        lblFullName.setText(store.getFullName());
-        lblAddress.setText(store.getAddress());
-        lblPhone.setText(store.getPhone());
-        lblUsername.setText(store.getUsername());
-        lblPosition.setText(store.getPosition());
-        lblSalary.setText(store.getSalary());
-        lblPassword.setText("*********");
+        lblFullName.setText(employeeLogin.getFullName());
+        lblPosition.setText(positionLogin.getPositionName());
+        lblAddress.setText(employeeLogin.getAddress());
+        lblPhone.setText(employeeLogin.getPhoneNumber());
+        lblSalary.setText(String.valueOf(positionLogin.getSalary()));
+        lblUsername.setText(accountLogin.getUsername());
+        lblPassword.setText("********");
     }
 
     @FXML
@@ -68,16 +78,11 @@ public class ProfileController implements Initializable {
         isEditing = true;
         btnEdit.setText("Lưu");
         
-        UserStore store = UserStore.getInstance();
-        
-        replaceLabelWithTextField(lblFullName, store.getFullName());
-        replaceLabelWithTextField(lblAddress, store.getAddress());
-        replaceLabelWithTextField(lblPhone, store.getPhone());
-
-        // Position -> ComboBox (drop list) and auto-update salary label
-        replacePositionWithComboBox(lblPosition, store.getPosition());
-
-        // Do NOT replace salary or password: salary is auto-updated and password is not editable here
+        replaceLabelWithTextField(lblFullName, employeeLogin.getFullName());
+        replaceLabelWithTextField(lblAddress, employeeLogin.getAddress());
+        replaceLabelWithTextField(lblPhone, employeeLogin.getPhoneNumber());
+        replaceLabelWithTextField(lblPassword, accountLogin.getPassword());
+        replacePositionWithComboBox(lblPosition, positionLogin.getPositionName());
     }
 
     private void replaceLabelWithTextField(Label label, String defaultValue) {
@@ -95,8 +100,8 @@ public class ProfileController implements Initializable {
 
     private void replacePositionWithComboBox(Label label, String currentPosition) {
         if (!(label.getParent() instanceof HBox)) return;
-
-        ObservableList<String> positions = FXCollections.observableArrayList(positionSalaryMap.keySet());
+        List<Position> positionList = positionService.getAllPosition();
+        ObservableList<String> positions = FXCollections.observableArrayList(positionList.stream().map(position -> position.getPositionName()).toList());
         ComboBox<String> combo = new ComboBox<>(positions);
         combo.setPrefWidth(200);
         combo.setValue(currentPosition);
@@ -104,7 +109,7 @@ public class ProfileController implements Initializable {
         // update salary label immediately when selection changes
         combo.setOnAction(e -> {
             String sel = combo.getValue();
-            String salary = positionSalaryMap.getOrDefault(sel, "0");
+            String salary = String.valueOf(positionService.getPositionByPositionName(sel).getSalary());
             lblSalary.setText(salary);
         });
 
@@ -123,19 +128,21 @@ public class ProfileController implements Initializable {
         
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            UserStore store = UserStore.getInstance();
-
             // Full name
             Control c = editingControls.get(lblFullName);
-            if (c instanceof TextField) store.setFullName(((TextField) c).getText());
+            if (c instanceof TextField) employeeLogin.setFullName(((TextField) c).getText());
 
             // Address
             c = editingControls.get(lblAddress);
-            if (c instanceof TextField) store.setAddress(((TextField) c).getText());
+            if (c instanceof TextField) employeeLogin.setAddress(((TextField) c).getText());
 
             // Phone
             c = editingControls.get(lblPhone);
-            if (c instanceof TextField) store.setPhone(((TextField) c).getText());
+            if (c instanceof TextField) employeeLogin.setPhoneNumber(((TextField) c).getText());
+
+            // Password
+            c = editingControls.get(lblPassword);
+            if (c instanceof TextField) accountLogin.setPassword(((TextField) c).getText());
 
             // Position & Salary
             c = editingControls.get(lblPosition);
@@ -143,9 +150,7 @@ public class ProfileController implements Initializable {
                 @SuppressWarnings("unchecked")
                 ComboBox<String> combo = (ComboBox<String>) c;
                 String pos = combo.getValue();
-                store.setPosition(pos);
-                String salary = positionSalaryMap.getOrDefault(pos, store.getSalary());
-                store.setSalary(salary);
+                employeeLogin.setPositionID(positionService.getPositionByPositionName(pos).getPositionId());
             }
 
             // cleanup: restore labels in UI
@@ -153,6 +158,8 @@ public class ProfileController implements Initializable {
 
             showAlert("Thành công", "Đã lưu thông tin thành công!");
         }
+        employeeService.save(employeeLogin);
+        accountService.save(accountLogin);
     }
 
     private void restoreLabels() {
@@ -184,7 +191,7 @@ public class ProfileController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                App.setCurrentUser(null, null);
+                App.setEmployeeLogin(null);
                 App.setRoot("login");
             } catch (IOException e) {
                 showAlert("Lỗi", "Không thể đăng xuất!");

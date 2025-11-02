@@ -3,7 +3,7 @@ package org.openjfx.Controllers;
 import java.io.IOException;
 
 import org.openjfx.App;
-import org.openjfx.Models.Employee;
+import org.openjfx.Models.EmployeeForm;
 import org.openjfx.Stores.EmployeeStore;
 
 import javafx.fxml.FXML;
@@ -54,8 +54,7 @@ public class PrimaryController {
 
     @FXML
     private void initialize() {
-        String role = App.getCurrentRole();
-        if ("STAFF".equals(role)) {
+        if (App.getEmployeeLogin().getPositionID() != 1) {
             setVisible(btnTrangChu, true);
             setVisible(btnTrangCaNhan, true);
             setVisible(btnQuanLyBanHang, true);
@@ -85,7 +84,7 @@ public class PrimaryController {
     @FXML
     private void logout() {
         try {
-            App.setCurrentUser(null, null);
+            App.setEmployeeLogin(null);
             App.setRoot("login");
         } catch (IOException ignored) {
         }
@@ -192,7 +191,7 @@ public class PrimaryController {
             }
 
             // if user selected an employee in the list, prefill form
-            Employee selected = (employeeTable == null) ? null : employeeTable.getSelectionModel().getSelectedItem();
+            EmployeeForm selected = (employeeTable == null) ? null : employeeTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 if (editFullName != null) editFullName.setText(selected.getFullName());
                 if (editAddress != null) editAddress.setText(selected.getAddress());
@@ -225,10 +224,10 @@ public class PrimaryController {
         } catch (Exception ignored) {}
     }
 
-    @FXML private javafx.scene.control.TableView<Employee> employeeTable;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> colName;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> colPosition;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> colSalary;
+    @FXML private javafx.scene.control.TableView<EmployeeForm> employeeTable;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> colName;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> colPosition;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> colSalary;
 
     private void bindEmployeeTable() {
         if (employeeTable == null) return;
@@ -243,10 +242,10 @@ public class PrimaryController {
         return nf.format(vnd);
     }
 
-    @FXML private javafx.scene.control.TableView<Employee> deleteTable;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> delColName;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> delColPosition;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> delColSalary;
+    @FXML private javafx.scene.control.TableView<EmployeeForm> deleteTable;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> delColName;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> delColPosition;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> delColSalary;
 
     private void bindDeleteTable() {
         if (deleteTable == null) return;
@@ -256,10 +255,10 @@ public class PrimaryController {
         deleteTable.setItems(EmployeeStore.getEmployees());
 
         deleteTable.setRowFactory(tv -> {
-            final javafx.scene.control.TableRow<Employee> row = new javafx.scene.control.TableRow<>();
+            final javafx.scene.control.TableRow<EmployeeForm> row = new javafx.scene.control.TableRow<>();
             row.setOnMouseClicked(evt -> {
                 if (!row.isEmpty()) {
-                    Employee selected = row.getItem();
+                    EmployeeForm selected = row.getItem();
                     javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
                     confirm.setTitle("Xác nhận");
                     confirm.setHeaderText(null);
@@ -276,7 +275,7 @@ public class PrimaryController {
 
     @FXML
     private void empDeleteConfirm() throws IOException {
-        Employee selected = deleteTable.getSelectionModel().getSelectedItem();
+        EmployeeForm selected = deleteTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
             EmployeeStore.getEmployees().remove(selected);
         }
@@ -284,12 +283,12 @@ public class PrimaryController {
     }
 
     @FXML private javafx.scene.control.TextField searchField;
-    @FXML private javafx.scene.control.TableView<Employee> searchTable;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> sColName;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> sColPosition;
-    @FXML private javafx.scene.control.TableColumn<Employee, String> sColSalary;
+    @FXML private javafx.scene.control.TableView<EmployeeForm> searchTable;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColName;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColPosition;
+    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColSalary;
 
-    private void bindSearchTable(javafx.collections.ObservableList<Employee> data) {
+    private void bindSearchTable(javafx.collections.ObservableList<EmployeeForm> data) {
         if (searchTable == null) return;
         sColName.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
         sColPosition.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPosition()));
@@ -300,7 +299,7 @@ public class PrimaryController {
     @FXML
     private void empSearchSubmit() throws IOException {
         String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        javafx.collections.ObservableList<Employee> filtered = EmployeeStore.getEmployees().filtered(e -> e.getFullName().toLowerCase().contains(query));
+        javafx.collections.ObservableList<EmployeeForm> filtered = EmployeeStore.getEmployees().filtered(e -> e.getFullName().toLowerCase().contains(query));
         bindSearchTable(filtered);
     }
 
@@ -321,7 +320,7 @@ public class PrimaryController {
         String password = addPassword == null ? "" : addPassword.getText();
         String address = text(addAddress);
         if (!name.isEmpty() && !position.isEmpty() && salary > 0) {
-            EmployeeStore.getEmployees().add(new Employee(name, address, position, salary, phone, username, password));
+            EmployeeStore.getEmployees().add(new EmployeeForm(name, address, position, salary, phone, username, password));
             empShowList();
         }
     }
@@ -329,7 +328,7 @@ public class PrimaryController {
     @FXML
     private void empEditSubmit() throws IOException {
         if (employeeTable != null) {
-            Employee selected = employeeTable.getSelectionModel().getSelectedItem();
+            EmployeeForm selected = employeeTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 selected.setFullName(text(editFullName));
                 selected.setAddress(text(editAddress));
