@@ -7,19 +7,22 @@ public class Expense {
 
     private final IntegerProperty expenseID;
     private final IntegerProperty accountID;
+    private final IntegerProperty Amount;
     private final StringProperty expenseDescription;
     private final ObjectProperty<LocalDate> expenseDate; 
 
     public Expense() {
         this.expenseID = new SimpleIntegerProperty();
         this.accountID = new SimpleIntegerProperty();
+        this.Amount = new SimpleIntegerProperty();
         this.expenseDescription = new SimpleStringProperty();
         this.expenseDate = new SimpleObjectProperty<>(LocalDate.now());
     }
 
-    public Expense(int expenseID, int accountID, String expenseDescription, LocalDate expenseDate) {
+    public Expense(int expenseID, int accountID, int Amount, String expenseDescription, LocalDate expenseDate) {
         this.expenseID = new SimpleIntegerProperty(expenseID);
         this.accountID = new SimpleIntegerProperty(accountID);
+        this.Amount = new SimpleIntegerProperty(Amount);
         this.expenseDescription = new SimpleStringProperty(expenseDescription);
         this.expenseDate = new SimpleObjectProperty<>(expenseDate);
     }
@@ -70,5 +73,15 @@ public class Expense {
 
     public ObjectProperty<LocalDate> expenseDateProperty() {
         return expenseDate;
+    }
+
+    public int getAmount() {
+        return Amount.get();
+    }
+    public void setAmount(int amount) {
+        this.Amount.set(amount);
+    }
+    public IntegerProperty amountProperty() {
+        return Amount;
     }
 }

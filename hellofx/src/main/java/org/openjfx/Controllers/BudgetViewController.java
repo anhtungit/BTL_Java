@@ -4,39 +4,53 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.openjfx.Models.Transaction;
-import org.openjfx.Stores.BudgetStore;
+
+import org.openjfx.Models.Expense;
+import org.openjfx.service.BudgetService;
+import org.openjfx.service.impl.BudgetServiceImpl;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class BudgetViewController {
 
-    @FXML private DatePicker dateFrom;
-    @FXML private DatePicker dateTo;
-    @FXML private TableView<Transaction> tableTransactions;
-    @FXML private TableColumn<Transaction, String> colDate;
-    @FXML private TableColumn<Transaction, String> colIncome;
-    @FXML private TableColumn<Transaction, String> colExpense;
-    @FXML private Label lblTotalIncome;
-    @FXML private Label lblTotalExpense;
+    @FXML 
+    private DatePicker dateFrom;
+    @FXML 
+    private DatePicker dateTo;
+    @FXML
+    private TableView<Expense> tableExpenses;
+    @FXML
+    private TableColumn<Expense, Integer> colAmount;
+    @FXML
+    private TableColumn<Expense, Integer> colAccountID;
+    @FXML
+    private TableColumn<Expense, LocalDate> colDate;
+    @FXML 
+    private Label lblTotalIncome;
+    @FXML 
+    private Label lblTotalExpense;
 
-    private ObservableList<Transaction> transactions = FXCollections.observableArrayList();
+    private ObservableList<Expense> expenses = FXCollections.observableArrayList();
+
+    BudgetService budgetService = new BudgetServiceImpl();
 
     @FXML
     public void initialize() {
-        colDate.setCellValueFactory(cell -> cell.getValue().dateProperty());
-        colIncome.setCellValueFactory(cell -> cell.getValue().incomeProperty());
-        colExpense.setCellValueFactory(cell -> cell.getValue().expenseProperty());
 
-        tableTransactions.setItems(transactions);
+        colAccountID.setCellValueFactory(cell -> cell.getValue().accountIDProperty().asObject());
+        colDate.setCellValueFactory(cell -> cell.getValue().expenseDateProperty());
+        colAmount.setCellValueFactory(cell -> cell.getValue().amountProperty().asObject());
+        
+
+        tableExpenses.setItems(expenses);
 
         loadAll();
     }
 
     private void loadAll() {
-        List<Transaction> data = BudgetStore.getAll();
-        transactions.setAll(data);
+        List<Expense> data = budgetService.getAllExpenses();
+        expenses.setAll(data);
         updateTotals(data);
     }
 
@@ -45,16 +59,16 @@ public class BudgetViewController {
         LocalDate from = dateFrom.getValue();
         LocalDate to = dateTo.getValue();
 
-        List<Transaction> filtered = BudgetStore.filterByDate(from, to);
-        transactions.setAll(filtered);
+        List<Expense> filtered = budgetService.filterExpensesByDate(from, to);
+        expenses.setAll(filtered);
         updateTotals(filtered);
     }
 
-    private void updateTotals(List<Transaction> list) {
-        double totalIncome = list.stream().mapToDouble(t -> t.getIncomeValue()).sum();
-        double totalExpense = list.stream().mapToDouble(t -> t.getExpenseValue()).sum();
+    private void updateTotals(List<Expense> data) {
+        // double totalIncome = data.stream().mapToDouble(t -> t.getIncomeValue()).sum();
+        // double totalExpense = data.stream().mapToDouble(t -> t.getExpenseValue()).sum();
 
-        lblTotalIncome.setText(String.format("%,.0f", totalIncome));
-        lblTotalExpense.setText(String.format("%,.0f", totalExpense));
+        // lblTotalIncome.setText(String.format("%,.0f", totalIncome));
+        // lblTotalExpense.setText(String.format("%,.0f", totalExpense));
     }
 }
