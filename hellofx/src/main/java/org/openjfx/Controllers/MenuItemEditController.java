@@ -1,7 +1,8 @@
 package org.openjfx.Controllers;
 
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -26,15 +27,17 @@ public class MenuItemEditController extends MenuItemControllerBase {
 
     private ObservableList<MenuItem> menuItems;
 
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
     @FXML
     public void initialize() {
-        reloadData();
+        // reloadData();
 
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colCurrentPrice.setCellValueFactory(
                 cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
-        menuItems = MenuStore.getItems();
+        menuItems = (ObservableList<MenuItem>) menuItemService.getAllMenuItem();
         tableMenuItem.setItems(menuItems);
 
         tableMenuItem.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -70,8 +73,8 @@ public class MenuItemEditController extends MenuItemControllerBase {
 
             selected.setName(tenMoi);
             selected.setPrice(giaMoi);
-            //MenuStore.updateItem(selected);
-            reloadData();
+            menuItemService.updateMenuItem(selected);
+            // reloadData();
             tableMenuItem.refresh();
 
             showAlert("Thành công", "Đã cập nhật món \"" + tenMoi + "\"!");

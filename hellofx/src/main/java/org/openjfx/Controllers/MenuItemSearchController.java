@@ -1,7 +1,8 @@
 package org.openjfx.Controllers;
 
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -23,16 +24,18 @@ public class MenuItemSearchController {
     private ObservableList<MenuItem> allItems;
     private ObservableList<MenuItem> filteredItems;
 
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
     @FXML
     public void initialize() {
         // Load dữ liệu từ database
-        //MenuStore.loadFromDatabase();
+        // menuItemService.loadFromDatabase();
 
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colCurrentPrice.setCellValueFactory(
                 cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
-        allItems = MenuStore.getItems();
+        allItems = (ObservableList<MenuItem>) menuItemService.getAllMenuItem();
         filteredItems = FXCollections.observableArrayList(allItems);
 
         tableResult.setItems(filteredItems);

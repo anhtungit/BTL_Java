@@ -1,6 +1,7 @@
 package org.openjfx.Controllers;
 
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 import javafx.scene.control.Alert;
 
 /**
@@ -8,9 +9,11 @@ import javafx.scene.control.Alert;
  */
 public class MenuItemControllerBase {
 
-    protected void reloadData() {
-        //MenuStore.loadFromDatabase();
-    }
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
+    // protected void reloadData() {
+    //     menuItemService.loadFromDatabase();
+    // }
 
     protected void showAlert(String title, String message) {
         showAlert(Alert.AlertType.INFORMATION, title, message);

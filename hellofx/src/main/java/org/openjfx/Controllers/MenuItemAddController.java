@@ -2,7 +2,8 @@ package org.openjfx.Controllers;
 
 import org.openjfx.Models.Ingredient;
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Stores.MenuStore;
+import org.openjfx.service.MenuItemService;
+import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 
 public class MenuItemAddController extends MenuItemControllerBase {
+
 
     @FXML
     private TextField txtItemName;
@@ -28,6 +30,9 @@ public class MenuItemAddController extends MenuItemControllerBase {
     private TableColumn<Ingredient, String> colUnitName;
 
     private final ObservableList<Ingredient> ingredients = FXCollections.observableArrayList();
+
+
+    MenuItemService menuItemService = new MenuItemServiceImpl();
 
     @FXML
     public void initialize() {
@@ -76,8 +81,8 @@ public class MenuItemAddController extends MenuItemControllerBase {
             }
 
             MenuItem newItem = new MenuItem(name, price);
-            MenuStore.addItem(newItem);
-            reloadData();
+            menuItemService.addMenuItem(newItem);
+            // reloadData();
 
             // Clear form
             txtItemName.clear();
