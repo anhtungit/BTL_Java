@@ -37,6 +37,7 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
                 invoiceDetails.add(invoiceDetail);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return invoiceDetails;
     }

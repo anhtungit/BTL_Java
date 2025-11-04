@@ -3,6 +3,7 @@ package org.openjfx.Controllers;
 import java.io.IOException;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.openjfx.App;
 import org.openjfx.Models.EmployeeForm;
 import org.openjfx.Stores.EmployeeStore;
@@ -14,7 +15,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
+import org.openjfx.entity.Account;
 import org.openjfx.entity.Employee;
+import org.openjfx.entity.Position;
 import org.openjfx.service.AccountService;
 import org.openjfx.service.EmployeeService;
 import org.openjfx.service.PositionService;
@@ -168,77 +171,49 @@ public class PrimaryController {
         contentPane.getChildren().setAll(root);
         if ("employee_list.fxml".equals(centerFxml)) bindEmployeeTable();
         if ("employee_delete.fxml".equals(centerFxml)) bindDeleteTable();
-        if ("employee_search.fxml".equals(centerFxml)) bindSearchTable(EmployeeStore.getEmployees());
-        // Initialize employee form controls when showing add/edit
-        ensureEmpPositionMap();
+        if ("employee_search.fxml".equals(centerFxml)) bindSearchTable(FXCollections.observableArrayList(employeeService.getAllEmployee()));
         if ("employee_add.fxml".equals(centerFxml)) initAddEmployeeForm();
         if ("employee_edit.fxml".equals(centerFxml)) initEditEmployeeForm();
     }
 
-    private final java.util.Map<String, Long> empPositionSalary = new java.util.HashMap<>();
-
-    private void ensureEmpPositionMap() {
-        if (!empPositionSalary.isEmpty()) return;
-        empPositionSalary.put("Quản lý", 10000000L);
-        empPositionSalary.put("Phục vụ bàn", 5000000L);
-        empPositionSalary.put("Thu Ngân", 10000000L);
-        empPositionSalary.put("Bảo vệ", 5000000L);
-        empPositionSalary.put("Pha chế", 7000000L);
-    }
-
+    //Todo: Xong
     private void initAddEmployeeForm() {
         try {
             if (addPosition != null) {
-                addPosition.getItems().setAll(empPositionSalary.keySet());
+                addPosition.getItems().setAll(positionService.getAllPosition().stream().map(position -> position.getPositionName()).toList());
                 if (addPosition.getItems().size() > 0 && addPosition.getValue() == null) {
                     addPosition.setValue(addPosition.getItems().get(0));
-                    addSalary.setText(formatSalary(empPositionSalary.get(addPosition.getValue())));
+                    addSalary.setText(formatSalary(positionService.getPositionByPositionName(addPosition.getValue()).getSalary()));
                 }
                 addPosition.setOnAction(e -> {
                     String sel = addPosition.getValue();
-                    Long s = empPositionSalary.getOrDefault(sel, 0L);
+                    int s = positionService.getPositionByPositionName(addPosition.getValue()).getSalary();
                     if (addSalary != null) addSalary.setText(formatSalary(s));
                 });
             }
         } catch (Exception ignored) {}
     }
-
+    //Todo: Xong
     private void initEditEmployeeForm() {
         try {
             // populate position list
             if (editPosition != null) {
-                editPosition.getItems().setAll(empPositionSalary.keySet());
+                editPosition.getItems().setAll(positionService.getAllPosition().stream().map(p -> p.getPositionName()).toList());
             }
 
-            // if user selected an employee in the list, prefill form
             Employee selected = (employeeTable == null) ? null : employeeTable.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                if (editFullName != null) editFullName.setText(selected.getFullName());
-                if (editAddress != null) editAddress.setText(selected.getAddress());
-                if (editPhone != null) editPhone.setText(selected.getPhoneNumber());
-                if (editUsername != null) editUsername.setText(selected.getFullName());
-//                if (editPosition != null) {
-//                    editPosition.setValue(selected.getPosition());
-//                    // update salary according to mapping (fallback to stored salary)
-//                    long s = empPositionSalary.getOrDefault(selected.getPosition(), selected.getSalary());
-//                    if (editSalary != null) editSalary.setText(formatSalary(s));
-//                } else {
-//                    if (editSalary != null) editSalary.setText(formatSalary(selected.getSalary()));
-//                }
-//                if (editPassword != null) editPassword.setText("");
-            } else {
-                // no selection: just initialize edit form position list
-                    if (editPosition != null && editPosition.getItems().size() > 0 && editPosition.getValue() == null) {
-                    editPosition.setValue(editPosition.getItems().get(0));
-                    if (editSalary != null) editSalary.setText(formatSalary(empPositionSalary.get(editPosition.getValue())));
-                }
-            }
+            editFullName.setText(selected.getFullName());
+            editAddress.setText(selected.getAddress());
+            editPhone.setText(selected.getPhoneNumber());
+            editUsername.setText(accountService.getAccountByAccountID(selected.getAccountID()).getUsername());
+            editPosition.setValue(positionService.getPositionByPositionID(selected.getPositionID()).getPositionName());
+            editSalary.setText(formatSalary(positionService.getPositionByPositionID(selected.getPositionID()).getSalary()));
+            editPassword.setText("");
 
             if (editPosition != null) {
                 editPosition.setOnAction(e -> {
                     String sel = editPosition.getValue();
-                    Long s = empPositionSalary.getOrDefault(sel, 0L);
-                    if (editSalary != null) editSalary.setText(formatSalary(s));
+                    if (editSalary != null) editSalary.setText(formatSalary(positionService.getPositionByPositionName(sel).getSalary()));
                 });
             }
         } catch (Exception ignored) {}
@@ -249,6 +224,7 @@ public class PrimaryController {
     @FXML private javafx.scene.control.TableColumn<Employee, String> colPosition;
     @FXML private javafx.scene.control.TableColumn<Employee, String> colSalary;
 
+    //Xong
     private void bindEmployeeTable() {
         if (employeeTable == null) return;
         colName.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
@@ -267,6 +243,7 @@ public class PrimaryController {
     @FXML private javafx.scene.control.TableColumn<Employee, String> delColPosition;
     @FXML private javafx.scene.control.TableColumn<Employee, String> delColSalary;
 
+    //Xong
     private void bindDeleteTable() {
         if (deleteTable == null) return;
         delColName.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
@@ -279,13 +256,16 @@ public class PrimaryController {
             row.setOnMouseClicked(evt -> {
                 if (!row.isEmpty()) {
                     Employee selected = row.getItem();
+                    System.out.println("Employee is selected to delete: " + selected.getEmployeeID());
                     javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
                     confirm.setTitle("Xác nhận");
                     confirm.setHeaderText(null);
-                    confirm.setContentText("Bạn có muốn xóa bản ghi này hay không ?");
+                    confirm.setContentText("Bạn có muốn xóa nhân viên này hay không ?");
                     java.util.Optional<javafx.scene.control.ButtonType> result = confirm.showAndWait();
                     if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
-                        //EmployeeStore.getEmployees().remove(selected);
+                        int accID = selected.getAccountID();
+                        accountService.delete(accID);
+                        employeeService.delete(selected);
                     }
                 }
             });
@@ -293,34 +273,24 @@ public class PrimaryController {
         });
     }
 
-//    @FXML
-//    private void empDeleteConfirm() throws IOException {
-//        Employee selected = deleteTable.getSelectionModel().getSelectedItem();
-//        if (selected != null) {
-//            EmployeeStore.getEmployees().remove(selected);
-//        }
-//        empShowDelete();
-//    }
-
     @FXML private javafx.scene.control.TextField searchField;
-    @FXML private javafx.scene.control.TableView<EmployeeForm> searchTable;
-    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColName;
-    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColPosition;
-    @FXML private javafx.scene.control.TableColumn<EmployeeForm, String> sColSalary;
+    @FXML private javafx.scene.control.TableView<Employee> searchTable;
+    @FXML private javafx.scene.control.TableColumn<Employee, String> sColName;
+    @FXML private javafx.scene.control.TableColumn<Employee, String> sColPosition;
+    @FXML private javafx.scene.control.TableColumn<Employee, String> sColSalary;
 
-    private void bindSearchTable(javafx.collections.ObservableList<EmployeeForm> data) {
+    private void bindSearchTable(javafx.collections.ObservableList<Employee> data) {
         if (searchTable == null) return;
         sColName.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
-        sColPosition.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPosition()));
-        sColSalary.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(formatSalary(c.getValue().getSalary())));
+        sColPosition.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(positionService.getPositionByPositionID(c.getValue().getPositionID()).getPositionName()));
+        sColSalary.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(formatSalary(positionService.getPositionByPositionID(c.getValue().getPositionID()).getSalary())));
         searchTable.setItems(data);
     }
 
     @FXML
     private void empSearchSubmit() throws IOException {
         String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        javafx.collections.ObservableList<EmployeeForm> filtered = EmployeeStore.getEmployees().filtered(e -> e.getFullName().toLowerCase().contains(query));
-        bindSearchTable(filtered);
+        bindSearchTable(FXCollections.observableArrayList(employeeService.getEmployeeByName(query)));
     }
 
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;
@@ -330,39 +300,43 @@ public class PrimaryController {
     @FXML private javafx.scene.control.ComboBox<String> editPosition;
     @FXML private javafx.scene.control.PasswordField editPassword;
 
+    //Todo: Xong
     @FXML
     private void empAddSubmit() throws IOException {
         String name = text(addFullName);
         String position = addPosition == null ? "" : addPosition.getValue();
-        long salary = parseLong(addSalary == null ? "0" : addSalary.getText());
         String phone = text(addPhone);
         String username = text(addUsername);
         String password = addPassword == null ? "" : addPassword.getText();
         String address = text(addAddress);
-        if (!name.isEmpty() && !position.isEmpty() && salary > 0) {
-            EmployeeStore.getEmployees().add(new EmployeeForm(name, address, position, salary, phone, username, password));
+        if (!name.isEmpty() && !position.isEmpty()) {
+            int accountID = accountService.create(new Account(username, password));
+            int positionID = positionService.getPositionByPositionName(position).getPositionId();
+            employeeService.create(new Employee(positionID, accountID, name, phone, address));
             empShowList();
         }
     }
 
     @FXML
     private void empEditSubmit() throws IOException {
-//        if (employeeTable != null) {
-//            EmployeeForm selected = employeeTable.getSelectionModel().getSelectedItem();
-//            if (selected != null) {
-//                selected.setFullName(text(editFullName));
-//                selected.setAddress(text(editAddress));
-//                String pos = editPosition == null ? selected.getPosition() : editPosition.getValue();
-//                selected.setPosition(pos);
-//                selected.setSalary(parseLong(editSalary == null ? String.valueOf(selected.getSalary()) : editSalary.getText()));
-//                selected.setPhone(text(editPhone));
-//                selected.setUsername(text(editUsername));
-//                if (editPassword != null && !editPassword.getText().isEmpty()) {
-//                    selected.setPassword(editPassword.getText());
-//                }
-//            }
-//        }
-//        empShowList();
+        if (employeeTable != null) {
+            Employee selected = employeeTable.getSelectionModel().getSelectedItem();
+            Account accSeleted = accountService.getAccountByAccountID(selected.getAccountID());
+            if (selected != null) {
+                selected.setFullName(text(editFullName));
+                selected.setAddress(text(editAddress));
+                if (editPosition != null)
+                    selected.setPositionID(positionService.getPositionByPositionName(editPosition.getValue()).getPositionId());
+                selected.setPhoneNumber(text(editPhone));
+                selected.setFullName(text(editUsername));
+                if (editPassword != null && !editPassword.getText().isEmpty()) {
+                    accSeleted.setPassword(editPassword.getText());
+                }
+            }
+            accountService.save(accSeleted);
+            employeeService.save(selected);
+        }
+        empShowList();
     }
 
     @FXML

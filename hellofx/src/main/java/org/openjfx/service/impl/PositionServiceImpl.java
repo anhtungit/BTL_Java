@@ -33,6 +33,7 @@ public class PositionServiceImpl implements PositionService {
                 position.setSalary(rs.getInt("Salary"));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return position;
     }
@@ -57,6 +58,7 @@ public class PositionServiceImpl implements PositionService {
                 position.setSalary(rs.getInt("Salary"));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return position;
     }
@@ -81,6 +83,7 @@ public class PositionServiceImpl implements PositionService {
                 positions.add(position);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return positions;
     }

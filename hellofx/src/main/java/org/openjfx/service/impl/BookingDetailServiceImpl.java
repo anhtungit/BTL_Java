@@ -36,6 +36,7 @@ public class BookingDetailServiceImpl implements BookingDetailService {
                 bookingDetail.setBookingDateTime(rs.getDate("BookingDateTime"));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return bookingDetail;
     }

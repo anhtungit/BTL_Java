@@ -34,6 +34,7 @@ public class TableServiceImpl implements TableService {
                 tables.add(table);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return tables;
     }
@@ -53,6 +54,7 @@ public class TableServiceImpl implements TableService {
             ps.setInt(2, table.getTableID());
             ps.executeUpdate();
         } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

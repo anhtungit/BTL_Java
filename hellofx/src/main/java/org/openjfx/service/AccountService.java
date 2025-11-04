@@ -6,4 +6,6 @@ public interface AccountService {
     Account getAccountByUserName(String userName);
     Account getAccountByAccountID(int accountID);
     void save(Account account);
+    void delete(int accountID);
+    int create(Account account);
 }

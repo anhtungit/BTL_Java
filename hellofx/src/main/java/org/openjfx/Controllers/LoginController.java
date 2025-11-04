@@ -44,10 +44,10 @@ public class LoginController {
 
     @FXML
     private void onLogin() {
-       String username = usernameField.getText();
-       String password = passwordField.getText();
-        // String username = "manager";
-        // String password = "hashed_password_456";
+//       String username = usernameField.getText();
+//       String password = passwordField.getText();
+         String username = "manager";
+         String password = "hashed_password_456";
         Account account = accountService.getAccountByUserName(username);
 
         if (account != null && account.getPassword().equals(password)) {

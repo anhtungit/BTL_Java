@@ -33,6 +33,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.setStatus(rs.getInt("Status"));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return invoice;
     }

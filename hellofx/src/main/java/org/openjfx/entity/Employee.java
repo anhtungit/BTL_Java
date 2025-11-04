@@ -11,6 +11,14 @@ public class Employee {
     public Employee() {
     }
 
+    public Employee(int positionID, int accountID, String fullName, String phoneNumber, String address) {
+        this.positionID = positionID;
+        this.accountID = accountID;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
+
     public Employee(int employeeID, int positionID, int accountID, String fullName, String phoneNumber, String address) {
         this.employeeID = employeeID;
         this.positionID = positionID;
