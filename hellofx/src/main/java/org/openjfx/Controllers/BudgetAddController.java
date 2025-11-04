@@ -5,62 +5,83 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.LocalDateStringConverter;
+
+import org.openjfx.Models.Expense;
 import org.openjfx.Models.Transaction;
 import org.openjfx.Stores.BudgetStore;
+import org.openjfx.service.BudgetService;
+import org.openjfx.service.impl.BudgetServiceImpl;
+
 
 import java.time.LocalDate;
 
 public class BudgetAddController {
 
-    @FXML private TableView<Transaction> tableExpenses;
-    @FXML private TableColumn<Transaction, String> colDate;
-    @FXML private TableColumn<Transaction, String> colDescription;
-    @FXML private TableColumn<Transaction, String> colAmount;
-    @FXML private Button btnSave;
-    @FXML private Button btnCancel;
+    @FXML
+    private TableView<Expense> tableExpenses;
+    @FXML
+    private TableColumn<Expense, LocalDate> colDate;
+    @FXML
+    private TableColumn<Expense, String> colDescription;
+    @FXML
+    private TableColumn<Expense, Integer> colAccountID;
+    @FXML
+    private Button btnSave;
+    @FXML
+private Button btnCancel;
 
-    private ObservableList<Transaction> expenses = FXCollections.observableArrayList();
+    BudgetService budgetService = new BudgetServiceImpl();
+
+    private ObservableList<Expense> expenses = FXCollections.observableArrayList();
 
     @FXML
-    public void initialize() {
+     public void initialize() {
         tableExpenses.setEditable(true);
 
-        colDate.setCellValueFactory(cell -> cell.getValue().dateProperty());
-        colDescription.setCellValueFactory(cell -> cell.getValue().incomeProperty()); // tạm dùng incomeProperty cho mô tả
-        colAmount.setCellValueFactory(cell -> cell.getValue().expenseProperty());
+        // Gán dữ liệu cho từng cột (binding với property của Expense)
+        colDate.setCellValueFactory(cell -> cell.getValue().expenseDateProperty());
+        colDescription.setCellValueFactory(cell -> cell.getValue().expenseDescriptionProperty());
+        colAccountID.setCellValueFactory(cell -> cell.getValue().accountIDProperty().asObject());
 
-        // Cho phép nhập text
-        colDate.setCellFactory(TextFieldTableCell.forTableColumn());
+        // Cài cell cho phép chỉnh sửa trực tiếp
+        colDate.setCellFactory(TextFieldTableCell.forTableColumn(new LocalDateStringConverter()));
         colDescription.setCellFactory(TextFieldTableCell.forTableColumn());
-        colAmount.setCellFactory(TextFieldTableCell.forTableColumn());
+        colAccountID.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 
-        // Bắt sự kiện chỉnh sửa
-        colDate.setOnEditCommit(e -> e.getRowValue().dateProperty().set(e.getNewValue()));
-        colDescription.setOnEditCommit(e -> e.getRowValue().incomeProperty().set(e.getNewValue()));
-        colAmount.setOnEditCommit(e -> e.getRowValue().expenseProperty().set(e.getNewValue()));
+        // Xử lý khi người dùng sửa giá trị trực tiếp
+        colDate.setOnEditCommit(e -> e.getRowValue().setExpenseDate(e.getNewValue()));
+        colDescription.setOnEditCommit(e -> e.getRowValue().setExpenseDescription(e.getNewValue()));
+        colAccountID.setOnEditCommit(e -> e.getRowValue().setAccountID(e.getNewValue()));
 
-        // Thêm một dòng trống mặc định để nhập
-        expenses.add(new Transaction(LocalDate.now().toString(), "", "0"));
+        expenses.add(new Expense(0, 0, "", LocalDate.now()));
         tableExpenses.setItems(expenses);
     }
 
     @FXML
     private void handleSave() {
-        for (Transaction t : expenses) {
-            if (!t.getExpense().equals("0") && !t.getExpense().isEmpty()) {
-                BudgetStore.add(new Transaction(t.getDate(), "0", t.getExpense()));
+        for (Expense e : expenses) {
+            if (e.getExpenseDescription() != null && !e.getExpenseDescription().isEmpty()) {
+               
+                budgetService.addExpense(new Expense(
+                        e.getExpenseID(),
+                        e.getAccountID(),
+                        e.getExpenseDescription(),
+                        e.getExpenseDate()
+                ));
             }
         }
 
         showAlert("Thành công", "Đã lưu các khoản chi tiêu mới!");
         expenses.clear();
-        expenses.add(new Transaction(LocalDate.now().toString(), "", "0"));
+        expenses.add(new Expense(0, 0, "", LocalDate.now()));
     }
 
     @FXML
     private void handleCancel() {
         expenses.clear();
-        expenses.add(new Transaction(LocalDate.now().toString(), "", "0"));
+        expenses.add(new Expense(0, 0, "", LocalDate.now()));
     }
 
     private void showAlert(String title, String msg) {
