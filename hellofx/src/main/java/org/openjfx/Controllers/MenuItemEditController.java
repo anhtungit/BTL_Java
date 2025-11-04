@@ -5,6 +5,7 @@ import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -37,7 +38,7 @@ public class MenuItemEditController extends MenuItemControllerBase {
         colCurrentPrice.setCellValueFactory(
                 cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
-        menuItems = (ObservableList<MenuItem>) menuItemService.getAllMenuItem();
+        menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         tableMenuItem.setItems(menuItems);
 
         tableMenuItem.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
