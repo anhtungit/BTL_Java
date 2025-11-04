@@ -114,4 +114,26 @@ public class AccountServiceImpl implements AccountService {
         }
         return generatedKey;
     }
+
+    @Override
+    public boolean userNameIsPresent(String userName) {
+        Account account = null;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT *
+                    FROM Account
+                    WHERE UserName = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
