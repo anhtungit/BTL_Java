@@ -35,7 +35,7 @@ public class MenuItemSearchController {
         colCurrentPrice.setCellValueFactory(
                 cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
 
-        allItems = (ObservableList<MenuItem>) menuItemService.getAllMenuItem();
+        allItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         filteredItems = FXCollections.observableArrayList(allItems);
 
         tableResult.setItems(filteredItems);

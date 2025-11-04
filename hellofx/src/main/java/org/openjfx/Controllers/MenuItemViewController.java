@@ -4,6 +4,7 @@ import org.openjfx.Models.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -26,6 +27,6 @@ public class MenuItemViewController {
         // MenuStore.loadFromDatabase();
         colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
-        tableMenuItem.setItems((ObservableList<MenuItem>) menuItemService.getAllMenuItem());
+        tableMenuItem.setItems(FXCollections.observableArrayList(menuItemService.getAllMenuItem()));
     }
 }
