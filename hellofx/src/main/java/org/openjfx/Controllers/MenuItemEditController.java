@@ -70,7 +70,7 @@ public class MenuItemEditController extends MenuItemControllerBase {
 
             selected.setName(tenMoi);
             selected.setPrice(giaMoi);
-            MenuStore.updateItem(selected);
+            //MenuStore.updateItem(selected);
             reloadData();
             tableMenuItem.refresh();
 

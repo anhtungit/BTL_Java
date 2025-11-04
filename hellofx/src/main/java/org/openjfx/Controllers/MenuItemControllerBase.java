@@ -9,7 +9,7 @@ import javafx.scene.control.Alert;
 public class MenuItemControllerBase {
 
     protected void reloadData() {
-        MenuStore.loadFromDatabase();
+        //MenuStore.loadFromDatabase();
     }
 
     protected void showAlert(String title, String message) {

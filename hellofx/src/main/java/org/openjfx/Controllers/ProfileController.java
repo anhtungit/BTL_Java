@@ -51,7 +51,7 @@ public class ProfileController implements Initializable {
     @Override
     public void initialize(URL location, java.util.ResourceBundle resources) {
         accountLogin = accountService.getAccountByAccountID(employeeLogin.getAccountID());
-        positionLogin = positionService.getPositionByPositionID(employeeLogin.getEmployeeID());
+        positionLogin = positionService.getPositionByPositionID(employeeLogin.getPositionID());
         loadUserData();
     }
 
@@ -150,7 +150,8 @@ public class ProfileController implements Initializable {
                 @SuppressWarnings("unchecked")
                 ComboBox<String> combo = (ComboBox<String>) c;
                 String pos = combo.getValue();
-                employeeLogin.setPositionID(positionService.getPositionByPositionName(pos).getPositionId());
+                positionLogin = positionService.getPositionByPositionName(pos);
+                employeeLogin.setPositionID(positionLogin.getPositionId());
             }
 
             // cleanup: restore labels in UI

@@ -19,7 +19,7 @@ public class MenuItemViewController {
 
     @FXML
     private void initialize() {
-        MenuStore.loadFromDatabase();
+        //MenuStore.loadFromDatabase();
         colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
         tableMenuItem.setItems(MenuStore.getItems());

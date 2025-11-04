@@ -8,8 +8,37 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmployeeServiceImpl implements EmployeeService {
+    @Override
+    public List<Employee> getAllEmployee() {
+        List<Employee> employees = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT EmployeeID, PositionID, AccountID, FullName, PhoneNumber, Address
+                    FROM Employee
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Employee employee = new Employee();
+                employee.setEmployeeID(rs.getInt("EmployeeID"));
+                employee.setPositionID(rs.getInt("PositionID"));
+                employee.setAccountID(rs.getInt("AccountID"));
+                employee.setFullName(rs.getString("FullName"));
+                employee.setPhoneNumber(rs.getString("PhoneNumber"));
+                employee.setAddress(rs.getString("Address"));
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+        }
+        return employees;
+    }
+
     @Override
     public Employee getEmployeeByAccountID(int accountId) {
         Employee employee = new Employee();

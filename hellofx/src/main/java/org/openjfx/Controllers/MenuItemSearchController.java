@@ -26,7 +26,7 @@ public class MenuItemSearchController {
     @FXML
     public void initialize() {
         // Load dữ liệu từ database
-        MenuStore.loadFromDatabase();
+        //MenuStore.loadFromDatabase();
 
         colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colCurrentPrice.setCellValueFactory(
