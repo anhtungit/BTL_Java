@@ -8,4 +8,5 @@ public interface AccountService {
     void save(Account account);
     void delete(int accountID);
     int create(Account account);
+    boolean userNameIsPresent(String userName);
 }

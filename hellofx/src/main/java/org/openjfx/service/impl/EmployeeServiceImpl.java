@@ -116,7 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.setFullName(rs.getString("FullName"));
                 employee.setPhoneNumber(rs.getString("PhoneNumber"));
                 employee.setAddress(rs.getString("Address"));
-                if (employee.getPositionID() != 7)
+                if (employee.getPositionID() != 21)
                     employees.add(employee);
             }
         } catch (SQLException e) {

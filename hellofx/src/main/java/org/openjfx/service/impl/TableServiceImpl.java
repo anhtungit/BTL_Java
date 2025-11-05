@@ -1,7 +1,9 @@
 package org.openjfx.service.impl;
 
+import javafx.scene.control.Tab;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Account;
+import org.openjfx.entity.Position;
 import org.openjfx.entity.Table;
 import org.openjfx.service.TableService;
 
@@ -40,7 +42,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public void changeStatusByTable(Table table) {
+    public void changeStatusTable(Table table) {
         table.setStatus("Trống".equals(table.getStatus())? "Đã đặt" : "Trống");
         save(table);
     }
@@ -48,7 +50,7 @@ public class TableServiceImpl implements TableService {
     @Override
     public void save(Table table) {
         try (Connection conn = DBConnection.getConnection()) {
-            String update = "UPDATE Tables SET TableStatus = ? WHERE AccountID = ?";
+            String update = "UPDATE Tables SET StatusTable = ? WHERE TableID = ?";
             PreparedStatement ps = conn.prepareStatement(update);
             ps.setString(1, table.getStatus());
             ps.setInt(2, table.getTableID());
@@ -57,4 +59,56 @@ public class TableServiceImpl implements TableService {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public Table getTableByTableID(int tableID) {
+        Table table = new Table();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT TableID, StatusTable, TableName
+                    FROM Tables
+                    WHERE TableID = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, tableID);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                table.setTableID(rs.getInt("TableID"));
+                table.setStatus(rs.getString("StatusTable"));
+                table.setTableName(rs.getString("TableName"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return table;
+    }
+
+    @Override
+    public Table getTableByTableName(String tableName) {
+        Table table = null;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT TableID, StatusTable, TableName
+                    FROM Tables
+                    WHERE TableName = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, tableName);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                table = new Table();
+                table.setTableID(rs.getInt("TableID"));
+                table.setStatus(rs.getString("StatusTable"));
+                table.setTableName(rs.getString("TableName"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return table;
+    }
+
 }

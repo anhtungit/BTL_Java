@@ -306,7 +306,17 @@ public class PrimaryController {
         String name = text(addFullName);
         String position = addPosition == null ? "" : addPosition.getValue();
         String phone = text(addPhone);
-        String username = text(addUsername);
+        String username = "";
+        if (!accountService.userNameIsPresent(addUsername.getText()))
+            username = text(addUsername);
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Thêm nhân viên thất bại!");
+            alert.setHeaderText(null);
+            alert.setContentText("Tên đăng nhập đã có người sử dụng. Nhập tên đăng nhập khác");
+            alert.showAndWait();
+            return;
+        }
         String password = addPassword == null ? "" : addPassword.getText();
         String address = text(addAddress);
         if (!name.isEmpty() && !position.isEmpty()) {

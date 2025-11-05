@@ -19,6 +19,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -27,7 +28,6 @@ import org.openjfx.entity.Invoice;
 import org.openjfx.entity.InvoiceDetail;
 import org.openjfx.entity.Table;
 import org.openjfx.Models.MenuItem;
-import org.openjfx.Models.OrderItem;
 import org.openjfx.service.*;
 import org.openjfx.service.impl.*;
 
@@ -65,7 +65,7 @@ public class SalesController implements Initializable {
 
     private void initializeTableGrid() {
         // Tạo grid 5x4 cho 20 bàn
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < tableList.size(); i++) {
             Table table = tableList.get(i);
             
             Button tableButton = createTableButton(table);
@@ -106,7 +106,7 @@ public class SalesController implements Initializable {
     @FXML
     private void selectTable(Table table) {
         selectedTable = table;
-        bookingDetailOfSelectedTable = bookingDetailService.getBookingDetailByTableID(table.getTableID());
+        bookingDetailOfSelectedTable = bookingDetailService.getBookingDetailNewlestByTableID(table.getTableID());
         invoiceOfSelectedTable = invoiceService.getInvoiceByInvoiceID(bookingDetailOfSelectedTable.getInvoiceID());
         listOfInvoiceDetailOfSelectedTable = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceOfSelectedTable.getInvoiceID());
         updateTableInfo();
@@ -127,6 +127,8 @@ public class SalesController implements Initializable {
 
     private void refreshTableGrid() {
         tableGrid.getChildren().clear();
+        tableList.clear();
+        tableList = tableService.getAllTables();
         initializeTableGrid();
     }
 
@@ -176,6 +178,74 @@ public class SalesController implements Initializable {
 
     @FXML
     private void transferTable() {
+        if (selectedTable == null || !"Đã đặt".equals(selectedTable.getStatus())) {
+            showAlert("Lỗi", "Vui lòng chọn bàn đã đặt để chuyển!");
+            return;
+        }
+
+        Dialog<Integer> dialog = new Dialog<>();
+        dialog.setTitle("Chuyển bàn " + selectedTable.getTableName());
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+
+        Label instructionLabel = new Label("Chọn bàn cần chuyển đến:");
+        instructionLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+        content.getChildren().add(instructionLabel);
+
+        ChoiceBox<String> tableChoiceBox = new ChoiceBox<>();
+        List<Integer> availableTables = new ArrayList<>();
+        for (int i = 0; i < tableList.size(); i++) {
+            Table table = tableList.get(i);
+            if (table != null && "Trống".equals(table.getStatus()) && i != selectedTable.getTableID()) {
+                availableTables.add(i + 1);
+            }
+        }
+
+        if (availableTables.isEmpty()) {
+            showAlert("Lỗi", "Không có bàn trống để chuyển!");
+            return;
+        }
+
+        tableChoiceBox.getItems().addAll(availableTables.stream().map(a -> tableService.getTableByTableID(a).getTableName()).toList());
+        tableChoiceBox.setValue(tableService.getTableByTableID(availableTables.get(0)).getTableName());
+        content.getChildren().add(tableChoiceBox);
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        Button transferButton = new Button("Chuyển");
+        transferButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
+        transferButton.setOnAction(e -> {
+            Table destTable = tableService.getTableByTableName(tableChoiceBox.getValue());
+            if (destTable != null) {
+                bookingDetailService.changeTableInBookingDetail(selectedTable, destTable);
+                tableService.changeStatusTable(selectedTable);
+                tableService.changeStatusTable(destTable);
+                selectedTable = destTable;
+                updateTableInfo();
+                refreshTableGrid();
+                dialog.close();
+                showAlert("Thành công", "Đã chuyển bàn thành công!");
+            }
+        });
+
+        Button cancelButton = new Button("Hủy");
+        cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 16;");
+        cancelButton.setOnAction(e -> dialog.close());
+
+        buttonBox.getChildren().addAll(transferButton, cancelButton);
+        content.getChildren().add(buttonBox);
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.setResizable(false);
+
+        dialog.setOnCloseRequest(e -> {
+        });
+
+        dialog.showAndWait();
     }
 
 
@@ -285,7 +355,7 @@ public class SalesController implements Initializable {
             return;
         }
 
-        tableService.changeStatusByTable(selectedTable);
+        tableService.changeStatusTable(selectedTable);
         updateTableInfo();
         refreshTableGrid();
             dialog.close();
