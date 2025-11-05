@@ -13,14 +13,16 @@ import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import org.openjfx.App;
 import org.openjfx.entity.ExportNote;
+import org.openjfx.entity.ImportNote;
 import org.openjfx.entity.InventoryItem;
 import org.openjfx.entity.Unit;
 import org.openjfx.service.ExportNoteService;
 import org.openjfx.service.ImportNoteService;
 import org.openjfx.service.InventoryItemService;
 import org.openjfx.service.UnitService;
-import org.openjfx.service.impl.ExportNoteImpl;
+import org.openjfx.service.impl.ExportNoteServiceImpl;
 import org.openjfx.service.impl.ImportNoteServiceImpl;
 import org.openjfx.service.impl.InventoryItemServiceImpl;
 import org.openjfx.service.impl.UnitServiceImpl;
@@ -47,7 +49,7 @@ public class InventoryController {
     InventoryItemService inventoryItemService = new InventoryItemServiceImpl();
     UnitService unitService = new UnitServiceImpl();
     ImportNoteService importNoteService = new ImportNoteServiceImpl();
-    ExportNoteService exportNoteService = new ExportNoteImpl();
+    ExportNoteService exportNoteService = new ExportNoteServiceImpl();
 
     @FXML
     public void initialize() {
@@ -152,13 +154,16 @@ public class InventoryController {
                 try {
                     String name = nameField.getText();
                     int quantity = Integer.parseInt(quantityField.getText());
-                    String unit = unitCombo.getValue();
-                    double price = Double.parseDouble(priceField.getText());
-                    LocalDate importDate = importDatePicker.getValue();
+                    int unitID = unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId();
+                    int price = Integer.parseInt(priceField.getText());
 
                     InventoryItem inventoryItem = new InventoryItem();
                     inventoryItem.setItemName(name);
-                    return new InventoryItem();
+                    inventoryItem.setStockQuantity(quantity);
+                    inventoryItem.setUnitID(unitID);
+                    inventoryItem.setUnitPrice(price);
+
+                    return inventoryItem;
                 } catch (NumberFormatException e) {
                     showAlert("Error", "Invalid input values");
                     return null;
@@ -169,143 +174,168 @@ public class InventoryController {
 
         Optional<InventoryItem> result = dialog.showAndWait();
         result.ifPresent(item -> {
-            //InventoryStore.getInstance().addItem(item);
+            int inventoryID = inventoryItemService.create(item);
+            ImportNote importNote = new ImportNote();
+            importNote.setInventoryItemID(inventoryID);
+            importNote.setQuantity(item.getStockQuantity());
+            importNote.setImportDate(Date.valueOf(importDatePicker.getValue()));
+            importNote.setTotalAmount(item.getStockQuantity() * item.getUnitPrice());
+            importNote.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
+
+            importNoteService.create(importNote);
         });
     }
 
     @FXML
     private void showExportDialog() {
-//        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
-//        if (selectedItem == null) {
-//            showAlert("Error", "Please select an item to export");
-//            return;
-//        }
-//
-//        Dialog<Integer> dialog = new Dialog<>();
-//        dialog.setTitle("Xuất hàng hóa");
-//        dialog.setHeaderText(null);
-//
-//        ButtonType exportButtonType = new ButtonType("Đồng ý", ButtonBar.ButtonData.OK_DONE);
-//        dialog.getDialogPane().getButtonTypes().addAll(exportButtonType, ButtonType.CANCEL);
-//
-//        GridPane grid = new GridPane();
-//        grid.setHgap(10);
-//        grid.setVgap(10);
-//        grid.setPadding(new Insets(20, 150, 10, 10));
-//
-//        TextField quantityField = new TextField();
-//        DatePicker exportDatePicker = new DatePicker();
-//
-//        grid.add(new Label("Số lượng xuất:"), 0, 0);
-//        grid.add(quantityField, 1, 0);
-//        grid.add(new Label("Ngày xuất:"), 0, 1);
-//        grid.add(exportDatePicker, 1, 1);
-//
-//        dialog.getDialogPane().setContent(grid);
-//
-//        dialog.setResultConverter(dialogButton -> {
-//            if (dialogButton == exportButtonType) {
-//                try {
-//                    int quantity = Integer.parseInt(quantityField.getText());
-//                    LocalDate exportDate = exportDatePicker.getValue();
-//
-//                    if (quantity > selectedItem.getQuantity()) {
-//                        showAlert("Error", "Số lượng xuất vượt quá số lượng trong kho");
-//                        return null;
-//                    }
-//
-//                    selectedItem.setQuantity(selectedItem.getQuantity() - quantity);
-//                    selectedItem.setExportDate(exportDate);
-//                    return quantity;
-//                } catch (NumberFormatException e) {
-//                    showAlert("Error", "Invalid quantity");
-//                    return null;
-//                }
-//            }
-//            return null;
-//        });
-//
-//        dialog.showAndWait();
-//        inventoryTable.refresh();
+        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            showAlert("Error", "Please select an item to export");
+            return;
+        }
+
+        Dialog<Integer> dialog = new Dialog<>();
+        dialog.setTitle("Xuất hàng hóa");
+        dialog.setHeaderText(null);
+
+        ButtonType exportButtonType = new ButtonType("Đồng ý", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(exportButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField quantityField = new TextField();
+        DatePicker exportDatePicker = new DatePicker();
+
+        grid.add(new Label("Số lượng xuất:"), 0, 0);
+        grid.add(quantityField, 1, 0);
+        grid.add(new Label("Ngày xuất:"), 0, 1);
+        grid.add(exportDatePicker, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == exportButtonType) {
+                try {
+                    int quantity = Integer.parseInt(quantityField.getText());
+                    LocalDate exportDate = exportDatePicker.getValue();
+
+                    if (quantity > selectedItem.getStockQuantity()) {
+                        showAlert("Error", "Số lượng xuất vượt quá số lượng trong kho");
+                        return null;
+                    }
+
+                    ExportNote exportNote = new ExportNote();
+                    exportNote.setInventoryItemID(selectedItem.getInventoryItemID());
+                    exportNote.setExportDate(Date.valueOf(exportDate));
+                    exportNote.setTotalExportAmount(quantity * selectedItem.getUnitPrice());
+                    exportNote.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
+                    exportNote.setQuantity(quantity);
+
+                    exportNoteService.create(exportNote);
+
+                    selectedItem.setStockQuantity(selectedItem.getStockQuantity() - quantity);
+                    inventoryItemService.save(selectedItem);
+                    return quantity;
+                } catch (NumberFormatException e) {
+                    showAlert("Error", "Invalid quantity");
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+        inventoryTable.refresh();
     }
 
     @FXML
     private void showEditDialog() {
-//        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
-//        if (selectedItem == null) {
-//            showAlert("Error", "Please select an item to edit");
-//            return;
-//        }
-//
-//        Dialog<InventoryItem> dialog = new Dialog<>();
-//        dialog.setTitle("Chỉnh sửa hàng hóa");
-//        dialog.setHeaderText(null);
-//
-//        ButtonType editButtonType = new ButtonType("Lưu", ButtonBar.ButtonData.OK_DONE);
-//        dialog.getDialogPane().getButtonTypes().addAll(editButtonType, ButtonType.CANCEL);
-//
-//        GridPane grid = new GridPane();
-//        grid.setHgap(10);
-//        grid.setVgap(10);
-//        grid.setPadding(new Insets(20, 150, 10, 10));
-//
-//        TextField nameField = new TextField(selectedItem.getName());
-//        TextField quantityField = new TextField(String.valueOf(selectedItem.getQuantity()));
-//        TextField unitField = new TextField(selectedItem.getUnit());
-//        TextField priceField = new TextField(String.valueOf(selectedItem.getPrice()));
-//        DatePicker importDatePicker = new DatePicker(selectedItem.getImportDate());
-//
-//        grid.add(new Label("Tên hàng:"), 0, 0);
-//        grid.add(nameField, 1, 0);
-//        grid.add(new Label("Số lượng:"), 0, 1);
-//        grid.add(quantityField, 1, 1);
-//        grid.add(new Label("Đơn vị:"), 0, 2);
-//        grid.add(unitField, 1, 2);
-//        grid.add(new Label("Đơn giá:"), 0, 3);
-//        grid.add(priceField, 1, 3);
-//        grid.add(new Label("Ngày nhập:"), 0, 4);
-//        grid.add(importDatePicker, 1, 4);
-//
-//        dialog.getDialogPane().setContent(grid);
-//
-//        dialog.setResultConverter(dialogButton -> {
-//            if (dialogButton == editButtonType) {
-//                try {
-//                    selectedItem.setName(nameField.getText());
-//                    selectedItem.setQuantity(Integer.parseInt(quantityField.getText()));
-//                    selectedItem.setUnit(unitField.getText());
-//                    selectedItem.setPrice(Double.parseDouble(priceField.getText()));
-//                    selectedItem.setImportDate(importDatePicker.getValue());
-//                    return selectedItem;
-//                } catch (NumberFormatException e) {
-//                    showAlert("Error", "Invalid input values");
-//                    return null;
-//                }
-//            }
-//            return null;
-//        });
-//
-//        dialog.showAndWait();
-//        inventoryTable.refresh();
+        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            showAlert("Error", "Please select an item to edit");
+            return;
+        }
+
+        Dialog<InventoryItem> dialog = new Dialog<>();
+        dialog.setTitle("Chỉnh sửa hàng hóa");
+        dialog.setHeaderText(null);
+
+        ButtonType editButtonType = new ButtonType("Lưu", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(editButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nameField = new TextField(selectedItem.getItemName());
+        TextField quantityField = new TextField(String.valueOf(selectedItem.getStockQuantity()));
+        ComboBox<String> unitCombo = new ComboBox<>();
+        TextField priceField = new TextField(String.valueOf(selectedItem.getUnitPrice()));
+        DatePicker importDatePicker = new DatePicker(importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID()).getImportDate().toLocalDate());
+
+        unitCombo.setItems(FXCollections.observableArrayList(unitService.getAllUnit().stream().map(u -> u.getUnitName()).toList()));
+        unitCombo.setValue(unitService.getUnitByUnitID(selectedItem.getUnitID()).getUnitName());
+        grid.add(new Label("Tên hàng:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Số lượng:"), 0, 1);
+        grid.add(quantityField, 1, 1);
+        grid.add(new Label("Đơn vị:"), 0, 2);
+        grid.add(unitCombo, 1, 2);
+        grid.add(new Label("Đơn giá:"), 0, 3);
+        grid.add(priceField, 1, 3);
+        grid.add(new Label("Ngày nhập:"), 0, 4);
+        grid.add(importDatePicker, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == editButtonType) {
+                try {
+                    selectedItem.setItemName(nameField.getText());
+                    selectedItem.setStockQuantity(Integer.parseInt(quantityField.getText()));
+                    selectedItem.setUnitID(unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId());
+                    selectedItem.setUnitPrice(Integer.parseInt(priceField.getText()));
+
+                    ImportNote importNote = importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID());
+                    importNote.setImportDate(Date.valueOf(importDatePicker.getValue()));
+
+                    inventoryItemService.save(selectedItem);
+                    importNoteService.save(importNote);
+                    return selectedItem;
+                } catch (NumberFormatException e) {
+                    showAlert("Error", "Invalid input values");
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+        inventoryTable.refresh();
     }
 
     @FXML
     private void handleDelete() {
-//        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
-//        if (selectedItem == null) {
-//            showAlert("Error", "Please select an item to delete");
-//            return;
-//        }
-//
-//        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//        alert.setTitle("Xác nhận xóa");
-//        alert.setHeaderText(null);
-//        alert.setContentText("Bạn có chắc chắn muốn xóa mặt hàng này?");
-//
-//        Optional<ButtonType> result = alert.showAndWait();
-//        if (result.isPresent() && result.get() == ButtonType.OK) {
-//            InventoryStore.getInstance().removeItem(selectedItem);
-//        }
+        InventoryItem selectedItem = inventoryTable.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            showAlert("Error", "Please select an item to delete");
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Xác nhận xóa");
+        alert.setHeaderText(null);
+        alert.setContentText("Bạn có chắc chắn muốn xóa mặt hàng này?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            inventoryItemService.delete(selectedItem);
+            initialize();
+        }
     }
 
     private void showAlert(String title, String content) {

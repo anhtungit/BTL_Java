@@ -40,6 +40,30 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
+    public Unit getUnitByUnitName(String unitName) {
+        Unit unit = null;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT UnitID, UnitName
+                    FROM Unit
+                    WHERE UnitName = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, unitName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                unit = new Unit();
+                unit.setUnitId(rs.getInt("UnitID"));
+                unit.setUnitName(rs.getString("UnitName"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return unit;
+    }
+
+    @Override
     public List<Unit> getAllUnit() {
         List<Unit> units = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {

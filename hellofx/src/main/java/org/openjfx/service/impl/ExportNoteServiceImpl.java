@@ -5,12 +5,9 @@ import org.openjfx.entity.ExportNote;
 import org.openjfx.entity.ImportNote;
 import org.openjfx.service.ExportNoteService;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
-public class ExportNoteImpl implements ExportNoteService {
+public class ExportNoteServiceImpl implements ExportNoteService {
     @Override
     public ExportNote getExportNoteByInventoryID(int inventoryID) {
         ExportNote exportNote = new ExportNote();
@@ -40,5 +37,36 @@ public class ExportNoteImpl implements ExportNoteService {
         }
 
         return exportNote;
+    }
+
+    @Override
+    public int create(ExportNote exportNote) {
+        int generatedKey = 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          INSERT INTO ExportNote(EmployeeID, InventoryItemID, TotalExportAmount, ExportDate, Quantity)
+                          VALUES (?, ?, ?, ?, ?)
+                          """;
+
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, exportNote.getEmployeeID());
+            ps.setInt(2, exportNote.getInventoryItemID());
+            ps.setInt(3, exportNote.getTotalExportAmount());
+            ps.setDate(4, exportNote.getExportDate());
+            ps.setInt(5, exportNote.getQuantity());
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedKey = generatedKeys.getInt(1);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return generatedKey;
     }
 }

@@ -9,7 +9,7 @@ import java.sql.*;
 public class ImportNoteServiceImpl implements ImportNoteService {
     @Override
     public ImportNote getImportNoteByInventoryID(int inventoryID) {
-        ImportNote importNote = null;
+        ImportNote importNote = new ImportNote();
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
                     SELECT EmployeeID, ImportDate, InventoryItemID, TotalAmount, Quantity
@@ -23,7 +23,6 @@ public class ImportNoteServiceImpl implements ImportNoteService {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                importNote = new ImportNote();
                 importNote.setEmployeeID(rs.getInt("EmployeeID"));
                 importNote.setImportDate(rs.getDate("ImportDate"));
                 importNote.setTotalAmount(rs.getInt("TotalAmount"));
@@ -39,31 +38,38 @@ public class ImportNoteServiceImpl implements ImportNoteService {
     }
 
     @Override
-    public int create(ImportNote importNote) {
-        int generatedKey = 0;
+    public void create(ImportNote importNote) {
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
-                          INSERT INTO ImportNote(ImportDate, InventoryItemID, TotalAmount, Quantity)
-                          VALUES (?, ?, ?, ?)
+                          INSERT INTO ImportNote(ImportDate, InventoryItemID, TotalAmount, Quantity, EmployeeID)
+                          VALUES (?, ?, ?, ?, ?)
                           """;
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setDate(1, importNote.getImportDate());
             ps.setInt(2, importNote.getInventoryItemID());
             ps.setInt(3, importNote.getTotalAmount());
             ps.setInt(4, importNote.getQuantity());
-            int rowsAffected = ps.executeUpdate();
-
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        generatedKey = generatedKeys.getInt(1);
-                    }
-                }
-            }
-
+            ps.setInt(5, importNote.getEmployeeID());
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return generatedKey;
+    }
+
+    @Override
+    public void save(ImportNote importNote) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String update = "UPDATE ImportNote SET ImportDate = ?, TotalAmount = ?, Quantity = ? WHERE EmployeeID = ? AND InventoryItemID = ?";
+            PreparedStatement ps = conn.prepareStatement(update);
+            ps.setDate(1, importNote.getImportDate());
+            ps.setInt(2, importNote.getTotalAmount());
+            ps.setInt(3, importNote.getQuantity());
+            ps.setInt(4, importNote.getEmployeeID());
+            ps.setInt(5, importNote.getInventoryItemID());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
