@@ -1,16 +1,22 @@
 package org.openjfx.Controllers;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.net.URL;
-import java.util.ResourceBundle;
+import org.openjfx.entity.BookingDetail;
+import org.openjfx.entity.Invoice;
+import org.openjfx.entity.InvoiceDetail;
+import org.openjfx.entity.Table;
+import org.openjfx.service.*;
+import org.openjfx.service.impl.*;
 
-import org.openjfx.Models.OrderItem;
-import org.openjfx.Models.Table;
-import org.openjfx.Stores.TableStore;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -19,23 +25,33 @@ public class PaymentDialogController implements Initializable {
     
     @FXML private DialogPane dialogPane;
     @FXML private Label headerLabel;
-    @FXML private TableView<OrderItem> orderTable;
-    @FXML private TableColumn<OrderItem, String> itemNameColumn;
-    @FXML private TableColumn<OrderItem, Integer> quantityColumn;
-    @FXML private TableColumn<OrderItem, String> priceColumn;
+    @FXML private TableView<InvoiceDetail> orderTable;
+    @FXML private TableColumn<InvoiceDetail, String> itemNameColumn;
+    @FXML private TableColumn<InvoiceDetail, Integer> quantityColumn;
+    @FXML private TableColumn<InvoiceDetail, String> priceColumn;
     @FXML private Label totalLabel;
     @FXML private TextField amountPaidField;
     @FXML private Label changeLabel;
     @FXML private CheckBox resetTableCheckBox;
     
     private Table currentTable;
-    private double totalAmount = 0;
-    private TableStore tableStore;
+    BookingDetail bookingDetail;
+    Invoice invoice;
+    List<InvoiceDetail> tableItems;
+
+    private int totalAmount = 0;
+    private List<Table> tableList;
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
-    
+
+    TableService tableService = new TableServiceImpl();
+    BookingDetailService bookingDetailService = new BookingDetailServiceImpl();
+    InvoiceService invoiceService = new InvoiceServiceImpl();
+    InvoiceDetailService invoiceDetailService = new InvoiceDetailServiceImpl();
+    MenuItemService menuItemService = new MenuItemServiceImpl();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tableStore = TableStore.getInstance();
+        tableList = tableService.getAllTables();
         setupTable();
         
         setupDialogButtons();
@@ -48,11 +64,11 @@ public class PaymentDialogController implements Initializable {
     }
     
     private void setupTable() {
-        itemNameColumn.setCellValueFactory(data -> data.getValue().itemNameProperty());
-        quantityColumn.setCellValueFactory(data -> data.getValue().quantityProperty().asObject());
+        itemNameColumn.setCellValueFactory(data -> new SimpleStringProperty(menuItemService.getMenuItemByMenuItemID(data.getValue().getMenuItemID()).getItemName()));
+        quantityColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getQuantity()).asObject());
         priceColumn.setCellValueFactory(data -> {
-            OrderItem item = data.getValue();
-            String formattedPrice = currencyFormat.format(item.getQuantity() * item.getPrice());
+            InvoiceDetail item = data.getValue();
+            String formattedPrice = currencyFormat.format(item.getQuantity() * item.getPriceAtSale());
             return javafx.beans.binding.Bindings.createStringBinding(() -> formattedPrice);
         });
     }
@@ -117,6 +133,10 @@ public class PaymentDialogController implements Initializable {
             
             payButton.setOnAction(e -> {
                 try {
+                    invoice.setStatus(0);
+                    invoice.setTotalAmount(totalAmount);
+                    invoiceService.save(invoice);
+
                     showSuccessAlert();
                     
                     ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
@@ -168,45 +188,49 @@ public class PaymentDialogController implements Initializable {
     
     public void setTable(Table table) {
         this.currentTable = table;
-        headerLabel.setText("Thanh toán - Bàn " + table.getTableNumber());
-        
-        ObservableList<OrderItem> items = FXCollections.observableArrayList();
-        java.util.List<OrderItem> tableItems = tableStore.getItemsForTable(table.getTableNumber());
+        headerLabel.setText("Thanh toán - Bàn " + table.getTableName());
+
+        ObservableList<InvoiceDetail> items = FXCollections.observableArrayList();
+
+        this.bookingDetail = bookingDetailService.getBookingDetailNewlestByTableID(table.getTableID());
+        this.invoice = invoiceService.getInvoiceByInvoiceID(bookingDetail.getInvoiceID());
+        this.tableItems = invoiceDetailService.getInvoiceDetailByInvoiceID(invoice.getInvoiceID());
+
         if (tableItems != null && !tableItems.isEmpty()) {
             items.addAll(tableItems);
             orderTable.setItems(items);
-            
+
             totalAmount = items.stream()
-                .mapToDouble(item -> item.getQuantity() * item.getPrice())
+                .mapToInt(item -> item.getQuantity() * item.getPriceAtSale())
                 .sum();
             totalLabel.setText(currencyFormat.format(totalAmount) + " đ");
-            
+
             showOrderSummary();
         } else {
             showAlert("Thông báo", "Bàn này chưa có món ăn nào!");
             totalAmount = 0;
             totalLabel.setText("0 đ");
         }
-        
+
         amountPaidField.clear();
         changeLabel.setText("0 đ");
         setPayButtonEnabled(false);
     }
     
     private void showOrderSummary() {
-        StringBuilder summary = new StringBuilder();
-        summary.append("Chi tiết hóa đơn - Bàn ").append(currentTable.getTableNumber()).append("\n\n");
-        
-        for (OrderItem item : orderTable.getItems()) {
-            summary.append(String.format("%-25s", item.getItemName()))
-                   .append(String.format("x%-3d", item.getQuantity()))
-                   .append(String.format("%,15d VNĐ\n", (long)(item.getQuantity() * item.getPrice())));
-        }
-        
-        summary.append("\n").append("=".repeat(45)).append("\n");
-        summary.append(String.format("%-29s%,15d VNĐ", "Tổng cộng:", (long)totalAmount));
-        
-        showAlert("Chi tiết thanh toán", summary.toString());
+//        StringBuilder summary = new StringBuilder();
+//        summary.append("Chi tiết hóa đơn - Bàn ").append(currentTable.getTableName()).append("\n\n");
+//
+//        for (InvoiceDetail item : orderTable.getItems()) {
+//            summary.append(String.format("%-25s", menuItemService.getMenuItemByMenuItemID(item.getMenuItemID()).getItemName()))
+//                   .append(String.format("x%-3d", item.getQuantity()))
+//                   .append(String.format("%,15d VNĐ\n", (long)(item.getQuantity() * item.getPriceAtSale())));
+//        }
+//
+//        summary.append("\n").append("=".repeat(45)).append("\n");
+//        summary.append(String.format("%-29s%,15d VNĐ", "Tổng cộng:", (long)totalAmount));
+//
+//        showAlert("Chi tiết thanh toán", summary.toString());
     }
     
     public boolean isResetTableSelected() {

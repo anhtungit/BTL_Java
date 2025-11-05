@@ -27,9 +27,9 @@ public class BookingDetailServiceImpl implements BookingDetailService {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, tableID);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-//                if (invoiceService.getInvoiceByInvoiceID(bookingDetail.getInvoiceID()).getStatus() == 1)
-//                    break;
+            while (rs.next()) {
+                if (invoiceService.getInvoiceByInvoiceID(bookingDetail.getInvoiceID()).getStatus() == 1)
+                    break;
                 bookingDetail.setTableID(rs.getInt("TableID"));
                 bookingDetail.setEmployeeID(rs.getInt("EmployeeID"));
                 bookingDetail.setInvoiceID(rs.getInt("InvoiceID"));

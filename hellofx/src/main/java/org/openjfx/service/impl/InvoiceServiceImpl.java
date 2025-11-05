@@ -62,4 +62,36 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         return generatedKey;
     }
+
+    @Override
+    public void save(Invoice invoice) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String update = "UPDATE Invoice SET TotalAmount = ?, CreatedAt = ?, Status = ? WHERE InvoiceID = ?";
+            PreparedStatement ps = conn.prepareStatement(update);
+            ps.setInt(1, invoice.getTotalAmount());
+            ps.setDate(2, invoice.getCreatedAt());
+            ps.setInt(3, invoice.getStatus());
+            ps.setInt(4, invoice.getInvoiceID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void delete(Invoice invoice) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          DELETE FROM Invoice
+                          WHERE InvoiceID = ?;
+                          """;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, invoice.getInvoiceID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

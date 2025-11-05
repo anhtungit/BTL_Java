@@ -1,31 +1,29 @@
 package org.openjfx.entity;
 
-import java.util.Date;
+
+import java.sql.Date;
 
 public class Invoice {
     private int invoiceID;
     private int totalAmount;
     private Date createdAt;
     private int status;
-    private int promotionID
-    ;
 
     public Invoice() {
     }
 
-    public Invoice(int totalAmount, Date createdAt, int status, int promotionID) {
+    public Invoice(int totalAmount, Date createdAt, int status) {
         this.totalAmount = totalAmount;
         this.createdAt = createdAt;
         this.status = status;
-        this.promotionID = promotionID;
     }
 
-    public Invoice(int invoiceID, int totalAmount, Date createdAt, int status, int promotionID) {
+    public Invoice(int invoiceID, int totalAmount, Date createdAt, int status) {
         this.invoiceID = invoiceID;
         this.totalAmount = totalAmount;
         this.createdAt = createdAt;
         this.status = status;
-        this.promotionID = promotionID;
+
     }
 
     public int getInvoiceID() {
@@ -60,11 +58,4 @@ public class Invoice {
         this.status = status;
     }
 
-    public int getPromotionID() {
-        return promotionID;
-    }
-
-    public void setPromotionID(int promotionID) {
-        this.promotionID = promotionID;
-    }
 }

@@ -215,7 +215,7 @@ public class SalesController implements Initializable {
         List<Integer> availableTables = new ArrayList<>();
         for (int i = 0; i < tableList.size(); i++) {
             Table table = tableList.get(i);
-            if (table != null && "Trống".equals(table.getStatus()) && i != selectedTable.getTableID()) {
+            if (table != null && "Trống".equals(table.getStatus()) && i + 1 != selectedTable.getTableID()) {
                 availableTables.add(i + 1);
             }
         }
@@ -285,7 +285,10 @@ public class SalesController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            invoiceDetailService.deleteAll(invoiceOfSelectedTable);
             bookingDetailService.delete(bookingDetailOfSelectedTable);
+            invoiceService.delete(invoiceOfSelectedTable);
+
             tableService.changeStatusTable(selectedTable);
             updateTableInfo();
             refreshTableGrid();
@@ -408,32 +411,32 @@ public class SalesController implements Initializable {
 
     @FXML
     private void selectMenu() {
-//        if (selectedTable == null) {
-//            showAlert("Lỗi", "Vui lòng chọn bàn để chọn thực đơn!");
-//            return;
-//        }
-//
-//        if ("Trống".equals(selectedTable.getStatus())) {
-//            showAlert("Lỗi", "Bàn này chưa được đặt!");
-//            return;
-//        }
-//
-//        Dialog<Void> dialog = new Dialog<>();
-//        dialog.setTitle("Chọn món bàn " + selectedTable.getTableName());
-//
-//        VBox content = new VBox(10);
-//        content.setPadding(new Insets(20));
-//
-//        Label tableLabel = new Label("Bàn " + selectedTable.getTableName());
-//        tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-//        content.getChildren().add(tableLabel);
-//
-//        ObservableList<org.openjfx.entity.MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
-//
-//        java.util.List<> existingItems = tableStore.getItemsForTable(selectedTable.getTableNumber());
+        if (selectedTable == null) {
+            showAlert("Lỗi", "Vui lòng chọn bàn để chọn thực đơn!");
+            return;
+        }
+
+        if ("Trống".equals(selectedTable.getStatus())) {
+            showAlert("Lỗi", "Bàn này chưa được đặt!");
+            return;
+        }
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Chọn món bàn " + selectedTable.getTableName());
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+
+        Label tableLabel = new Label("Bàn " + selectedTable.getTableName());
+        tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+        content.getChildren().add(tableLabel);
+
+        ObservableList<org.openjfx.entity.MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
+
+        List<InvoiceDetail> existingItems = listOfInvoiceDetailOfSelectedTable;
 //        if (existingItems != null && !existingItems.isEmpty()) {
-//            for (MenuItem mi : menuItems) {
-//                for (OrderItem oi : existingItems) {
+//            for (org.openjfx.entity.MenuItem mi : menuItems) {
+//                for (InvoiceService oi : existingItems) {
 //                    if (oi.getItemName().equals(mi.getName())) {
 //                        mi.setSelected(oi.getQuantity() > 0);
 //                        mi.setQuantity(oi.getQuantity());
@@ -442,7 +445,7 @@ public class SalesController implements Initializable {
 //                }
 //            }
 //        }
-//
+
 //        TabPane tabPane = new TabPane();
 //        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 //
@@ -615,54 +618,45 @@ public class SalesController implements Initializable {
 
     @FXML
     private void payment() {
-//        if (selectedTable == null) {
-//            showAlert("Lỗi", "Vui lòng chọn bàn để thanh toán!");
-//            return;
-//        }
-//
-//        if ("Trống".equals(selectedTable.getStatus())) {
-//            showAlert("Lỗi", "Bàn này chưa được đặt!");
-//            return;
-//        }
-//
-//        if (listOfInvoiceDetailOfSelectedTable.isEmpty()) {
-//            showAlert("Lỗi", "Không có món ăn nào để thanh toán!");
-//            return;
-//        }
-//
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openjfx/payment_dialog.fxml"));
-//            Parent root = loader.load();
-//
-//            PaymentDialogController dialogController = loader.getController();
-//
-//            Dialog<ButtonType> dialog = new Dialog<>();
-//            dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableName());
-//            dialog.setDialogPane((DialogPane) root);
-//
-//            dialogController.setTable(selectedTable);
-//            dialog.showAndWait();
-//
-//            if (dialogController.isResetTableSelected()) {
-//                Order order = tableStore.getOrderByTable(selectedTable.getTableNumber());
-//                if (order != null) {
-//                    tableStore.removeOrder(order);
-//                }
-//
-//                selectedTable.setStatus("empty");
-//                selectedTable.setCustomerName("");
-//                tableStore.setItemsForTable(selectedTable.getTableNumber(), new ArrayList<>());
-//
-//                updateTableInfo();
-//                refreshTableGrid();
-//            }
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            showAlert("Lỗi", "Không thể mở cửa sổ thanh toán!");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        if (selectedTable == null) {
+            showAlert("Lỗi", "Vui lòng chọn bàn để thanh toán!");
+            return;
+        }
+
+        if ("Trống".equals(selectedTable.getStatus())) {
+            showAlert("Lỗi", "Bàn này chưa được đặt!");
+            return;
+        }
+
+        if (listOfInvoiceDetailOfSelectedTable.isEmpty()) {
+            showAlert("Lỗi", "Không có món ăn nào để thanh toán!");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openjfx/payment_dialog.fxml"));
+            Parent root = loader.load();
+
+            PaymentDialogController dialogController = loader.getController();
+
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableName());
+            dialog.setDialogPane((DialogPane) root);
+
+            dialogController.setTable(selectedTable);
+            dialog.showAndWait();
+
+            if (dialogController.isResetTableSelected()) {
+                tableService.changeStatusTable(selectedTable);
+
+                updateTableInfo();
+                refreshTableGrid();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Lỗi", "Không thể mở cửa sổ thanh toán!");
+        }
     }
 
     private void showAlert(String title, String message) {

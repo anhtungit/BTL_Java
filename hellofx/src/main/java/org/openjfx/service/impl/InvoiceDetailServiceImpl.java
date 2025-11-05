@@ -1,6 +1,7 @@
 package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
+import org.openjfx.entity.Invoice;
 import org.openjfx.entity.InvoiceDetail;
 import org.openjfx.entity.MenuItem;
 import org.openjfx.service.InvoiceDetailService;
@@ -40,5 +41,21 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
             e.printStackTrace();
         }
         return invoiceDetails;
+    }
+
+    @Override
+    public void deleteAll(Invoice invoice) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          DELETE FROM InvoiceDetail
+                          WHERE InvoiceID = ?;
+                          """;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, invoice.getInvoiceID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
