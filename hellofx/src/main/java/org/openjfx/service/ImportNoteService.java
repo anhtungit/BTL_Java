@@ -4,4 +4,5 @@ import org.openjfx.entity.ImportNote;
 
 public interface ImportNoteService {
     ImportNote getImportNoteByInventoryID(int inventoryID);
+    int create(ImportNote importNote);
 }

@@ -28,7 +28,6 @@ public class MenuItemServiceImpl implements MenuItemService {
             }
 
             if (list.isEmpty()) {
-                insertSampleData(conn);
                 return getAllMenuItem();
             }
 
@@ -112,25 +111,6 @@ public class MenuItemServiceImpl implements MenuItemService {
             stmt.setInt(1, id);
             stmt.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void insertSampleData(Connection conn) {
-        try {
-            String[] sampleItems = {
-                    "('Bò lúc lắc', 120000, 'Món chính')",
-                    "('Canh chua cá', 90000, 'Món chính')",
-                    "('Cơm chiên trứng', 45000, 'Món phụ')",
-                    "('Bia Heineken', 30000, 'Đồ uống')",
-                    "('Trà đá', 5000, 'Đồ uống')"
-            };
-
-            String sql = "INSERT INTO MenuItem(ItemName, CurrentPrice) VALUES " + String.join(", ", sampleItems);
-            conn.createStatement().executeUpdate(sql);
-            System.out.println(" Đã thêm dữ liệu mẫu vào bảng MenuItem!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
