@@ -1,6 +1,6 @@
 package org.openjfx.Controllers;
 
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MenuItemEditController extends MenuItemControllerBase {
 
@@ -34,17 +35,17 @@ public class MenuItemEditController extends MenuItemControllerBase {
     public void initialize() {
         // reloadData();
 
-        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
 
         menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         tableMenuItem.setItems(menuItems);
 
         tableMenuItem.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
-                txtItemName.setText(newSel.getName());
-                txtCurrentPrice.setText(String.valueOf(newSel.getPrice()));
+                txtItemName.setText(newSel.getItemName());
+                txtCurrentPrice.setText(String.valueOf(newSel.getCurrentPrice()));
             }
         });
     }
@@ -66,14 +67,14 @@ public class MenuItemEditController extends MenuItemControllerBase {
         }
 
         try {
-            double giaMoi = Double.parseDouble(giaMoiStr);
+            int giaMoi = Integer.parseInt(giaMoiStr);
             if (giaMoi < 0) {
                 showAlert("Lỗi", "Giá tiền phải lớn hơn 0!");
                 return;
             }
 
-            selected.setName(tenMoi);
-            selected.setPrice(giaMoi);
+            selected.setItemName(tenMoi);
+            selected.setCurrentPrice(giaMoi);
             menuItemService.updateMenuItem(selected);
             // reloadData();
             tableMenuItem.refresh();

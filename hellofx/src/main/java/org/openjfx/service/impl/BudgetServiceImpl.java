@@ -1,7 +1,7 @@
 package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
-import org.openjfx.Models.Expense;
+import org.openjfx.entity.Expense;
 import org.openjfx.service.BudgetService;
 
 import java.sql.Connection;

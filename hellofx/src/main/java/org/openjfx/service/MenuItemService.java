@@ -1,7 +1,7 @@
 
 package org.openjfx.service;
 
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import java.util.List;
 
 public interface MenuItemService {

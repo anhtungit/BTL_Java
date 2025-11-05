@@ -1,6 +1,6 @@
 package org.openjfx.Controllers;
 
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MenuItemDeleteController extends MenuItemControllerBase {
 
@@ -27,10 +28,10 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
     @FXML
     public void initialize() {
         // reloadData();
-
-        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        // colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
         colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
 
         menuItems =  FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         tableMenuItem.setItems(menuItems);
@@ -48,7 +49,7 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Xác nhận xóa");
         confirm.setHeaderText("Bạn có chắc muốn xóa món này?");
-        confirm.setContentText("Món: " + selected.getName());
+        confirm.setContentText("Món: " + selected.getItemName());
 
         ButtonType yes = new ButtonType("Có", ButtonBar.ButtonData.YES);
         ButtonType no = new ButtonType("Không", ButtonBar.ButtonData.NO);
@@ -57,8 +58,8 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
         confirm.showAndWait().ifPresent(response -> {
             if (response == yes) {
                 try {
-                    String itemName = selected.getName();
-                    menuItemService.deleteMenuItem(selected.getId());
+                    String itemName = selected.getItemName();
+                    menuItemService.deleteMenuItem(selected.getMenuItemId());
                     // reloadData();
                     tableMenuItem.refresh();
                     showAlert(Alert.AlertType.INFORMATION, "Thành công",

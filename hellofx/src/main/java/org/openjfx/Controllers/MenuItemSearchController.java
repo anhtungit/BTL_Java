@@ -1,6 +1,6 @@
 package org.openjfx.Controllers;
 
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MenuItemSearchController {
 
@@ -31,9 +32,9 @@ public class MenuItemSearchController {
         // Load dữ liệu từ database
         // menuItemService.loadFromDatabase();
 
-        colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getPrice())));
+                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
 
         allItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         filteredItems = FXCollections.observableArrayList(allItems);
@@ -52,7 +53,7 @@ public class MenuItemSearchController {
             return;
         }
 
-        filteredItems.setAll(allItems.filtered(item -> item.getName().toLowerCase().contains(keyword)));
+        filteredItems.setAll(allItems.filtered(item -> item.getItemName().toLowerCase().contains(keyword)));
 
         if (filteredItems.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "Kết quả", "Không tìm thấy món nào phù hợp.");
