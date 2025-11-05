@@ -67,9 +67,9 @@ public class BudgetViewController {
 
     private void updateTotals(List<Expense> data) {
         // double totalIncome = data.stream().mapToDouble(t -> t.getIncomeValue()).sum();
-        // double totalExpense = data.stream().mapToDouble(t -> t.getExpenseValue()).sum();
+        double totalExpense = data.stream().mapToDouble(t -> t.getAmount()).sum();
 
         // lblTotalIncome.setText(String.format("%,.0f", totalIncome));
-        // lblTotalExpense.setText(String.format("%,.0f", totalExpense));
+        lblTotalExpense.setText(String.format("%,.0f", totalExpense));
     }
 }
