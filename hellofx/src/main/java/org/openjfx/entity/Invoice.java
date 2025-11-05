@@ -13,6 +13,13 @@ public class Invoice {
     public Invoice() {
     }
 
+    public Invoice(int totalAmount, Date createdAt, int status, int promotionID) {
+        this.totalAmount = totalAmount;
+        this.createdAt = createdAt;
+        this.status = status;
+        this.promotionID = promotionID;
+    }
+
     public Invoice(int invoiceID, int totalAmount, Date createdAt, int status, int promotionID) {
         this.invoiceID = invoiceID;
         this.totalAmount = totalAmount;

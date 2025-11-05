@@ -3,12 +3,14 @@ package org.openjfx.service.impl;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Employee;
 import org.openjfx.service.EmployeeService;
+import org.openjfx.service.PositionService;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeServiceImpl implements EmployeeService {
+
     @Override
     public List<Employee> getAllEmployee() {
         List<Employee> employees = new ArrayList<>();
@@ -29,7 +31,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.setFullName(rs.getString("FullName"));
                 employee.setPhoneNumber(rs.getString("PhoneNumber"));
                 employee.setAddress(rs.getString("Address"));
-                if (employee.getPositionID() != 7)
+                if (employee.getPositionID() != 21)
                     employees.add(employee);
             }
         } catch (SQLException e) {

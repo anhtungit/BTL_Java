@@ -6,4 +6,6 @@ import org.openjfx.entity.Table;
 public interface BookingDetailService {
     BookingDetail getBookingDetailNewlestByTableID(int tableID);
     void changeTableInBookingDetail(Table sourceTable, Table destTable);
+    void delete(BookingDetail bookingDetail);
+    void create(BookingDetail bookingDetail);
 }
