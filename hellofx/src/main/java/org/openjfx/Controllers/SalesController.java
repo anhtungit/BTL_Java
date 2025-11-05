@@ -3,8 +3,10 @@ package org.openjfx.Controllers;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -15,19 +17,19 @@ import javafx.geometry.Insets;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.net.URL;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
+import org.openjfx.App;
 import org.openjfx.entity.BookingDetail;
 import org.openjfx.entity.Invoice;
 import org.openjfx.entity.InvoiceDetail;
 import org.openjfx.entity.Table;
-import org.openjfx.Models.MenuItem;
 import org.openjfx.service.*;
 import org.openjfx.service.impl.*;
 
@@ -106,18 +108,31 @@ public class SalesController implements Initializable {
     @FXML
     private void selectTable(Table table) {
         selectedTable = table;
-        bookingDetailOfSelectedTable = bookingDetailService.getBookingDetailNewlestByTableID(table.getTableID());
-        invoiceOfSelectedTable = invoiceService.getInvoiceByInvoiceID(bookingDetailOfSelectedTable.getInvoiceID());
-        listOfInvoiceDetailOfSelectedTable = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceOfSelectedTable.getInvoiceID());
         updateTableInfo();
         refreshTableGrid();
     }
 
     private void updateTableInfo() {
         if (selectedTable != null) {
-            lblSelectedTable.setText(selectedTable.getTableName());
-            lblTableStatus.setText(selectedTable.getStatus());
-            lblCustomerName.setText(("Trống".equals(selectedTable.getStatus())) ? "Chưa có" : bookingDetailOfSelectedTable.getCustomerName());
+            if (!"Trống".equals(selectedTable.getStatus())){
+                bookingDetailOfSelectedTable = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
+                invoiceOfSelectedTable = invoiceService.getInvoiceByInvoiceID(bookingDetailOfSelectedTable.getInvoiceID());
+                listOfInvoiceDetailOfSelectedTable = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceOfSelectedTable.getInvoiceID());
+
+                lblSelectedTable.setText(selectedTable.getTableName());
+                lblTableStatus.setText(selectedTable.getStatus());
+                lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
+            }
+            else {
+                bookingDetailOfSelectedTable = new BookingDetail();
+                invoiceOfSelectedTable = new Invoice();
+                listOfInvoiceDetailOfSelectedTable = new ArrayList<>();
+
+                lblSelectedTable.setText("Chưa có");
+                lblTableStatus.setText(selectedTable.getStatus());
+                lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
+            }
+
         } else {
             lblSelectedTable.setText("Chưa chọn");
             lblTableStatus.setText("-");
@@ -133,14 +148,14 @@ public class SalesController implements Initializable {
     }
 
     @FXML
-    private void viewTable() {
+    private void viewTable() { //xong
         if (selectedTable == null) {
             showAlert("Thông báo", "Vui lòng chọn bàn để xem thông tin!");
             return;
         }
 
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Xem thông tin bàn " + String.format("%02d", selectedTable.getTableID()));
+        dialog.setTitle("Xem thông tin bàn " + selectedTable.getTableName());
 
         VBox content = new VBox(12);
         content.setPadding(new Insets(20));
@@ -163,7 +178,9 @@ public class SalesController implements Initializable {
         orderTable.getColumns().add(itemNameCol);
         orderTable.getColumns().add(qtyCol);
 
-
+        lblSelectedTable.setText(selectedTable.getTableName());
+        lblTableStatus.setText(selectedTable.getStatus());
+        lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
         Label reserveInfo = new Label();
         String customer = ("Trống".equals(selectedTable.getStatus()) ? "-" : bookingDetailOfSelectedTable.getCustomerName());
         reserveInfo.setText("Đặt trước\n" + customer);
@@ -177,7 +194,7 @@ public class SalesController implements Initializable {
     }
 
     @FXML
-    private void transferTable() {
+    private void transferTable() { // xong
         if (selectedTable == null || !"Đã đặt".equals(selectedTable.getStatus())) {
             showAlert("Lỗi", "Vui lòng chọn bàn đã đặt để chuyển!");
             return;
@@ -250,35 +267,30 @@ public class SalesController implements Initializable {
 
 
     @FXML
-    private void cancelTable() {
-//        if (selectedTable == null) {
-//            showAlert("Lỗi", "Vui lòng chọn bàn để hủy!");
-//            return;
-//        }
-//
-//        if (selectedTable.isEmpty()) {
-//            showAlert("Lỗi", "Bàn này đã trống!");
-//            return;
-//        }
-//
-//        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//        alert.setTitle("Xác nhận");
-//        alert.setHeaderText("Bạn có chắc muốn hủy bàn " + selectedTable.getTableNumber() + "?");
-//        alert.setContentText("Hành động này sẽ xóa đơn hàng và làm trống bàn.");
-//
-//        Optional<ButtonType> result = alert.showAndWait();
-//        if (result.isPresent() && result.get() == ButtonType.OK) {
-//            Order order = tableStore.getOrderByTable(selectedTable.getTableNumber());
-//            if (order != null) {
-//                tableStore.removeOrder(order);
-//            }
-//            tableStore.setItemsForTable(selectedTable.getTableNumber(), new java.util.ArrayList<>());
-//            selectedTable.setStatus("empty");
-//            selectedTable.setCustomerName("");
-//            updateTableInfo();
-//            refreshTableGrid();
-//            showAlert("Thành công", "Đã hủy bàn thành công!");
-//        }
+    private void cancelTable() { //gần xong
+        if (selectedTable == null) {
+            showAlert("Lỗi", "Vui lòng chọn bàn để hủy!");
+            return;
+        }
+
+        if ("Trống".equals(selectedTable.getStatus())) {
+            showAlert("Lỗi", "Bàn này đã trống!");
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Xác nhận");
+        alert.setHeaderText("Bạn có chắc muốn hủy bàn " + selectedTable.getTableName() + "?");
+        alert.setContentText("Hành động này sẽ xóa đơn hàng và làm trống bàn.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            bookingDetailService.delete(bookingDetailOfSelectedTable);
+            tableService.changeStatusTable(selectedTable);
+            updateTableInfo();
+            refreshTableGrid();
+            showAlert("Thành công", "Đã hủy bàn thành công!");
+        }
     }
 
     @FXML
@@ -294,7 +306,7 @@ public class SalesController implements Initializable {
         }
 
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Đặt bàn " + String.format("%02d", selectedTable.getTableID()));
+        dialog.setTitle("Đặt bàn " + selectedTable.getTableName());
 
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
@@ -345,19 +357,30 @@ public class SalesController implements Initializable {
             String customerName = customerField.getText().trim();
             String phone = phoneField.getText().trim();
 
-        if (customerName.isEmpty()) {
-            showAlert("Lỗi", "Vui lòng nhập tên khách hàng!");
-            return;
-        }
+            if (customerName.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập tên khách hàng!");
+                return;
+            }
 
-        if (phone.isEmpty()) {
-            showAlert("Lỗi", "Vui lòng nhập số điện thoại!");
-            return;
-        }
+            if (phone.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập số điện thoại!");
+                return;
+            }
+            int newInvoiceId = invoiceService.create();
+            LocalDate date = datePicker.getValue();
+            BookingDetail b = new BookingDetail();
+            b.setTableID(selectedTable.getTableID());
+            b.setInvoiceID(newInvoiceId);
+            b.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
+            b.setCustomerName(customerName);
+            b.setCustomerPhone(phone);
+            b.setBookingDateTime(Date.valueOf(date));
 
-        tableService.changeStatusTable(selectedTable);
-        updateTableInfo();
-        refreshTableGrid();
+            bookingDetailService.create(b);
+            tableService.changeStatusTable(selectedTable);
+
+            updateTableInfo();
+            refreshTableGrid();
             dialog.close();
 
             javafx.application.Platform.runLater(() -> {
@@ -390,24 +413,24 @@ public class SalesController implements Initializable {
 //            return;
 //        }
 //
-//        if (!selectedTable.isReserved()) {
+//        if ("Trống".equals(selectedTable.getStatus())) {
 //            showAlert("Lỗi", "Bàn này chưa được đặt!");
 //            return;
 //        }
 //
 //        Dialog<Void> dialog = new Dialog<>();
-//        dialog.setTitle("Chọn món bàn " + String.format("%02d", selectedTable.getTableNumber()));
+//        dialog.setTitle("Chọn món bàn " + selectedTable.getTableName());
 //
 //        VBox content = new VBox(10);
 //        content.setPadding(new Insets(20));
 //
-//        Label tableLabel = new Label("Bàn " + String.format("%02d", selectedTable.getTableNumber()));
+//        Label tableLabel = new Label("Bàn " + selectedTable.getTableName());
 //        tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
 //        content.getChildren().add(tableLabel);
 //
-//        ObservableList<MenuItem> menuItems = MenuStore.getItems();
+//        ObservableList<org.openjfx.entity.MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
 //
-//        java.util.List<OrderItem> existingItems = tableStore.getItemsForTable(selectedTable.getTableNumber());
+//        java.util.List<> existingItems = tableStore.getItemsForTable(selectedTable.getTableNumber());
 //        if (existingItems != null && !existingItems.isEmpty()) {
 //            for (MenuItem mi : menuItems) {
 //                for (OrderItem oi : existingItems) {
@@ -597,13 +620,12 @@ public class SalesController implements Initializable {
 //            return;
 //        }
 //
-//        if (!selectedTable.isReserved()) {
+//        if ("Trống".equals(selectedTable.getStatus())) {
 //            showAlert("Lỗi", "Bàn này chưa được đặt!");
 //            return;
 //        }
 //
-//        List<OrderItem> items = tableStore.getItemsForTable(selectedTable.getTableNumber());
-//        if (items == null || items.isEmpty()) {
+//        if (listOfInvoiceDetailOfSelectedTable.isEmpty()) {
 //            showAlert("Lỗi", "Không có món ăn nào để thanh toán!");
 //            return;
 //        }
@@ -615,7 +637,7 @@ public class SalesController implements Initializable {
 //            PaymentDialogController dialogController = loader.getController();
 //
 //            Dialog<ButtonType> dialog = new Dialog<>();
-//            dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableNumber());
+//            dialog.setTitle("Thanh toán - Bàn " + selectedTable.getTableName());
 //            dialog.setDialogPane((DialogPane) root);
 //
 //            dialogController.setTable(selectedTable);
@@ -638,6 +660,8 @@ public class SalesController implements Initializable {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //            showAlert("Lỗi", "Không thể mở cửa sổ thanh toán!");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
 //        }
     }
 
@@ -649,112 +673,112 @@ public class SalesController implements Initializable {
         alert.showAndWait();
     }
 
-    private void setupMenuTable(TableView<MenuItem> tableView, ObservableList<MenuItem> items) {
-        tableView.setItems(items);
-        tableView.setPrefHeight(300);
-        tableView.setMaxHeight(300);
-        tableView.setMaxWidth(320);
-
-        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
-        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
-        selectColumn.setCellFactory(column -> {
-            return new javafx.scene.control.TableCell<MenuItem, Boolean>() {
-                private CheckBox checkBox;
-                private MenuItem currentMenuItem;
-
-                @Override
-                protected void updateItem(Boolean item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                        currentMenuItem = null;
-                    } else {
-                        if (checkBox == null) {
-                            checkBox = new CheckBox();
-                        }
-
-                        currentMenuItem = getTableView().getItems().get(getIndex());
-                        checkBox.setSelected(item);
-
-                        checkBox.setOnAction(null);
-                        checkBox.setOnAction(e -> {
-                            if (currentMenuItem != null) {
-                                currentMenuItem.setSelected(checkBox.isSelected());
-                                if (!checkBox.isSelected()) {
-                                    currentMenuItem.setQuantity(0);
-                                } else if (currentMenuItem.getQuantity() == 0) {
-                                    currentMenuItem.setQuantity(1);
-                                }
-                                getTableView().refresh();
-                            }
-                        });
-
-                        setGraphic(checkBox);
-                    }
-                }
-            };
-        });
-
-        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        nameColumn.setPrefWidth(150);
-
-        TableColumn<MenuItem, String> priceColumn = new TableColumn<>("Giá");
-        priceColumn.setCellValueFactory(cellData ->
-            new javafx.beans.property.SimpleStringProperty(
-                String.format("%,d VNĐ", (long)cellData.getValue().getPrice())
-            )
-        );
-        priceColumn.setPrefWidth(100);
-
-        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
-        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
-        quantityColumn.setPrefWidth(60);
-        quantityColumn.setCellFactory(column -> {
-            return new javafx.scene.control.TableCell<MenuItem, Integer>() {
-                private Spinner<Integer> spinner;
-                private MenuItem currentMenuItem;
-
-                @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                        currentMenuItem = null;
-                    } else {
-                        if (spinner == null) {
-                            spinner = new Spinner<>(0, 10, 0);
-                            spinner.setPrefWidth(50);
-                            spinner.setMaxWidth(50);
-                        }
-
-                        currentMenuItem = getTableView().getItems().get(getIndex());
-                        spinner.getValueFactory().setValue(item);
-
-                        spinner.valueProperty().removeListener(this::onSpinnerValueChanged);
-                        spinner.valueProperty().addListener(this::onSpinnerValueChanged);
-
-                        setGraphic(spinner);
-                    }
-                }
-
-                private void onSpinnerValueChanged(javafx.beans.Observable obs, Integer oldVal, Integer newVal) {
-                    if (currentMenuItem != null) {
-                        currentMenuItem.setQuantity(newVal);
-                        if (newVal > 0) {
-                            currentMenuItem.setSelected(true);
-                        } else {
-                            currentMenuItem.setSelected(false);
-                        }
-                        getTableView().refresh();
-                    }
-                }
-            };
-        });
-
-    tableView.getColumns().add(selectColumn);
-    tableView.getColumns().add(nameColumn);
-    tableView.getColumns().add(priceColumn);
-    tableView.getColumns().add(quantityColumn);
-    }
+//    private void setupMenuTable(TableView<MenuItem> tableView, ObservableList<MenuItem> items) {
+//        tableView.setItems(items);
+//        tableView.setPrefHeight(300);
+//        tableView.setMaxHeight(300);
+//        tableView.setMaxWidth(320);
+//
+//        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
+//        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+//        selectColumn.setCellFactory(column -> {
+//            return new javafx.scene.control.TableCell<MenuItem, Boolean>() {
+//                private CheckBox checkBox;
+//                private MenuItem currentMenuItem;
+//
+//                @Override
+//                protected void updateItem(Boolean item, boolean empty) {
+//                    super.updateItem(item, empty);
+//                    if (empty || item == null) {
+//                        setGraphic(null);
+//                        currentMenuItem = null;
+//                    } else {
+//                        if (checkBox == null) {
+//                            checkBox = new CheckBox();
+//                        }
+//
+//                        currentMenuItem = getTableView().getItems().get(getIndex());
+//                        checkBox.setSelected(item);
+//
+//                        checkBox.setOnAction(null);
+//                        checkBox.setOnAction(e -> {
+//                            if (currentMenuItem != null) {
+//                                currentMenuItem.setSelected(checkBox.isSelected());
+//                                if (!checkBox.isSelected()) {
+//                                    currentMenuItem.setQuantity(0);
+//                                } else if (currentMenuItem.getQuantity() == 0) {
+//                                    currentMenuItem.setQuantity(1);
+//                                }
+//                                getTableView().refresh();
+//                            }
+//                        });
+//
+//                        setGraphic(checkBox);
+//                    }
+//                }
+//            };
+//        });
+//
+//        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
+//        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+//        nameColumn.setPrefWidth(150);
+//
+//        TableColumn<MenuItem, String> priceColumn = new TableColumn<>("Giá");
+//        priceColumn.setCellValueFactory(cellData ->
+//            new javafx.beans.property.SimpleStringProperty(
+//                String.format("%,d VNĐ", (long)cellData.getValue().getPrice())
+//            )
+//        );
+//        priceColumn.setPrefWidth(100);
+//
+//        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
+//        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
+//        quantityColumn.setPrefWidth(60);
+//        quantityColumn.setCellFactory(column -> {
+//            return new javafx.scene.control.TableCell<MenuItem, Integer>() {
+//                private Spinner<Integer> spinner;
+//                private MenuItem currentMenuItem;
+//
+//                @Override
+//                protected void updateItem(Integer item, boolean empty) {
+//                    super.updateItem(item, empty);
+//                    if (empty || item == null) {
+//                        setGraphic(null);
+//                        currentMenuItem = null;
+//                    } else {
+//                        if (spinner == null) {
+//                            spinner = new Spinner<>(0, 10, 0);
+//                            spinner.setPrefWidth(50);
+//                            spinner.setMaxWidth(50);
+//                        }
+//
+//                        currentMenuItem = getTableView().getItems().get(getIndex());
+//                        spinner.getValueFactory().setValue(item);
+//
+//                        spinner.valueProperty().removeListener(this::onSpinnerValueChanged);
+//                        spinner.valueProperty().addListener(this::onSpinnerValueChanged);
+//
+//                        setGraphic(spinner);
+//                    }
+//                }
+//
+//                private void onSpinnerValueChanged(javafx.beans.Observable obs, Integer oldVal, Integer newVal) {
+//                    if (currentMenuItem != null) {
+//                        currentMenuItem.setQuantity(newVal);
+//                        if (newVal > 0) {
+//                            currentMenuItem.setSelected(true);
+//                        } else {
+//                            currentMenuItem.setSelected(false);
+//                        }
+//                        getTableView().refresh();
+//                    }
+//                }
+//            };
+//        });
+//
+//    tableView.getColumns().add(selectColumn);
+//    tableView.getColumns().add(nameColumn);
+//    tableView.getColumns().add(priceColumn);
+//    tableView.getColumns().add(quantityColumn);
+//    }
 }

@@ -5,10 +5,8 @@ import org.openjfx.entity.Account;
 import org.openjfx.entity.Invoice;
 import org.openjfx.service.InvoiceService;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 
 public class InvoiceServiceImpl implements InvoiceService {
 
@@ -35,5 +33,33 @@ public class InvoiceServiceImpl implements InvoiceService {
             e.printStackTrace();
         }
         return invoice;
+    }
+
+    @Override
+    public int create() {
+        int generatedKey = 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          INSERT INTO Invoice(TotalAmount, CreatedAt, Status)
+                          VALUES (?, ?, ?)
+                          """;
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, 0);
+            ps.setDate(2, Date.valueOf(LocalDate.now()));
+            ps.setInt(3, 0);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedKey = generatedKeys.getInt(1);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return generatedKey;
     }
 }

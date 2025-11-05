@@ -1,6 +1,8 @@
 package org.openjfx.entity;
 
-import java.util.Date;
+import java.sql.Date;
+
+;
 
 public class ExportNote {
     private int exportNoteID;
