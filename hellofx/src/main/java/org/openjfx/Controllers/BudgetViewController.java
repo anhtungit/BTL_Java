@@ -4,8 +4,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import org.openjfx.Models.Expense;
+import org.openjfx.entity.Expense;
 import org.openjfx.service.BudgetService;
 import org.openjfx.service.impl.BudgetServiceImpl;
 
@@ -38,10 +39,10 @@ public class BudgetViewController {
     @FXML
     public void initialize() {
 
-        colAccountID.setCellValueFactory(cell -> cell.getValue().accountIDProperty().asObject());
-        colDate.setCellValueFactory(cell -> cell.getValue().expenseDateProperty());
-        colAmount.setCellValueFactory(cell -> cell.getValue().amountProperty().asObject());
-        
+
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        colAccountID.setCellValueFactory(new PropertyValueFactory<>("accountID"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("expenseDate"));
 
         tableExpenses.setItems(expenses);
 

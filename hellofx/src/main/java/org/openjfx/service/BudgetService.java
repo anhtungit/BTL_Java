@@ -3,7 +3,7 @@ package org.openjfx.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.openjfx.Models.Expense;
+import org.openjfx.entity.Expense;
 
 public interface BudgetService {
     List<Expense> getAllExpenses();

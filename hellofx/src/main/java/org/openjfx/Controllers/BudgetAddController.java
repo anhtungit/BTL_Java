@@ -4,12 +4,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LocalDateStringConverter;
 
 import org.openjfx.App;
-import org.openjfx.Models.Expense;
+import org.openjfx.entity.Expense;
 
 import org.openjfx.entity.Employee;
 import org.openjfx.service.BudgetService;
@@ -42,11 +43,13 @@ private Button btnCancel;
     public void initialize() {
         tableExpenses.setEditable(true);
         int defaultAccountID = employee.getAccountID();
-
         // Gán dữ liệu cho từng cột
-        colAmount.setCellValueFactory(cell -> cell.getValue().amountProperty().asObject());
-        colDescription.setCellValueFactory(cell -> cell.getValue().expenseDescriptionProperty());
-        colDate.setCellValueFactory(cell -> cell.getValue().expenseDateProperty());
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("expenseDescription"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("expenseDate"));
+        // colAmount.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().getAmount()).asObject());
+        // colDescription.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getExpenseDescription()));
+        // colDate.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getExpenseDate()));
 
         // Cho phép chỉnh sửa các cột
         colAmount.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));

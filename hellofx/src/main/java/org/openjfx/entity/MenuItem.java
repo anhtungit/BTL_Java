@@ -1,12 +1,28 @@
 package org.openjfx.entity;
 
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 public class MenuItem {
     private int menuItemId;
     private String ItemName;
     private int currentPrice;
     private String itemType;
 
-    public MenuItem() {
+    public MenuItem(String name, int price) {
+        this.menuItemId = 0;
+        this.ItemName = name;
+        this.currentPrice = price;
+        this.itemType = "";
+    }
+
+    public MenuItem(int menuItemId, String name, int price) {
+        this.menuItemId = menuItemId;
+        this.ItemName = name;
+        this.currentPrice = price;
+        this.itemType = "";
     }
 
     public MenuItem(int menuItemId, String itemName, int currentPrice, String itemType) {

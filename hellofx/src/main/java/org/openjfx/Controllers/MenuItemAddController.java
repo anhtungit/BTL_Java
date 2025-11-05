@@ -1,7 +1,7 @@
 package org.openjfx.Controllers;
 
 import org.openjfx.Models.Ingredient;
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
@@ -73,7 +73,7 @@ public class MenuItemAddController extends MenuItemControllerBase {
 
         try {
             String cleanPriceText = priceText.replaceAll("[^0-9]", "");
-            double price = Double.parseDouble(cleanPriceText);
+            int price = Integer.parseInt(cleanPriceText);
 
             if (price <= 0) {
                 showAlert("Lỗi", "Gía tiền phải lớn hơn 0!");
