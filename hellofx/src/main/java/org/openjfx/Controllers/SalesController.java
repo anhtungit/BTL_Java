@@ -168,7 +168,7 @@ public class SalesController implements Initializable {
         orderTable.setItems(FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable));
 
         TableColumn<InvoiceDetail, String> itemNameCol = new TableColumn<>("Tên món");
-        itemNameCol.setCellValueFactory(cd -> new SimpleStringProperty(menuItemService.getMenuItemByMenuItemID(cd.getValue().getMenuItemID()).getName()));
+        itemNameCol.setCellValueFactory(cd -> new SimpleStringProperty(menuItemService.getMenuItemByMenuItemID(cd.getValue().getMenuItemID()).getItemName()));
         itemNameCol.setPrefWidth(220);
 
         TableColumn<InvoiceDetail, Integer> qtyCol = new TableColumn<>("SL");

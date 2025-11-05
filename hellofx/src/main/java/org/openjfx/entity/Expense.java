@@ -1,18 +1,18 @@
 package org.openjfx.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Expense {
     private int expenseID;
     private int accountID;
     private int amount;
     private String expenseDescription;
-    private Date expenseDate;
+    private LocalDate expenseDate;
 
     public Expense() {
     }
 
-    public Expense(int expenseID, int accountID, int amount, String expenseDescription, Date expenseDate) {
+    public Expense(int expenseID, int accountID, int amount, String expenseDescription, LocalDate expenseDate) {
         this.expenseID = expenseID;
         this.accountID = accountID;
         this.amount = amount;
@@ -52,11 +52,11 @@ public class Expense {
         this.expenseDescription = expenseDescription;
     }
 
-    public Date getExpenseDate() {
+    public LocalDate getExpenseDate() {
         return expenseDate;
     }
 
-    public void setExpenseDate(Date expenseDate) {
+    public void setExpenseDate(LocalDate expenseDate) {
         this.expenseDate = expenseDate;
     }
 }

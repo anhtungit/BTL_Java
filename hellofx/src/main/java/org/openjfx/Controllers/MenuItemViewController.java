@@ -1,11 +1,10 @@
 package org.openjfx.Controllers;
 
-import org.openjfx.Models.MenuItem;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.MenuItemService;
 import org.openjfx.service.impl.MenuItemServiceImpl;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
