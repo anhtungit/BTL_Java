@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import org.openjfx.entity.ExportNote;
 import org.openjfx.entity.InventoryItem;
+import org.openjfx.entity.Unit;
 import org.openjfx.service.ExportNoteService;
 import org.openjfx.service.ImportNoteService;
 import org.openjfx.service.InventoryItemService;
@@ -26,6 +27,7 @@ import org.openjfx.service.impl.UnitServiceImpl;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public class InventoryController {
@@ -108,62 +110,67 @@ public class InventoryController {
 
     @FXML
     private void showAddDialog() {
-//        Dialog<InventoryItem> dialog = new Dialog<>();
-//        dialog.setTitle("Nhập hàng hóa");
-//        dialog.setHeaderText(null);
-//
-//        // Set the button types
-//        ButtonType addButtonType = new ButtonType("Đồng ý", ButtonBar.ButtonData.OK_DONE);
-//        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-//
-//        // Create the form
-//        GridPane grid = new GridPane();
-//        grid.setHgap(10);
-//        grid.setVgap(10);
-//        grid.setPadding(new Insets(20, 150, 10, 10));
-//
-//        TextField nameField = new TextField();
-//        TextField quantityField = new TextField();
-//        ComboBox<String> unitCombo = new ComboBox<>();
-//        TextField priceField = new TextField();
-//        DatePicker importDatePicker = new DatePicker();
-//
-//        grid.add(new Label("Tên hàng:"), 0, 0);
-//        grid.add(nameField, 1, 0);
-//        grid.add(new Label("Số lượng:"), 0, 1);
-//        grid.add(quantityField, 1, 1);
-//        grid.add(new Label("Đơn vị:"), 0, 2);
-//        grid.add(unitCombo, 1, 2);
-//        grid.add(new Label("Đơn giá:"), 0, 3);
-//        grid.add(priceField, 1, 3);
-//        grid.add(new Label("Ngày nhập:"), 0, 4);
-//        grid.add(importDatePicker, 1, 4);
-//
-//        dialog.getDialogPane().setContent(grid);
-//
-//        // Convert the result
-//        dialog.setResultConverter(dialogButton -> {
-//            if (dialogButton == addButtonType) {
-//                try {
-//                    String name = nameField.getText();
-//                    int quantity = Integer.parseInt(quantityField.getText());
-//                    String unit = unitCombo.getValue();
-//                    double price = Double.parseDouble(priceField.getText());
-//                    LocalDate importDate = importDatePicker.getValue();
-//
-//                    return new InventoryItem(name, quantity, unit, price, importDate);
-//                } catch (NumberFormatException e) {
-//                    showAlert("Error", "Invalid input values");
-//                    return null;
-//                }
-//            }
-//            return null;
-//        });
-//
-//        Optional<InventoryItem> result = dialog.showAndWait();
-//        result.ifPresent(item -> {
-//            InventoryStore.getInstance().addItem(item);
-//        });
+        Dialog<InventoryItem> dialog = new Dialog<>();
+        dialog.setTitle("Nhập hàng hóa");
+        dialog.setHeaderText(null);
+
+        // Set the button types
+        ButtonType addButtonType = new ButtonType("Đồng ý", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        // Create the form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nameField = new TextField();
+        TextField quantityField = new TextField();
+        ComboBox<String> unitCombo = new ComboBox<>();
+        TextField priceField = new TextField();
+        DatePicker importDatePicker = new DatePicker();
+
+        grid.add(new Label("Tên hàng:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Số lượng:"), 0, 1);
+        grid.add(quantityField, 1, 1);
+        grid.add(new Label("Đơn vị:"), 0, 2);
+        grid.add(unitCombo, 1, 2);
+        grid.add(new Label("Đơn giá:"), 0, 3);
+        grid.add(priceField, 1, 3);
+        grid.add(new Label("Ngày nhập:"), 0, 4);
+        grid.add(importDatePicker, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        List<String> unitList = unitService.getAllUnit().stream().map(u -> u.getUnitName()).toList();
+        unitCombo.setItems(FXCollections.observableArrayList(unitList));
+        unitCombo.setValue(unitList.get(0));
+        // Convert the result
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                try {
+                    String name = nameField.getText();
+                    int quantity = Integer.parseInt(quantityField.getText());
+                    String unit = unitCombo.getValue();
+                    double price = Double.parseDouble(priceField.getText());
+                    LocalDate importDate = importDatePicker.getValue();
+
+                    InventoryItem inventoryItem = new InventoryItem();
+                    inventoryItem.setItemName(name);
+                    return new InventoryItem();
+                } catch (NumberFormatException e) {
+                    showAlert("Error", "Invalid input values");
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<InventoryItem> result = dialog.showAndWait();
+        result.ifPresent(item -> {
+            //InventoryStore.getInstance().addItem(item);
+        });
     }
 
     @FXML

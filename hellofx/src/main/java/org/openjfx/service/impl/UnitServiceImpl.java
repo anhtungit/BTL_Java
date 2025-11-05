@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UnitServiceImpl implements UnitService {
 
@@ -35,5 +37,28 @@ public class UnitServiceImpl implements UnitService {
             e.printStackTrace();
         }
         return unit;
+    }
+
+    @Override
+    public List<Unit> getAllUnit() {
+        List<Unit> units = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT UnitID, UnitName
+                    FROM Unit
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Unit unit = new Unit();
+                unit.setUnitId(rs.getInt("UnitID"));
+                unit.setUnitName(rs.getString("UnitName"));
+                units.add(unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return units;
     }
 }

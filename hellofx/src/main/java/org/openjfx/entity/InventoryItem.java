@@ -10,6 +10,13 @@ public class InventoryItem {
     public InventoryItem() {
     }
 
+    public InventoryItem(String itemName, int stockQuantity, int unitID, int unitPrice) {
+        this.itemName = itemName;
+        this.stockQuantity = stockQuantity;
+        this.unitID = unitID;
+        this.unitPrice = unitPrice;
+    }
+
     public InventoryItem(int inventoryItemID, String itemName, int stockQuantity, int unitID, int unitPrice) {
         this.inventoryItemID = inventoryItemID;
         this.itemName = itemName;
