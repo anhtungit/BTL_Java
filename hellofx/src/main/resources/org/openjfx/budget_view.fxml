@@ -27,11 +27,12 @@
     </HBox>
 
     <!-- Bảng kết quả -->
-    <TableView fx:id="tableTransactions" prefHeight="350">
+    <TableView fx:id="tableExpenses" prefHeight="350">
         <columns>
+            <TableColumn fx:id="colAccountID" text="Account ID" prefWidth="150" />
             <TableColumn fx:id="colDate" text="Ngày" prefWidth="150"/>
             <TableColumn fx:id="colIncome" text="Thu (₫)" prefWidth="150"/>
-            <TableColumn fx:id="colExpense" text="Chi (₫)" prefWidth="150"/>
+            <TableColumn fx:id="colAmount" text="Chi (₫)" prefWidth="150"/>
         </columns>
     </TableView>
 
