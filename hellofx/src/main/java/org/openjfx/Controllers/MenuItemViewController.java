@@ -24,8 +24,8 @@ public class MenuItemViewController {
     @FXML
     private void initialize() {
         // MenuStore.loadFromDatabase();
-        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("ItemName"));
+        colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
         tableMenuItem.setItems(FXCollections.observableArrayList(menuItemService.getAllMenuItem()));
     }
 }
