@@ -42,7 +42,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     public MenuItem getMenuItemByMenuItemID(int id) {
         MenuItem item = null;
 
-        String sql = "SELECT MenuItemID, ItemName, CurrentPrice FROM MenuItem WHERE id = ?";
+        String sql = "SELECT MenuItemID, ItemName, CurrentPrice FROM MenuItem WHERE MenuItemID = ?";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 

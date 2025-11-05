@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface TableService {
     List<Table> getAllTables();
-    void changeStatusByTable(Table table);
+    void changeStatusTable(Table table);
     void save(Table table);
+    Table getTableByTableID(int tableID);
+    Table getTableByTableName(String tableName);
 }

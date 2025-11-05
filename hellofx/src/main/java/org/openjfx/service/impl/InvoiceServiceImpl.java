@@ -14,7 +14,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice getInvoiceByInvoiceID(int invoiceID) {
-        Invoice invoice = null;
+        Invoice invoice = new Invoice();
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
                     SELECT InvoiceID, TotalAmount, CreatedAt, Status
@@ -26,7 +26,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             ps.setInt(1, invoiceID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                invoice = new Invoice();
                 invoice.setInvoiceID(rs.getInt("InvoiceID"));
                 invoice.setTotalAmount(rs.getInt("TotalAmount"));
                 invoice.setCreatedAt(rs.getDate("CreatedAt"));

@@ -3,6 +3,7 @@ package org.openjfx.service.impl;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Account;
 import org.openjfx.entity.BookingDetail;
+import org.openjfx.entity.Table;
 import org.openjfx.service.BookingDetailService;
 
 import java.sql.Connection;
@@ -13,8 +14,8 @@ import java.sql.SQLException;
 public class BookingDetailServiceImpl implements BookingDetailService {
 
     @Override
-    public BookingDetail getBookingDetailByTableID(int tableID) {
-        BookingDetail bookingDetail = null;
+    public BookingDetail getBookingDetailNewlestByTableID(int tableID) {
+        BookingDetail bookingDetail = new BookingDetail();
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
                     SELECT TableID, EmployeeID, InvoiceID, CustomerName, CustomerPhone, BookingDateTime
@@ -27,7 +28,6 @@ public class BookingDetailServiceImpl implements BookingDetailService {
             ps.setInt(1, tableID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                bookingDetail = new BookingDetail();
                 bookingDetail.setTableID(rs.getInt("TableID"));
                 bookingDetail.setEmployeeID(rs.getInt("EmployeeID"));
                 bookingDetail.setInvoiceID(rs.getInt("InvoiceID"));
@@ -39,5 +39,22 @@ public class BookingDetailServiceImpl implements BookingDetailService {
             e.printStackTrace();
         }
         return bookingDetail;
+    }
+
+    @Override
+    public void changeTableInBookingDetail(Table sourceTable, Table destTable) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    UPDATE BookingDetail Set TableID = ? WHERE InvoiceID = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, destTable.getTableID());
+            int invoiceIDOfSrcTable = getBookingDetailNewlestByTableID(sourceTable.getTableID()).getInvoiceID();
+            ps.setInt(2, invoiceIDOfSrcTable);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
