@@ -1,4 +1,7 @@
 package org.openjfx.service;
 
-public class ExportNoteService {
+import org.openjfx.entity.ExportNote;
+
+public interface ExportNoteService {
+    ExportNote getExportNoteByInventoryID(int inventoryID);
 }

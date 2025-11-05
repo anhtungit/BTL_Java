@@ -1,5 +1,7 @@
 package org.openjfx.service;
 
-public class UnitService {
+import org.openjfx.entity.Unit;
 
+public interface UnitService {
+    Unit getUnitByUnitID(int unitID);
 }

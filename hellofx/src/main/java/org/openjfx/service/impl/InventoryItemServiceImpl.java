@@ -31,7 +31,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 inventoryItem.setItemName(rs.getString("ItemName"));
                 inventoryItem.setStockQuantity(rs.getInt("StockQuantity"));
                 inventoryItem.setUnitID(rs.getInt("UnitID"));
-                inventoryItem.setUnitID(rs.getInt("UnitPrice"));
+                inventoryItem.setUnitPrice(rs.getInt("UnitPrice"));
                 inventoryItems.add(inventoryItem);
             }
         } catch (SQLException e) {

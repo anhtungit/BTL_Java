@@ -1,19 +1,30 @@
 package org.openjfx.Controllers;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import org.openjfx.entity.ExportNote;
 import org.openjfx.entity.InventoryItem;
+import org.openjfx.service.ExportNoteService;
+import org.openjfx.service.ImportNoteService;
 import org.openjfx.service.InventoryItemService;
+import org.openjfx.service.UnitService;
+import org.openjfx.service.impl.ExportNoteImpl;
+import org.openjfx.service.impl.ImportNoteServiceImpl;
 import org.openjfx.service.impl.InventoryItemServiceImpl;
+import org.openjfx.service.impl.UnitServiceImpl;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -21,8 +32,8 @@ public class InventoryController {
     @FXML private TextField searchField;
     @FXML private TableView<InventoryItem> inventoryTable;
     @FXML private TableColumn<InventoryItem, String> nameColumn;
-    @FXML private TableColumn<InventoryItem, LocalDate> importDateColumn;
-    @FXML private TableColumn<InventoryItem, LocalDate> exportDateColumn;
+    @FXML private TableColumn<InventoryItem, Date> importDateColumn;
+    @FXML private TableColumn<InventoryItem, Date> exportDateColumn;
     @FXML private TableColumn<InventoryItem, Integer> quantityColumn;
     @FXML private TableColumn<InventoryItem, String> unitColumn;
     @FXML private TableColumn<InventoryItem, Integer> priceColumn;
@@ -32,6 +43,9 @@ public class InventoryController {
     private FilteredList<InventoryItem> filteredItems;
 
     InventoryItemService inventoryItemService = new InventoryItemServiceImpl();
+    UnitService unitService = new UnitServiceImpl();
+    ImportNoteService importNoteService = new ImportNoteServiceImpl();
+    ExportNoteService exportNoteService = new ExportNoteImpl();
 
     @FXML
     public void initialize() {
@@ -41,14 +55,13 @@ public class InventoryController {
 
         // Setup table columns
         nameColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getItemName()));
-        //importDateColumn.setCellValueFactory();
-        exportDateColumn.setCellValueFactory(new PropertyValueFactory<>("exportDate"));
-        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
+        importDateColumn.setCellValueFactory(c -> new SimpleObjectProperty<Date>(importNoteService.getImportNoteByInventoryID(c.getValue().getInventoryItemID()).getImportDate()));
+        exportDateColumn.setCellValueFactory(c -> new SimpleObjectProperty<Date>(exportNoteService.getExportNoteByInventoryID(c.getValue().getInventoryItemID()).getExportDate()));
+        quantityColumn.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getStockQuantity()).asObject());
+        unitColumn.setCellValueFactory(c -> new SimpleStringProperty(unitService.getUnitByUnitID(c.getValue().getUnitID()).getUnitName()));
+        priceColumn.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getUnitPrice()).asObject());
+        totalColumn.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getUnitPrice() * c.getValue().getStockQuantity()).asObject());
 
-        // Format the columns
         priceColumn.setCellFactory(column -> new TableCell<InventoryItem, Integer>() {
             @Override
             protected void updateItem(Integer price, boolean empty) {
@@ -56,7 +69,8 @@ public class InventoryController {
                 if (empty || price == null) {
                     setText(null);
                 } else {
-                    setText(String.format("%,d VNĐ", price.longValue()));
+                    setText(String.format("%,d VNĐ", price));
+                    setAlignment(Pos.BASELINE_RIGHT);
                 }
             }
         });
@@ -69,22 +83,22 @@ public class InventoryController {
                     setText(null);
                 } else {
                     setText(String.format("%,d VNĐ", total.longValue()));
+                    setAlignment(Pos.BASELINE_RIGHT);
                 }
             }
         });
 
         inventoryTable.setItems(filteredItems);
 
-        // Add search functionality
-//        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-//            filteredItems.setPredicate(item -> {
-//                if (newValue == null || newValue.isEmpty()) {
-//                    return true;
-//                }
-//                String lowerCaseFilter = newValue.toLowerCase();
-//                return item.getName().toLowerCase().contains(lowerCaseFilter);
-//            });
-//        });
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredItems.setPredicate(item -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return item.getItemName().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
     }
 
     @FXML
