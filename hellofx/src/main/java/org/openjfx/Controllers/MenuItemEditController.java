@@ -35,9 +35,9 @@ public class MenuItemEditController extends MenuItemControllerBase {
     public void initialize() {
         // reloadData();
 
-        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
+                cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getCurrentPrice())));
 
         menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         tableMenuItem.setItems(menuItems);
