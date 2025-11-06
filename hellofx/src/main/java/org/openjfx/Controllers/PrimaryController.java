@@ -3,10 +3,7 @@ package org.openjfx.Controllers;
 import java.io.IOException;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.openjfx.App;
-import org.openjfx.Models.EmployeeForm;
-import org.openjfx.Stores.EmployeeStore;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -17,7 +14,6 @@ import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 import org.openjfx.entity.Account;
 import org.openjfx.entity.Employee;
-import org.openjfx.entity.Position;
 import org.openjfx.service.AccountService;
 import org.openjfx.service.EmployeeService;
 import org.openjfx.service.PositionService;
@@ -32,14 +28,14 @@ public class PrimaryController {
         App.setRoot("secondary");
     }
 
-    @FXML
-    private void noop() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText("Tính năng sẽ được bổ sung sau.");
-        alert.showAndWait();
-    }
+    // @FXML
+    // private void noop() {
+    //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    //     alert.setTitle("Thông báo");
+    //     alert.setHeaderText(null);
+    //     alert.setContentText("Tính năng sẽ được bổ sung sau.");
+    //     alert.showAndWait();
+    // }
 
     @FXML
     private void showQuanLyBanHang() throws IOException {
