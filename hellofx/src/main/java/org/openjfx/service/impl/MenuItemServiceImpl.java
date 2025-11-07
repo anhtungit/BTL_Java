@@ -20,12 +20,15 @@ public class MenuItemServiceImpl implements MenuItemService {
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                MenuItem item = new MenuItem(
-                        rs.getInt("MenuItemID"),
-                        rs.getString("ItemName"),
-                        rs.getInt("CurrentPrice"),
-                        rs.getString("ItemType")
-                );
+                if (rs.getString("ItemType").equals("Đã xoá")) {
+                    continue;
+                }
+
+                MenuItem item = new MenuItem();
+                item.setMenuItemId(rs.getInt("MenuItemID"));
+                item.setItemName(rs.getString("ItemName"));
+                item.setCurrentPrice(rs.getInt("CurrentPrice"));
+                item.setItemType(rs.getString("ItemType"));
                 list.add(item);
             }
 
@@ -48,15 +51,16 @@ public class MenuItemServiceImpl implements MenuItemService {
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
+
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                item = new MenuItem(
-                        rs.getInt("MenuItemID"),
-                        rs.getString("ItemName"),
-                        rs.getInt("CurrentPrice"),
-                        rs.getString("ItemType")
-                );
+               
+                item.setMenuItemId(rs.getInt("MenuItemID"));
+                item.setItemName(rs.getString("ItemName"));
+                item.setCurrentPrice(rs.getInt("CurrentPrice"));
+                item.setItemType(rs.getString("ItemType"));
+              
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -109,12 +113,13 @@ public class MenuItemServiceImpl implements MenuItemService {
     @Override
     public void deleteMenuItem(int id) {
 
-        String sql = "DELETE FROM MenuItem WHERE MenuItemID = ?";
+        String sql = "UPDATE MenuItem SET ItemType = ? WHERE MenuItemID = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
+            stmt.setString(1, "Đã xoá");
+            stmt.setInt(2, id);
             stmt.executeUpdate();
 
         } catch (SQLException e) {

@@ -11,6 +11,13 @@ public class MenuItem {
     private int currentPrice;
     private String itemType;
 
+    public MenuItem() {
+        this.menuItemId = 0;
+        this.ItemName = "";
+        this.currentPrice = 0;
+        this.itemType = "";
+    }
+
     public MenuItem(String name, int price) {
         this.menuItemId = 0;
         this.ItemName = name;

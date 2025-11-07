@@ -56,7 +56,7 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
                     String itemName = selected.getItemName();
                     menuItemService.deleteMenuItem(selected.getMenuItemId());
                     // reloadData();
-                    tableMenuItem.refresh();
+                    initialize();
                     showAlert(Alert.AlertType.INFORMATION, "Thành công",
                             "Đã xóa món \"" + itemName + "\"!");
                 } catch (RuntimeException e) {
@@ -64,6 +64,7 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
                 }
             }
         });
+
     }
 
     @FXML
