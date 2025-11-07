@@ -91,6 +91,42 @@ public class ProfileController implements Initializable {
         TextField textField = new TextField(defaultValue);
         textField.setPrefWidth(200);
         
+        // Thêm validation cho từng trường
+        if (label == lblPhone) {
+            // Chỉ cho phép nhập số và tối đa 10 ký tự cho số điện thoại
+            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    textField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+                if (newValue.length() > 10) {
+                    textField.setText(newValue.substring(0, 10));
+                }
+            });
+        } else if (label == lblFullName) {
+            // Không cho phép nhập số trong họ tên
+            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("[\\p{L}\\s]*")) {
+                    textField.setText(newValue.replaceAll("[^\\p{L}\\s]", ""));
+                }
+            });
+        } else if (label == lblPassword) {
+            // Giới hạn độ dài mật khẩu
+            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.length() > 20) {
+                    textField.setText(newValue.substring(0, 20));
+                }
+            });
+        }
+        
+        // Hiển thị viền đỏ nếu trường bị bỏ trống
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.trim().isEmpty()) {
+                textField.setStyle("-fx-border-color: red;");
+            } else {
+                textField.setStyle("");
+            }
+        });
+        
         HBox parent = (HBox) label.getParent();
         int index = parent.getChildren().indexOf(label);
         parent.getChildren().set(index, textField);
@@ -121,6 +157,67 @@ public class ProfileController implements Initializable {
     }
 
     private void saveProfile() {
+        // Kiểm tra các trường không được bỏ trống
+        
+        // Kiểm tra họ tên
+        Control fullNameControl = editingControls.get(lblFullName);
+        if (fullNameControl instanceof TextField) {
+            String fullName = ((TextField) fullNameControl).getText().trim();
+            if (fullName.isEmpty()) {
+                showAlert("Lỗi", "Họ và tên không được để trống!");
+                return;
+            }
+        }
+
+        // Kiểm tra địa chỉ
+        Control addressControl = editingControls.get(lblAddress);
+        if (addressControl instanceof TextField) {
+            String address = ((TextField) addressControl).getText().trim();
+            if (address.isEmpty()) {
+                showAlert("Lỗi", "Địa chỉ không được để trống!");
+                return;
+            }
+        }
+
+        // Kiểm tra số điện thoại
+        Control phoneControl = editingControls.get(lblPhone);
+        if (phoneControl instanceof TextField) {
+            String phoneNumber = ((TextField) phoneControl).getText().trim();
+            if (phoneNumber.isEmpty()) {
+                showAlert("Lỗi", "Số điện thoại không được để trống!");
+                return;
+            }
+            if (phoneNumber.length() < 10) {
+                showAlert("Lỗi", "Số điện thoại phải có 10 số!");
+                return;
+            }
+        }
+
+        // Kiểm tra mật khẩu
+        Control passwordControl = editingControls.get(lblPassword);
+        if (passwordControl instanceof TextField) {
+            String password = ((TextField) passwordControl).getText().trim();
+            if (password.isEmpty()) {
+                showAlert("Lỗi", "Mật khẩu không được để trống!");
+                return;
+            }
+            if (password.length() < 6) {
+                showAlert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự!");
+                return;
+            }
+        }
+
+        // Kiểm tra chức vụ
+        Control positionControl = editingControls.get(lblPosition);
+        if (positionControl instanceof ComboBox) {
+            @SuppressWarnings("unchecked")
+            ComboBox<String> combo = (ComboBox<String>) positionControl;
+            if (combo.getValue() == null || combo.getValue().trim().isEmpty()) {
+                showAlert("Lỗi", "Vui lòng chọn chức vụ!");
+                return;
+            }
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Xác nhận");
         alert.setHeaderText("Lưu thông tin");

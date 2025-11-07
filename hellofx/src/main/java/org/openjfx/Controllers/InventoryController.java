@@ -3,12 +3,10 @@ package org.openjfx.Controllers;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.collections.ObservableList;
@@ -17,7 +15,6 @@ import org.openjfx.App;
 import org.openjfx.entity.ExportNote;
 import org.openjfx.entity.ImportNote;
 import org.openjfx.entity.InventoryItem;
-import org.openjfx.entity.Unit;
 import org.openjfx.service.ExportNoteService;
 import org.openjfx.service.ImportNoteService;
 import org.openjfx.service.InventoryItemService;
@@ -163,6 +160,7 @@ public class InventoryController {
                     inventoryItem.setUnitID(unitID);
                     inventoryItem.setUnitPrice(price);
 
+                    initialize();
                     return inventoryItem;
                 } catch (NumberFormatException e) {
                     showAlert("Error", "Invalid input values");

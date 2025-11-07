@@ -13,9 +13,9 @@
     <center>
         <TableView fx:id="employeeTable">
             <columns>
-                <TableColumn text="Họ tên" prefWidth="250" fx:id="colName" />
-                <TableColumn text="Chức vụ" prefWidth="150" fx:id="colPosition" />
-                <TableColumn text="Lương" prefWidth="120" fx:id="colSalary" />
+                <TableColumn text="Họ tên" prefWidth="180" fx:id="colName" />
+                <TableColumn text="Chức vụ" prefWidth="120" fx:id="colPosition" />
+                <TableColumn text="Lương" prefWidth="100" fx:id="colSalary" />
             </columns>
         </TableView>
     </center>
