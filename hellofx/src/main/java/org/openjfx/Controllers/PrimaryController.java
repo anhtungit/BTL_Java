@@ -351,9 +351,6 @@ public class PrimaryController {
     }
 
     private String text(javafx.scene.control.TextField tf) { return tf == null ? "" : tf.getText(); }
-    private long parseLong(String s) {
-        try { return Long.parseLong(s.replace(".", "").replace(",", "").trim()); } catch (Exception e) { return 0; }
-    }
 
     @FXML
     private void showQuanLyThucDon() throws IOException {

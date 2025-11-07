@@ -67,7 +67,7 @@
                 <HBox spacing="40" alignment="CENTER_LEFT">
 
                     <!-- Xuất file -->
-                    <VBox spacing="8" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-border-width:1; -fx-background-color: #f8f8f8;">
+                    <!-- <VBox spacing="8" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-border-width:1; -fx-background-color: #f8f8f8;">
                         <padding>
                             <Insets top="10" right="10" bottom="10" left="10"/>
                         </padding>
@@ -76,7 +76,7 @@
                         <CheckBox text=".xls - Excel File" fx:id="chkXls"/>
                         <CheckBox text=".sql - SQL File" fx:id="chkSql"/>
                         <Button text="Xuất file" fx:id="btnExport" onAction="#handleExport"/>
-                    </VBox>
+                    </VBox> -->
 
                     <!-- In file -->
                     <VBox spacing="8" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-border-width:1; -fx-background-color: #f8f8f8;">
