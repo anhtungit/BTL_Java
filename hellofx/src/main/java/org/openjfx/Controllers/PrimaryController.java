@@ -338,12 +338,12 @@ public class PrimaryController {
                 if (editPosition != null)
                     selected.setPositionID(positionService.getPositionByPositionName(editPosition.getValue()).getPositionId());
                 selected.setPhoneNumber(text(editPhone));
-                selected.setFullName(text(editUsername));
+
                 if (editPassword != null && !editPassword.getText().isEmpty()) {
                     accSeleted.setPassword(editPassword.getText());
+                    accountService.save(accSeleted);
                 }
             }
-            accountService.save(accSeleted);
             employeeService.save(selected);
         }
         empShowList();

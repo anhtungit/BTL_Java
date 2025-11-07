@@ -24,6 +24,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                         rs.getInt("MenuItemID"),
                         rs.getString("ItemName"),
                         rs.getInt("CurrentPrice"));
+
                 list.add(item);
             }
 

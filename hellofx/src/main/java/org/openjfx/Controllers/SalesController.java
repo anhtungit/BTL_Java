@@ -26,10 +26,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.openjfx.App;
-import org.openjfx.entity.BookingDetail;
-import org.openjfx.entity.Invoice;
-import org.openjfx.entity.InvoiceDetail;
-import org.openjfx.entity.Table;
+import org.openjfx.entity.*;
+import org.openjfx.entity.MenuItem;
 import org.openjfx.service.*;
 import org.openjfx.service.impl.*;
 
@@ -431,9 +429,9 @@ public class SalesController implements Initializable {
         tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
         content.getChildren().add(tableLabel);
 
-        ObservableList<org.openjfx.entity.MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
+        ObservableList<MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
 
-        List<InvoiceDetail> existingItems = listOfInvoiceDetailOfSelectedTable;
+        //List<InvoiceDetail> existingItems = listOfInvoiceDetailOfSelectedTable;
 //        if (existingItems != null && !existingItems.isEmpty()) {
 //            for (org.openjfx.entity.MenuItem mi : menuItems) {
 //                for (InvoiceService oi : existingItems) {
@@ -446,29 +444,30 @@ public class SalesController implements Initializable {
 //            }
 //        }
 
-//        TabPane tabPane = new TabPane();
-//        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-//
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
 //        Tab mainDishTab = new Tab("Món chính");
 //        TableView<MenuItem> mainDishTable = new TableView<>();
-//        setupMenuTable(mainDishTable, MenuStore.getMainDishes());
+//        setupMenuTable(mainDishTable, menuItems);
 //        mainDishTab.setContent(mainDishTable);
-//
-//        Tab drinksTab = new Tab("Đồ uống");
-//        TableView<MenuItem> drinksTable = new TableView<>();
-//        setupMenuTable(drinksTable, MenuStore.getDrinks());
-//        drinksTab.setContent(drinksTable);
-//
+
+        Tab drinksTab = new Tab("Đồ Uống");
+        TableView<MenuItem> drinksTable = new TableView<>();
+        setupMenuTable(drinksTable, FXCollections.observableArrayList(menuItems.stream().filter(x -> "Đồ Uống".equals(x.getItemType())).toList()));
+        drinksTab.setContent(drinksTable);
+
 //        Tab dessertsTab = new Tab("Tráng miệng");
 //        TableView<MenuItem> dessertsTable = new TableView<>();
 //        setupMenuTable(dessertsTable, MenuStore.getDesserts());
 //        dessertsTab.setContent(dessertsTable);
 //
-//        tabPane.getTabs().addAll(mainDishTab, drinksTab, dessertsTab);
-//        tabPane.setPrefHeight(300);
-//        tabPane.setMaxHeight(300);
-//        tabPane.setMaxWidth(320);
-//
+        //tabPane.getTabs().addAll(mainDishTab, drinksTab, dessertsTab);
+        tabPane.getTabs().addAll(drinksTab);
+        tabPane.setPrefHeight(300);
+        tabPane.setMaxHeight(300);
+        tabPane.setMaxWidth(320);
+
 //        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
 //        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
 //        selectColumn.setCellFactory(column -> {
@@ -510,12 +509,12 @@ public class SalesController implements Initializable {
 //            };
 //        });
 //
-//        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
-//        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-//        nameColumn.setPrefWidth(150);
-//
+        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
+        nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getItemName()));
+        nameColumn.setPrefWidth(150);
+
 //        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
-//        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
+//        quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getCurrentPrice()).asObject());
 //        quantityColumn.setPrefWidth(60);
 //        quantityColumn.setCellFactory(column -> {
 //            return new javafx.scene.control.TableCell<MenuItem, Integer>() {
@@ -560,14 +559,14 @@ public class SalesController implements Initializable {
 //        });
 //
 //
-//        content.getChildren().add(tabPane);
-//
-//        HBox buttonBox = new HBox(10);
-//        buttonBox.setAlignment(Pos.CENTER);
-//
-//        Button saveButton = new Button("Lưu");
-//        saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
-//        saveButton.setOnAction(e -> {
+        content.getChildren().add(tabPane);
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        Button saveButton = new Button("Lưu");
+        saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
+        saveButton.setOnAction(e -> {
 //            java.util.List<OrderItem> itemsToSave = new java.util.ArrayList<>();
 //            StringBuilder selectedItems = new StringBuilder("Đã chọn:\n");
 //            double totalAmount = 0;
@@ -596,23 +595,23 @@ public class SalesController implements Initializable {
 //
 //            dialog.close();
 //            showAlert("Thành công", selectedItems.toString());
-//        });
-//
-//        Button cancelButton = new Button("Hủy");
-//        cancelButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 16;");
-//        cancelButton.setOnAction(e -> dialog.close());
-//
-//        buttonBox.getChildren().addAll(saveButton, cancelButton);
-//        content.getChildren().add(buttonBox);
-//
-//        dialog.getDialogPane().setContent(content);
-//        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-//        dialog.setResizable(false);
-//
-//        dialog.setOnCloseRequest(e -> {
-//        });
-//
-//        dialog.showAndWait();
+        });
+
+        Button cancelButton = new Button("Hủy");
+        cancelButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 16;");
+        cancelButton.setOnAction(e -> dialog.close());
+
+        buttonBox.getChildren().addAll(saveButton, cancelButton);
+        content.getChildren().add(buttonBox);
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.setResizable(false);
+
+        dialog.setOnCloseRequest(e -> {
+        });
+
+        dialog.showAndWait();
     }
 
 
@@ -667,64 +666,25 @@ public class SalesController implements Initializable {
         alert.showAndWait();
     }
 
-//    private void setupMenuTable(TableView<MenuItem> tableView, ObservableList<MenuItem> items) {
-//        tableView.setItems(items);
-//        tableView.setPrefHeight(300);
-//        tableView.setMaxHeight(300);
-//        tableView.setMaxWidth(320);
-//
-//        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
-//        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
-//        selectColumn.setCellFactory(column -> {
-//            return new javafx.scene.control.TableCell<MenuItem, Boolean>() {
-//                private CheckBox checkBox;
-//                private MenuItem currentMenuItem;
-//
-//                @Override
-//                protected void updateItem(Boolean item, boolean empty) {
-//                    super.updateItem(item, empty);
-//                    if (empty || item == null) {
-//                        setGraphic(null);
-//                        currentMenuItem = null;
-//                    } else {
-//                        if (checkBox == null) {
-//                            checkBox = new CheckBox();
-//                        }
-//
-//                        currentMenuItem = getTableView().getItems().get(getIndex());
-//                        checkBox.setSelected(item);
-//
-//                        checkBox.setOnAction(null);
-//                        checkBox.setOnAction(e -> {
-//                            if (currentMenuItem != null) {
-//                                currentMenuItem.setSelected(checkBox.isSelected());
-//                                if (!checkBox.isSelected()) {
-//                                    currentMenuItem.setQuantity(0);
-//                                } else if (currentMenuItem.getQuantity() == 0) {
-//                                    currentMenuItem.setQuantity(1);
-//                                }
-//                                getTableView().refresh();
-//                            }
-//                        });
-//
-//                        setGraphic(checkBox);
-//                    }
-//                }
-//            };
-//        });
-//
-//        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
-//        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-//        nameColumn.setPrefWidth(150);
-//
-//        TableColumn<MenuItem, String> priceColumn = new TableColumn<>("Giá");
-//        priceColumn.setCellValueFactory(cellData ->
-//            new javafx.beans.property.SimpleStringProperty(
-//                String.format("%,d VNĐ", (long)cellData.getValue().getPrice())
-//            )
-//        );
-//        priceColumn.setPrefWidth(100);
-//
+    private void setupMenuTable(TableView<MenuItem> tableView, ObservableList<MenuItem> items) {
+        tableView.setItems(items);
+        tableView.setPrefHeight(300);
+        tableView.setMaxHeight(300);
+        tableView.setMaxWidth(320);
+
+
+        TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
+        nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(menuItemService.getMenuItemByMenuItemID(cellData.getValue().getMenuItemId()).getItemName()));
+        nameColumn.setPrefWidth(150);
+
+        TableColumn<MenuItem, String> priceColumn = new TableColumn<>("Giá");
+        priceColumn.setCellValueFactory(cellData ->
+            new javafx.beans.property.SimpleStringProperty(
+                String.format("%,d VNĐ", (long)cellData.getValue().getCurrentPrice())
+            )
+        );
+        priceColumn.setPrefWidth(100);
+
 //        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("SL");
 //        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
 //        quantityColumn.setPrefWidth(60);
@@ -769,10 +729,10 @@ public class SalesController implements Initializable {
 //                }
 //            };
 //        });
-//
-//    tableView.getColumns().add(selectColumn);
-//    tableView.getColumns().add(nameColumn);
-//    tableView.getColumns().add(priceColumn);
-//    tableView.getColumns().add(quantityColumn);
-//    }
+
+    //tableView.getColumns().add(selectColumn);
+    tableView.getColumns().add(nameColumn);
+    tableView.getColumns().add(priceColumn);
+    //tableView.getColumns().add(quantityColumn);
+    }
 }

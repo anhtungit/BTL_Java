@@ -20,7 +20,7 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
     @FXML
     private TableColumn<MenuItem, String> colCurrentPrice;
 
-    private ObservableList<MenuItem> menuItems;
+
 
 
     MenuItemService menuItemService = new MenuItemServiceImpl();
@@ -28,13 +28,13 @@ public class MenuItemDeleteController extends MenuItemControllerBase {
     @FXML
     public void initialize() {
         // reloadData();
-        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        // colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
-
-        menuItems =  FXCollections.observableArrayList(menuItemService.getAllMenuItem());
-        tableMenuItem.setItems(menuItems);
+//        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
+//        // colItemName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+//        colCurrentPrice.setCellValueFactory(
+//                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
+        colItemName.setCellValueFactory(new PropertyValueFactory<>("ItemName"));
+        colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
+        tableMenuItem.setItems(FXCollections.observableArrayList(menuItemService.getAllMenuItem()));
     }
 
     @FXML
