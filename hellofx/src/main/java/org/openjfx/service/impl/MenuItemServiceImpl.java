@@ -14,7 +14,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     public List getAllMenuItem() {
         List<MenuItem> list = new ArrayList<>();
 
-        String sql = "SELECT MenuItemID, ItemName, CurrentPrice FROM MenuItem";
+        String sql = "SELECT MenuItemID, ItemName, CurrentPrice, ItemType FROM MenuItem";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
@@ -23,7 +23,9 @@ public class MenuItemServiceImpl implements MenuItemService {
                 MenuItem item = new MenuItem(
                         rs.getInt("MenuItemID"),
                         rs.getString("ItemName"),
-                        rs.getInt("CurrentPrice"));
+                        rs.getInt("CurrentPrice"),
+                        rs.getString("ItemType")
+                );
                 list.add(item);
             }
 
@@ -41,7 +43,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     public MenuItem getMenuItemByMenuItemID(int id) {
         MenuItem item = null;
 
-        String sql = "SELECT MenuItemID, ItemName, CurrentPrice FROM MenuItem WHERE MenuItemID = ?";
+        String sql = "SELECT MenuItemID, ItemName, CurrentPrice, ItemType FROM MenuItem WHERE MenuItemID = ?";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -52,7 +54,9 @@ public class MenuItemServiceImpl implements MenuItemService {
                 item = new MenuItem(
                         rs.getInt("MenuItemID"),
                         rs.getString("ItemName"),
-                        rs.getInt("CurrentPrice"));
+                        rs.getInt("CurrentPrice"),
+                        rs.getString("ItemType")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -64,13 +68,14 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public void addMenuItem(MenuItem item) {
-        String sql = "INSERT INTO MenuItem(ItemName, CurrentPrice) VALUES(?, ?)";
+        String sql = "INSERT INTO MenuItem(ItemName, CurrentPrice, ItemType) VALUES(?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, item.getItemName());
             stmt.setDouble(2, item.getCurrentPrice());
+            stmt.setString(3, filterType(item));
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
@@ -85,14 +90,15 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public void updateMenuItem(MenuItem item) {
-        String sql = "UPDATE MenuItem SET ItemName = ?, CurrentPrice = ? WHERE MenuItemID = ?";
+        String sql = "UPDATE MenuItem SET ItemName = ?, CurrentPrice = ?, ItemType = ? WHERE MenuItemID = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, item.getItemName());
             stmt.setDouble(2, item.getCurrentPrice());
-            stmt.setInt(3, item.getMenuItemId());
+            stmt.setString(3, filterType(item));
+            stmt.setInt(4, item.getMenuItemId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -115,5 +121,13 @@ public class MenuItemServiceImpl implements MenuItemService {
             e.printStackTrace();
         }
     }
+
+    String filterType(MenuItem item){
+        if(item.getItemName().contains("Trà") || item.getItemName().contains("Cà phê") || item.getItemName().contains("Nước")){
+            return "Đồ uống";
+        }
+        return "Đồ ăn";
+    }
+    
 
 }
