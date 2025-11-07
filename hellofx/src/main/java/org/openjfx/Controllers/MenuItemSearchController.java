@@ -32,9 +32,8 @@ public class MenuItemSearchController {
         // Load dữ liệu từ database
         // menuItemService.loadFromDatabase();
 
-        colItemName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colCurrentPrice.setCellValueFactory(
-                cell -> new SimpleStringProperty(String.format("%.0f", cell.getValue().getCurrentPrice())));
+   colItemName.setCellValueFactory(new PropertyValueFactory<>("ItemName"));
+        colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
 
         allItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
         filteredItems = FXCollections.observableArrayList(allItems);
