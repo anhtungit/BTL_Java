@@ -1,6 +1,7 @@
 package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
+import org.openjfx.entity.BudgetRecord;
 import org.openjfx.entity.Expense;
 import org.openjfx.service.BudgetService;
 
@@ -57,30 +58,55 @@ public class BudgetServiceImpl implements BudgetService {
         }
     }
 
-    @Override
-    public List<Expense> filterExpensesByDate(LocalDate from, LocalDate to) {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM Expense WHERE ExpenseDate BETWEEN ? AND ?")) {
+   @Override
+    public List<BudgetRecord> getIncomeOutcome(LocalDate from, LocalDate to) {
+        String sql = "SELECT AccountID, date, SUM(Income) AS Income, SUM(Outcome) AS Outcome FROM (" +
 
-            stmt.setDate(1, java.sql.Date.valueOf(from));
-            stmt.setDate(2, java.sql.Date.valueOf(to));
+                " SELECT acc.AccountID, DATE(i.CreatedAt) AS date, i.TotalAmount AS Income, 0 AS Outcome " +
+                " FROM Invoice i " +
+                " JOIN BookingDetail bd ON i.InvoiceID = bd.InvoiceID " +
+                " JOIN Employee em ON bd.EmployeeID = em.EmployeeID " +
+                " JOIN Account acc ON em.AccountID = acc.AccountID " +
+                " WHERE i.CreatedAt BETWEEN ? AND ? " +
 
-            ResultSet rs = stmt.executeQuery();
-            List<Expense> expenses = new ArrayList<>();
-            while (rs.next()) {
-                Expense expense = new Expense();
-                expense.setExpenseID(rs.getInt("ExpenseID"));
-                expense.setAccountID(rs.getInt("AccountID"));
-                expense.setAmount(rs.getInt("Amount"));
-                expense.setExpenseDescription(rs.getString("ExpenseDescription"));
-                expense.setExpenseDate(rs.getDate("ExpenseDate").toLocalDate());
-                expenses.add(expense);
-            }
-            return expenses;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return Collections.emptyList();
+                " UNION ALL " +
+
+                " SELECT ex.AccountID, ex.ExpenseDate AS date, 0 AS Income, ex.Amount AS Outcome " +
+                " FROM Expense ex " +
+                " WHERE ex.ExpenseDate BETWEEN ? AND ? " +
+
+                ") x GROUP BY AccountID, date ORDER BY date";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        if (from == null || to == null) {
+            from = LocalDate.of(1970, 1, 1); 
+            to = LocalDate.now();
         }
+
+        stmt.setDate(1, java.sql.Date.valueOf(from));
+        stmt.setDate(2, java.sql.Date.valueOf(to));
+        stmt.setDate(3, java.sql.Date.valueOf(from));
+        stmt.setDate(4, java.sql.Date.valueOf(to));
+
+        ResultSet rs = stmt.executeQuery();
+        List<BudgetRecord> list = new ArrayList<>();
+
+        while (rs.next()) {
+            list.add(new BudgetRecord(
+                rs.getInt("AccountID"),
+                rs.getDate("date").toLocalDate(),
+                rs.getDouble("income"),
+                rs.getDouble("outcome")
+            ));
+        }
+        return list;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return Collections.emptyList();
     }
+}
+
 }
