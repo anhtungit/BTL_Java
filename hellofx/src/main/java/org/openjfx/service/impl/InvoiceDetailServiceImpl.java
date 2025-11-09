@@ -58,4 +58,24 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void addInvoiceDetail(InvoiceDetail invoiceDetail) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          INSERT INTO InvoiceDetail (InvoiceID, MenuItemID, Quantity, PriceAtSale, lineTotal)
+                          VALUES (?, ?, ?, ?, ?);
+                          """;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, invoiceDetail.getInvoiceID());
+            ps.setInt(2, invoiceDetail.getMenuItemID());
+            ps.setInt(3, invoiceDetail.getQuantity());
+            ps.setInt(4, invoiceDetail.getPriceAtSale());
+            ps.setInt(5, invoiceDetail.getLineTotal());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

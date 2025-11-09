@@ -44,7 +44,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public MenuItem getMenuItemByMenuItemID(int id) {
-        MenuItem item = null;
+        MenuItem item = new MenuItem();
 
         String sql = "SELECT MenuItemID, ItemName, CurrentPrice, ItemType FROM MenuItem WHERE MenuItemID = ?";
         try (Connection conn = DBConnection.getConnection();
