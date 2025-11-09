@@ -1,5 +1,6 @@
 package org.openjfx.Controllers;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -178,7 +179,7 @@ public class SalesController implements Initializable {
         qtyCol.setPrefWidth(80);
 
         orderTable.getColumns().add(itemNameCol);
-        orderTable.getColumns().add(qtyCol);
+        // orderTable.getColumns().add(qtyCol);
 
         lblSelectedTable.setText(selectedTable.getTableName());
         lblTableStatus.setText(selectedTable.getStatus());
@@ -522,26 +523,29 @@ public class SalesController implements Initializable {
         Button saveButton = new Button("Lưu");
         saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
         saveButton.setOnAction(e -> {
-            if (tempSelectedItems.isEmpty()) {
-                showAlert("Thông báo", "Vui lòng chọn ít nhất một món!");
-                return;
-            }
+        if (tempSelectedItems.isEmpty()) {
+            showAlert("Thông báo", "Vui lòng chọn ít nhất một món!");
+            return;
+        }
+
+        BookingDetail bookingDetail = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
+        int invoiceId = bookingDetail.getInvoiceID(); 
+
             
-            StringBuilder message = new StringBuilder("Đã chọn:\n");
-            for (MenuItem item : tempSelectedItems) {
-                message.append("- ").append(item.getItemName())
-                       .append(" (").append(item.getCurrentPrice()).append(" VNĐ)")
-                       .append("\n");
-            }
-            
-            // Lưu message vào biến final để có thể sử dụng trong Platform.runLater
-            final String finalMessage = message.toString();
-            dialog.close();
-            
-            // Đảm bảo alert được hiển thị trên UI thread
-            javafx.application.Platform.runLater(() -> {
-                showAlert("Thành công", finalMessage);
-            });
+        for (MenuItem item : tempSelectedItems) {
+            int quantity = 1; 
+            int price = item.getCurrentPrice();
+            int total = quantity * price;
+
+            InvoiceDetail detail = new InvoiceDetail(invoiceId, item.getMenuItemId(), quantity, price, total);
+            invoiceDetailService.addInvoiceDetail(detail);
+            invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
+
+        }
+
+
+        dialog.close();
+        Platform.runLater(() -> showAlert("Thành công", "Đã thêm món vào hóa đơn!"));
         });
         
         Button cancelButton = new Button("Hủy");

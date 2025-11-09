@@ -8,4 +8,5 @@ import java.util.List;
 public interface InvoiceDetailService {
     List<InvoiceDetail> getInvoiceDetailByInvoiceID(int invoiceID);
     void deleteAll(Invoice invoice);
+    void addInvoiceDetail(InvoiceDetail invoiceDetail);
 }
