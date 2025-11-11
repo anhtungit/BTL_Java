@@ -145,27 +145,54 @@ public class InventoryController {
         List<String> unitList = unitService.getAllUnit().stream().map(u -> u.getUnitName()).toList();
         unitCombo.setItems(FXCollections.observableArrayList(unitList));
         unitCombo.setValue(unitList.get(0));
+
+        // Disable OK button by default
+        Button addButton = (Button) dialog.getDialogPane().lookupButton(addButtonType);
+        addButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            try {
+                if (nameField.getText().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập tên hàng");
+                    event.consume();
+                    return;
+                }
+                int quantity = Integer.parseInt(quantityField.getText());
+                if (quantity <= 0) {
+                    showAlert("Lỗi", "Số lượng phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                int price = Integer.parseInt(priceField.getText());
+                if (price <= 0) {
+                    showAlert("Lỗi", "Đơn giá phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                if (importDatePicker.getValue() == null) {
+                    showAlert("Lỗi", "Vui lòng chọn ngày nhập");
+                    event.consume();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Lỗi", "Vui lòng nhập số hợp lệ");
+                event.consume();
+            }
+        });
+
         // Convert the result
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButtonType) {
-                try {
-                    String name = nameField.getText();
-                    int quantity = Integer.parseInt(quantityField.getText());
-                    int unitID = unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId();
-                    int price = Integer.parseInt(priceField.getText());
+                String name = nameField.getText();
+                int quantity = Integer.parseInt(quantityField.getText());
+                int unitID = unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId();
+                int price = Integer.parseInt(priceField.getText());
 
-                    InventoryItem inventoryItem = new InventoryItem();
-                    inventoryItem.setItemName(name);
-                    inventoryItem.setStockQuantity(quantity);
-                    inventoryItem.setUnitID(unitID);
-                    inventoryItem.setUnitPrice(price);
+                InventoryItem inventoryItem = new InventoryItem();
+                inventoryItem.setItemName(name);
+                inventoryItem.setStockQuantity(quantity);
+                inventoryItem.setUnitID(unitID);
+                inventoryItem.setUnitPrice(price);
 
-                    initialize();
-                    return inventoryItem;
-                } catch (NumberFormatException e) {
-                    showAlert("Error", "Invalid input values");
-                    return null;
-                }
+                return inventoryItem;
             }
             return null;
         });
@@ -181,6 +208,7 @@ public class InventoryController {
             importNote.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
 
             importNoteService.create(importNote);
+            initialize();
         });
     }
 
@@ -214,33 +242,54 @@ public class InventoryController {
 
         dialog.getDialogPane().setContent(grid);
 
+        // Add event filter to validate before closing
+        Button exportButton = (Button) dialog.getDialogPane().lookupButton(exportButtonType);
+        exportButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            try {
+                if (quantityField.getText().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập số lượng xuất");
+                    event.consume();
+                    return;
+                }
+                int quantity = Integer.parseInt(quantityField.getText());
+                if (quantity <= 0) {
+                    showAlert("Lỗi", "Số lượng phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                if (quantity > selectedItem.getStockQuantity()) {
+                    showAlert("Lỗi", "Số lượng xuất vượt quá số lượng trong kho");
+                    event.consume();
+                    return;
+                }
+                if (exportDatePicker.getValue() == null) {
+                    showAlert("Lỗi", "Vui lòng chọn ngày xuất");
+                    event.consume();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Lỗi", "Vui lòng nhập số hợp lệ");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == exportButtonType) {
-                try {
-                    int quantity = Integer.parseInt(quantityField.getText());
-                    LocalDate exportDate = exportDatePicker.getValue();
+                int quantity = Integer.parseInt(quantityField.getText());
+                LocalDate exportDate = exportDatePicker.getValue();
 
-                    if (quantity > selectedItem.getStockQuantity()) {
-                        showAlert("Error", "Số lượng xuất vượt quá số lượng trong kho");
-                        return null;
-                    }
+                ExportNote exportNote = new ExportNote();
+                exportNote.setInventoryItemID(selectedItem.getInventoryItemID());
+                exportNote.setExportDate(Date.valueOf(exportDate));
+                exportNote.setTotalExportAmount(quantity * selectedItem.getUnitPrice());
+                exportNote.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
+                exportNote.setQuantity(quantity);
 
-                    ExportNote exportNote = new ExportNote();
-                    exportNote.setInventoryItemID(selectedItem.getInventoryItemID());
-                    exportNote.setExportDate(Date.valueOf(exportDate));
-                    exportNote.setTotalExportAmount(quantity * selectedItem.getUnitPrice());
-                    exportNote.setEmployeeID(App.getEmployeeLogin().getEmployeeID());
-                    exportNote.setQuantity(quantity);
+                exportNoteService.create(exportNote);
 
-                    exportNoteService.create(exportNote);
-
-                    selectedItem.setStockQuantity(selectedItem.getStockQuantity() - quantity);
-                    inventoryItemService.save(selectedItem);
-                    return quantity;
-                } catch (NumberFormatException e) {
-                    showAlert("Error", "Invalid quantity");
-                    return null;
-                }
+                selectedItem.setStockQuantity(selectedItem.getStockQuantity() - quantity);
+                inventoryItemService.save(selectedItem);
+                return quantity;
             }
             return null;
         });
@@ -290,24 +339,51 @@ public class InventoryController {
 
         dialog.getDialogPane().setContent(grid);
 
+        // Add event filter to validate before closing
+        Button editButton = (Button) dialog.getDialogPane().lookupButton(editButtonType);
+        editButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            try {
+                if (nameField.getText().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập tên hàng");
+                    event.consume();
+                    return;
+                }
+                int quantity = Integer.parseInt(quantityField.getText());
+                if (quantity <= 0) {
+                    showAlert("Lỗi", "Số lượng phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                int price = Integer.parseInt(priceField.getText());
+                if (price <= 0) {
+                    showAlert("Lỗi", "Đơn giá phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                if (importDatePicker.getValue() == null) {
+                    showAlert("Lỗi", "Vui lòng chọn ngày nhập");
+                    event.consume();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Lỗi", "Vui lòng nhập số hợp lệ");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == editButtonType) {
-                try {
-                    selectedItem.setItemName(nameField.getText());
-                    selectedItem.setStockQuantity(Integer.parseInt(quantityField.getText()));
-                    selectedItem.setUnitID(unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId());
-                    selectedItem.setUnitPrice(Integer.parseInt(priceField.getText()));
+                selectedItem.setItemName(nameField.getText());
+                selectedItem.setStockQuantity(Integer.parseInt(quantityField.getText()));
+                selectedItem.setUnitID(unitService.getUnitByUnitName(unitCombo.getValue()).getUnitId());
+                selectedItem.setUnitPrice(Integer.parseInt(priceField.getText()));
 
-                    ImportNote importNote = importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID());
-                    importNote.setImportDate(Date.valueOf(importDatePicker.getValue()));
+                ImportNote importNote = importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID());
+                importNote.setImportDate(Date.valueOf(importDatePicker.getValue()));
 
-                    inventoryItemService.save(selectedItem);
-                    importNoteService.save(importNote);
-                    return selectedItem;
-                } catch (NumberFormatException e) {
-                    showAlert("Error", "Invalid input values");
-                    return null;
-                }
+                inventoryItemService.save(selectedItem);
+                importNoteService.save(importNote);
+                return selectedItem;
             }
             return null;
         });
