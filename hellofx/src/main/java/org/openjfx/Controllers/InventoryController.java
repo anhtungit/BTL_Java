@@ -129,6 +129,13 @@ public class InventoryController {
         TextField priceField = new TextField();
         DatePicker importDatePicker = new DatePicker();
 
+        // Apply number formatter to quantity and price fields
+        quantityField.setTextFormatter(createNumberFormatter(7));  // Max 7 digits
+        priceField.setTextFormatter(createNumberFormatter(10));    // Max 10 digits
+
+        // Configure DatePicker to be read-only (only select, not type)
+        importDatePicker.setEditable(false);
+
         grid.add(new Label("Tên hàng:"), 0, 0);
         grid.add(nameField, 1, 0);
         grid.add(new Label("Số lượng:"), 0, 1);
@@ -150,23 +157,63 @@ public class InventoryController {
         Button addButton = (Button) dialog.getDialogPane().lookupButton(addButtonType);
         addButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             try {
-                if (nameField.getText().isEmpty()) {
+                // Validate tên hàng
+                String name = nameField.getText().trim();
+                if (name.isEmpty()) {
                     showAlert("Lỗi", "Vui lòng nhập tên hàng");
                     event.consume();
                     return;
                 }
-                int quantity = Integer.parseInt(quantityField.getText());
+                if (name.length() > 255) {
+                    showAlert("Lỗi", "Tên hàng không được vượt quá 255 ký tự");
+                    event.consume();
+                    return;
+                }
+
+                // Validate số lượng
+                if (quantityField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập số lượng");
+                    event.consume();
+                    return;
+                }
+                int quantity = Integer.parseInt(quantityField.getText().trim());
                 if (quantity <= 0) {
                     showAlert("Lỗi", "Số lượng phải lớn hơn 0");
                     event.consume();
                     return;
                 }
-                int price = Integer.parseInt(priceField.getText());
+                if (quantity > 1000000) {
+                    showAlert("Lỗi", "Số lượng không được vượt quá 1,000,000");
+                    event.consume();
+                    return;
+                }
+
+                // Validate đơn vị
+                if (unitCombo.getValue() == null) {
+                    showAlert("Lỗi", "Vui lòng chọn đơn vị");
+                    event.consume();
+                    return;
+                }
+
+                // Validate đơn giá
+                if (priceField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập đơn giá");
+                    event.consume();
+                    return;
+                }
+                int price = Integer.parseInt(priceField.getText().trim());
                 if (price <= 0) {
                     showAlert("Lỗi", "Đơn giá phải lớn hơn 0");
                     event.consume();
                     return;
                 }
+
+                if (price > 1000000000) {
+                    showAlert("Lỗi", "Đơn giá không được vượt quá 1,000,000,000");
+                    event.consume();
+                    return;
+                }
+
                 if (importDatePicker.getValue() == null) {
                     showAlert("Lỗi", "Vui lòng chọn ngày nhập");
                     event.consume();
@@ -235,6 +282,16 @@ public class InventoryController {
         TextField quantityField = new TextField();
         DatePicker exportDatePicker = new DatePicker();
 
+        // Apply number formatter to quantity field
+        quantityField.setTextFormatter(createNumberFormatter(7));  // Max 7 digits
+
+        // Configure DatePicker to be read-only (only select, not type)
+        exportDatePicker.setEditable(false);
+
+        // Get the import date and set minimum date
+        ImportNote importNote = importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID());
+        LocalDate importDate = importNote.getImportDate().toLocalDate();
+
         grid.add(new Label("Số lượng xuất:"), 0, 0);
         grid.add(quantityField, 1, 0);
         grid.add(new Label("Ngày xuất:"), 0, 1);
@@ -246,24 +303,38 @@ public class InventoryController {
         Button exportButton = (Button) dialog.getDialogPane().lookupButton(exportButtonType);
         exportButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             try {
-                if (quantityField.getText().isEmpty()) {
+                // Validate số lượng xuất
+                if (quantityField.getText().trim().isEmpty()) {
                     showAlert("Lỗi", "Vui lòng nhập số lượng xuất");
                     event.consume();
                     return;
                 }
-                int quantity = Integer.parseInt(quantityField.getText());
+                int quantity = Integer.parseInt(quantityField.getText().trim());
                 if (quantity <= 0) {
-                    showAlert("Lỗi", "Số lượng phải lớn hơn 0");
+                    showAlert("Lỗi", "Số lượng xuất phải lớn hơn 0");
+                    event.consume();
+                    return;
+                }
+                if (quantity > 1000000) {
+                    showAlert("Lỗi", "Số lượng xuất không được vượt quá 1,000,000");
                     event.consume();
                     return;
                 }
                 if (quantity > selectedItem.getStockQuantity()) {
-                    showAlert("Lỗi", "Số lượng xuất vượt quá số lượng trong kho");
+                    showAlert("Lỗi", "Số lượng xuất (" + quantity + ") vượt quá số lượng trong kho (" + selectedItem.getStockQuantity() + ")");
                     event.consume();
                     return;
                 }
+
+                // Validate ngày xuất
                 if (exportDatePicker.getValue() == null) {
                     showAlert("Lỗi", "Vui lòng chọn ngày xuất");
+                    event.consume();
+                    return;
+                }
+                // Ngày xuất phải sau hoặc bằng ngày nhập
+                if (exportDatePicker.getValue().isBefore(importDate)) {
+                    showAlert("Lỗi", "Ngày xuất phải sau hoặc bằng ngày nhập (" + importDate + ")");
                     event.consume();
                     return;
                 }
@@ -324,6 +395,13 @@ public class InventoryController {
         TextField priceField = new TextField(String.valueOf(selectedItem.getUnitPrice()));
         DatePicker importDatePicker = new DatePicker(importNoteService.getImportNoteByInventoryID(selectedItem.getInventoryItemID()).getImportDate().toLocalDate());
 
+        // Apply number formatter to quantity and price fields
+        quantityField.setTextFormatter(createNumberFormatter(7));  // Max 7 digits
+        priceField.setTextFormatter(createNumberFormatter(10));    // Max 10 digits
+
+        // Configure DatePicker to be read-only (only select, not type)
+        importDatePicker.setEditable(false);
+
         unitCombo.setItems(FXCollections.observableArrayList(unitService.getAllUnit().stream().map(u -> u.getUnitName()).toList()));
         unitCombo.setValue(unitService.getUnitByUnitID(selectedItem.getUnitID()).getUnitName());
         grid.add(new Label("Tên hàng:"), 0, 0);
@@ -343,23 +421,63 @@ public class InventoryController {
         Button editButton = (Button) dialog.getDialogPane().lookupButton(editButtonType);
         editButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             try {
-                if (nameField.getText().isEmpty()) {
+                // Validate tên hàng
+                String name = nameField.getText().trim();
+                if (name.isEmpty()) {
                     showAlert("Lỗi", "Vui lòng nhập tên hàng");
                     event.consume();
                     return;
                 }
-                int quantity = Integer.parseInt(quantityField.getText());
+                if (name.length() > 255) {
+                    showAlert("Lỗi", "Tên hàng không được vượt quá 255 ký tự");
+                    event.consume();
+                    return;
+                }
+
+                // Validate số lượng
+                if (quantityField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập số lượng");
+                    event.consume();
+                    return;
+                }
+                int quantity = Integer.parseInt(quantityField.getText().trim());
                 if (quantity <= 0) {
                     showAlert("Lỗi", "Số lượng phải lớn hơn 0");
                     event.consume();
                     return;
                 }
-                int price = Integer.parseInt(priceField.getText());
+                if (quantity > 1000000) {
+                    showAlert("Lỗi", "Số lượng không được vượt quá 1,000,000");
+                    event.consume();
+                    return;
+                }
+
+                // Validate đơn vị
+                if (unitCombo.getValue() == null) {
+                    showAlert("Lỗi", "Vui lòng chọn đơn vị");
+                    event.consume();
+                    return;
+                }
+
+                // Validate đơn giá
+                if (priceField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập đơn giá");
+                    event.consume();
+                    return;
+                }
+                int price = Integer.parseInt(priceField.getText().trim());
                 if (price <= 0) {
                     showAlert("Lỗi", "Đơn giá phải lớn hơn 0");
                     event.consume();
                     return;
                 }
+                if (price > 1000000000) {
+                    showAlert("Lỗi", "Đơn giá không được vượt quá 1,000,000,000");
+                    event.consume();
+                    return;
+                }
+
+                // Validate ngày nhập
                 if (importDatePicker.getValue() == null) {
                     showAlert("Lỗi", "Vui lòng chọn ngày nhập");
                     event.consume();
@@ -418,5 +536,18 @@ public class InventoryController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private TextFormatter<Integer> createNumberFormatter(int maxDigits) {
+        return new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (newText.matches("[0-9]*") && newText.length() <= maxDigits) {
+                return change;
+            }
+            return null;
+        });
     }
 }
