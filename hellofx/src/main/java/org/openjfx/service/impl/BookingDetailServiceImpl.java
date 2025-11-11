@@ -3,11 +3,14 @@ package org.openjfx.service.impl;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Account;
 import org.openjfx.entity.BookingDetail;
+import org.openjfx.entity.Invoice;
 import org.openjfx.entity.Table;
 import org.openjfx.service.BookingDetailService;
 import org.openjfx.service.InvoiceService;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookingDetailServiceImpl implements BookingDetailService {
 
@@ -95,5 +98,32 @@ public class BookingDetailServiceImpl implements BookingDetailService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    List<Invoice> getAllInvoicesByEmployeeID(int employeeID) {
+        List<Invoice> invoices = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT i.InvoiceID, i.TotalAmount, i.CreatedAt, i.Status
+                    FROM Invoice i
+                    JOIN BookingDetail bd ON i.InvoiceID = bd.InvoiceID
+                    WHERE bd.EmployeeID = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, employeeID);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Invoice invoice = new Invoice();
+                invoice.setInvoiceID(rs.getInt("InvoiceID"));
+                invoice.setTotalAmount(rs.getInt("TotalAmount"));
+                invoice.setCreatedAt(rs.getDate("CreatedAt"));
+                invoice.setStatus(rs.getInt("Status"));
+                invoices.add(invoice);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return invoices;
     }
 }

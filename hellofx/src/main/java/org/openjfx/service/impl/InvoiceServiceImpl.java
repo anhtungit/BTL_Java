@@ -94,4 +94,25 @@ public class InvoiceServiceImpl implements InvoiceService {
             e.printStackTrace();
         }
     }
+
+    int getTotalAmountByDate(LocalDate date) {
+        int totalAmount = 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                    SELECT SUM(TotalAmount) AS TotalAmount
+                    FROM Invoice
+                    WHERE CreatedAt = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setDate(1, Date.valueOf(date));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                totalAmount = rs.getInt("TotalAmount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return totalAmount;
+    }
 }
