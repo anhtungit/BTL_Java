@@ -179,7 +179,7 @@ public class SalesController implements Initializable {
         qtyCol.setPrefWidth(80);
 
         orderTable.getColumns().add(itemNameCol);
-        // orderTable.getColumns().add(qtyCol);
+        orderTable.getColumns().add(qtyCol);
 
         lblSelectedTable.setText(selectedTable.getTableName());
         lblTableStatus.setText(selectedTable.getStatus());
@@ -531,7 +531,7 @@ public class SalesController implements Initializable {
         BookingDetail bookingDetail = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
         int invoiceId = bookingDetail.getInvoiceID(); 
 
-            
+
         for (MenuItem item : tempSelectedItems) {
             int quantity = 1; 
             int price = item.getCurrentPrice();
@@ -539,9 +539,14 @@ public class SalesController implements Initializable {
 
             InvoiceDetail detail = new InvoiceDetail(invoiceId, item.getMenuItemId(), quantity, price, total);
             invoiceDetailService.addInvoiceDetail(detail);
-            invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
+            // invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
 
         }
+            List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
+            int newTotalAmount = updatedDetails.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+            Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
+            invoiceToUpdate.setTotalAmount(newTotalAmount);
+            invoiceService.save(invoiceToUpdate);
 
 
         dialog.close();
@@ -602,6 +607,10 @@ public class SalesController implements Initializable {
 
                 updateTableInfo();
                 refreshTableGrid();
+
+                // List<InvoiceDetail> done = FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
+                // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+                
             }
 
         } catch (IOException e) {

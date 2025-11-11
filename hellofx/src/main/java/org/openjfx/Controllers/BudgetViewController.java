@@ -74,7 +74,8 @@ public class BudgetViewController {
     }
 
     private void loadAll() {
-        List<BudgetRecord> data = budgetService.getIncomeOutcome(null, null);
+        List<BudgetRecord> data = budgetService.getIncomeOutcome(
+                LocalDate.of(1, 1, 1), LocalDate.now());
         records.setAll(data);
         updateTotals(data);
     }
