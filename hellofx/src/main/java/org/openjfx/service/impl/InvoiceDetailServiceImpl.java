@@ -20,7 +20,7 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
         List<InvoiceDetail> invoiceDetails = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
-                    SELECT InvoiceID, MenuItemID, Quantity, PriceAtSale
+                    SELECT InvoiceID, MenuItemID, Quantity, PriceAtSale, lineTotal
                     FROM InvoiceDetail
                     WHERE InvoiceID = ?
                     """;
@@ -35,6 +35,7 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
                 invoiceDetail.setMenuItemID(rs.getInt("MenuItemID"));
                 invoiceDetail.setQuantity(rs.getInt("Quantity"));
                 invoiceDetail.setPriceAtSale(rs.getInt("PriceAtSale"));
+                invoiceDetail.setLineTotal(rs.getInt("lineTotal"));
                 invoiceDetails.add(invoiceDetail);
             }
         } catch (SQLException e) {
@@ -52,6 +53,26 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
                           """;
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, invoice.getInvoiceID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void addInvoiceDetail(InvoiceDetail invoiceDetail) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = """
+                          INSERT INTO InvoiceDetail (InvoiceID, MenuItemID, Quantity, PriceAtSale, lineTotal)
+                          VALUES (?, ?, ?, ?, ?);
+                          """;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, invoiceDetail.getInvoiceID());
+            ps.setInt(2, invoiceDetail.getMenuItemID());
+            ps.setInt(3, invoiceDetail.getQuantity());
+            ps.setInt(4, invoiceDetail.getPriceAtSale());
+            ps.setInt(5, invoiceDetail.getLineTotal());
             ps.executeUpdate();
 
         } catch (SQLException e) {

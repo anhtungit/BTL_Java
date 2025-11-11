@@ -1,5 +1,6 @@
 package org.openjfx.Controllers;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -522,26 +523,34 @@ public class SalesController implements Initializable {
         Button saveButton = new Button("Lưu");
         saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
         saveButton.setOnAction(e -> {
-            if (tempSelectedItems.isEmpty()) {
-                showAlert("Thông báo", "Vui lòng chọn ít nhất một món!");
-                return;
-            }
-            
-            StringBuilder message = new StringBuilder("Đã chọn:\n");
-            for (MenuItem item : tempSelectedItems) {
-                message.append("- ").append(item.getItemName())
-                       .append(" (").append(item.getCurrentPrice()).append(" VNĐ)")
-                       .append("\n");
-            }
-            
-            // Lưu message vào biến final để có thể sử dụng trong Platform.runLater
-            final String finalMessage = message.toString();
-            dialog.close();
-            
-            // Đảm bảo alert được hiển thị trên UI thread
-            javafx.application.Platform.runLater(() -> {
-                showAlert("Thành công", finalMessage);
-            });
+        if (tempSelectedItems.isEmpty()) {
+            showAlert("Thông báo", "Vui lòng chọn ít nhất một món!");
+            return;
+        }
+
+        BookingDetail bookingDetail = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
+        int invoiceId = bookingDetail.getInvoiceID(); 
+
+
+        for (MenuItem item : tempSelectedItems) {
+            int quantity = 1; 
+            int price = item.getCurrentPrice();
+            int total = quantity * price;
+
+            InvoiceDetail detail = new InvoiceDetail(invoiceId, item.getMenuItemId(), quantity, price, total);
+            invoiceDetailService.addInvoiceDetail(detail);
+            // invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
+
+        }
+            List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
+            int newTotalAmount = updatedDetails.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+            Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
+            invoiceToUpdate.setTotalAmount(newTotalAmount);
+            invoiceService.save(invoiceToUpdate);
+
+
+        dialog.close();
+        Platform.runLater(() -> showAlert("Thành công", "Đã thêm món vào hóa đơn!"));
         });
         
         Button cancelButton = new Button("Hủy");
@@ -598,6 +607,10 @@ public class SalesController implements Initializable {
 
                 updateTableInfo();
                 refreshTableGrid();
+
+                // List<InvoiceDetail> done = FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
+                // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+                
             }
 
         } catch (IOException e) {
