@@ -320,6 +320,7 @@ public class PrimaryController {
                         int accID = selected.getAccountID();
                         accountService.delete(accID);
                         employeeService.delete(selected);
+                        bindDeleteTable();
                     }
                 }
             });
