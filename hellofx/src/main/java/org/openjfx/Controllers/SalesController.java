@@ -622,11 +622,11 @@ public class SalesController implements Initializable {
             // invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
 
         }
-            List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
-            int newTotalAmount = updatedDetails.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
-            Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
-            invoiceToUpdate.setTotalAmount(newTotalAmount);
-            invoiceService.save(invoiceToUpdate);
+        List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
+        int newTotalAmount = updatedDetails.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+        Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
+        invoiceToUpdate.setTotalAmount(newTotalAmount);
+        invoiceService.save(invoiceToUpdate);
 
 
         dialog.close();
@@ -682,16 +682,10 @@ public class SalesController implements Initializable {
             dialogController.setTable(selectedTable);
             dialog.showAndWait();
 
-            if (dialogController.isResetTableSelected()) {
-                tableService.changeStatusTable(selectedTable);
+            tableService.changeStatusTable(selectedTable);
 
-                updateTableInfo();
-                refreshTableGrid();
-
-                // List<InvoiceDetail> done = FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
-                // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
-                
-            }
+            updateTableInfo();
+            refreshTableGrid();
 
         } catch (IOException e) {
             e.printStackTrace();
