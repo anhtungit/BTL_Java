@@ -46,7 +46,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, 0);
             ps.setDate(2, Date.valueOf(LocalDate.now()));
-            ps.setInt(3, 0);
+            ps.setInt(3, 1);
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
