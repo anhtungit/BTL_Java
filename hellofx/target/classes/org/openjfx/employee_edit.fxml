@@ -7,23 +7,36 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
 
 <GridPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" hgap="10" vgap="12" prefWidth="500.0" prefHeight="400.0">
     <children>
         <Label text="* Họ và tên:" />
-        <TextField fx:id="editFullName" GridPane.columnIndex="1" />
+        <VBox GridPane.columnIndex="1">
+            <TextField fx:id="editFullName" />
+            <Label fx:id="editFullNameError" style="-fx-text-fill: red; -fx-font-size: 10;" />
+        </VBox>
         <Label text="Địa chỉ:" GridPane.rowIndex="1" />
         <TextField fx:id="editAddress" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-    <Label text="* Chức vụ:" GridPane.rowIndex="2" />
-    <ComboBox fx:id="editPosition" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-    <Label text="* Lương:" GridPane.rowIndex="3" />
-    <Label fx:id="editSalary" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+        <Label text="* Chức vụ:" GridPane.rowIndex="2" />
+        <VBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <ComboBox fx:id="editPosition" />
+            <Label fx:id="editPositionError" style="-fx-text-fill: red; -fx-font-size: 10;" />
+        </VBox>
+        <Label text="* Lương:" GridPane.rowIndex="3" />
+        <Label fx:id="editSalary" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         <Label text="Số điện thoại:" GridPane.rowIndex="4" />
-        <TextField fx:id="editPhone" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        <VBox GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <TextField fx:id="editPhone" />
+            <Label fx:id="editPhoneError" style="-fx-text-fill: red; -fx-font-size: 10;" />
+        </VBox>
         <Label text="Tên đăng nhập:" GridPane.rowIndex="5" />
         <Label fx:id="editUsername" GridPane.columnIndex="1" GridPane.rowIndex="5" />
         <Label text="Mật khẩu mới:" GridPane.rowIndex="6" />
-        <PasswordField fx:id="editPassword" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+        <VBox GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <PasswordField fx:id="editPassword" />
+            <Label fx:id="editPasswordError" style="-fx-text-fill: red; -fx-font-size: 10;" />
+        </VBox>
         <Button text="Lưu" onAction="#empEditSubmit" GridPane.rowIndex="7" />
         <Button text="Hủy" onAction="#empBackToList" GridPane.columnIndex="1" GridPane.rowIndex="7" />
     </children>
@@ -31,5 +44,3 @@
         <Insets top="20" bottom="20" left="20" right="20" />
     </padding>
 </GridPane>
-
-
