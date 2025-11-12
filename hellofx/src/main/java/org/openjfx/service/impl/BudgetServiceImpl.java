@@ -67,7 +67,7 @@ public class BudgetServiceImpl implements BudgetService {
     public List<BudgetRecord> getIncomeOutcome(LocalDate from, LocalDate to) {
         String sql = "SELECT AccountID, date, SUM(Income) AS Income, SUM(Outcome) AS Outcome FROM (" +
 
-                " SELECT acc.AccountID, DATE(i.CreatedAt) AS date, IF(i.Status = 1, i.TotalAmount, 0) AS Income, 0 AS Outcome " +
+                " SELECT acc.AccountID, DATE(i.CreatedAt) AS date, IF(i.Status = 0, i.TotalAmount, 0) AS Income, 0 AS Outcome " +
                 " FROM Invoice i " +
                 " JOIN BookingDetail bd ON i.InvoiceID = bd.InvoiceID " +
                 " JOIN Employee em ON bd.EmployeeID = em.EmployeeID " +
