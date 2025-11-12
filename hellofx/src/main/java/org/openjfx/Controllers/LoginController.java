@@ -46,6 +46,8 @@ public class LoginController {
     private void onLogin() {
       String username = usernameField.getText();
       String password = passwordField.getText();
+    //   String username = "pv_son";
+    //   String password = "e10adc3949ba59abbe56e057f20f883e";
         Account account = accountService.getAccountByUserName(username);
 
         if (account != null && account.getPassword().equals(password)) {

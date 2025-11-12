@@ -204,8 +204,6 @@ public class PaymentDialogController implements Initializable {
                 .mapToInt(item -> item.getQuantity() * item.getPriceAtSale())
                 .sum();
             totalLabel.setText(currencyFormat.format(totalAmount) + " đ");
-
-            showOrderSummary();
         } else {
             showAlert("Thông báo", "Bàn này chưa có món ăn nào!");
             totalAmount = 0;
@@ -215,22 +213,6 @@ public class PaymentDialogController implements Initializable {
         amountPaidField.clear();
         changeLabel.setText("0 đ");
         setPayButtonEnabled(false);
-    }
-    
-    private void showOrderSummary() {
-//        StringBuilder summary = new StringBuilder();
-//        summary.append("Chi tiết hóa đơn - Bàn ").append(currentTable.getTableName()).append("\n\n");
-//
-//        for (InvoiceDetail item : orderTable.getItems()) {
-//            summary.append(String.format("%-25s", menuItemService.getMenuItemByMenuItemID(item.getMenuItemID()).getItemName()))
-//                   .append(String.format("x%-3d", item.getQuantity()))
-//                   .append(String.format("%,15d VNĐ\n", (long)(item.getQuantity() * item.getPriceAtSale())));
-//        }
-//
-//        summary.append("\n").append("=".repeat(45)).append("\n");
-//        summary.append(String.format("%-29s%,15d VNĐ", "Tổng cộng:", (long)totalAmount));
-//
-//        showAlert("Chi tiết thanh toán", summary.toString());
     }
     
     public boolean isResetTableSelected() {

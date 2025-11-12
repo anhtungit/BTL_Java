@@ -6,10 +6,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import org.openjfx.entity.Expense;
+import org.openjfx.entity.BudgetRecord;
 import org.openjfx.service.BudgetService;
 import org.openjfx.service.impl.BudgetServiceImpl;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,38 +19,63 @@ public class BudgetViewController {
     @FXML 
     private DatePicker dateTo;
     @FXML
-    private TableView<Expense> tableExpenses;
+    private TableView<BudgetRecord> tableExpenses;
     @FXML
-    private TableColumn<Expense, Integer> colAmount;
+    private TableColumn<BudgetRecord, Double> colAmount;
     @FXML
-    private TableColumn<Expense, Integer> colAccountID;
+    private TableColumn<BudgetRecord, Double> colIncome;
     @FXML
-    private TableColumn<Expense, LocalDate> colDate;
+    private TableColumn<BudgetRecord, Integer> colAccountID;
+    @FXML
+    private TableColumn<BudgetRecord, LocalDate> colDate;
     @FXML 
     private Label lblTotalIncome;
     @FXML 
     private Label lblTotalExpense;
 
-    private ObservableList<Expense> expenses = FXCollections.observableArrayList();
+    private ObservableList<BudgetRecord> budgetRecords = FXCollections.observableArrayList();
+
 
     BudgetService budgetService = new BudgetServiceImpl();
 
     @FXML
     public void initialize() {
 
-
-        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
         colAccountID.setCellValueFactory(new PropertyValueFactory<>("accountID"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("expenseDate"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
+        colIncome.setCellValueFactory(new PropertyValueFactory<>("income"));
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("outcome"));
 
-        tableExpenses.setItems(expenses);
+        colIncome.setCellFactory(column -> new TableCell<BudgetRecord, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f", value));
+                }
+            }
+        });
 
+        colAmount.setCellFactory(column -> new TableCell<BudgetRecord, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f", value));
+                }
+            }
+        });
+        tableExpenses.setItems(budgetRecords);
         loadAll();
     }
 
     private void loadAll() {
-        List<Expense> data = budgetService.getAllExpenses();
-        expenses.setAll(data);
+        List<BudgetRecord> data = budgetService.getIncomeOutcome(LocalDate.of(2000, 1, 1), LocalDate.now());
+        budgetRecords.setAll(data);
         updateTotals(data);
     }
 
@@ -60,16 +84,17 @@ public class BudgetViewController {
         LocalDate from = dateFrom.getValue();
         LocalDate to = dateTo.getValue();
 
-        List<Expense> filtered = budgetService.filterExpensesByDate(from, to);
-        expenses.setAll(filtered);
+        ObservableList<BudgetRecord> filtered = FXCollections.observableArrayList(budgetService.getIncomeOutcome(from, to));
+        budgetRecords.setAll(filtered);
         updateTotals(filtered);
     }
 
-    private void updateTotals(List<Expense> data) {
-        // double totalIncome = data.stream().mapToDouble(t -> t.getIncomeValue()).sum();
-        // double totalExpense = data.stream().mapToDouble(t -> t.getExpenseValue()).sum();
+    private void updateTotals(List<BudgetRecord> data) {
 
-        // lblTotalIncome.setText(String.format("%,.0f", totalIncome));
-        // lblTotalExpense.setText(String.format("%,.0f", totalExpense));
+        double totalIncome = data.stream().mapToDouble(BudgetRecord::getIncome).sum();
+        double totalOutcome = data.stream().mapToDouble(BudgetRecord::getOutcome).sum();
+
+        lblTotalIncome.setText(String.format("%,.0f", totalIncome));
+        lblTotalExpense.setText(String.format("%,.0f", totalOutcome));
     }
 }
