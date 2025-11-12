@@ -62,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void save(Account account) {
         try (Connection conn = DBConnection.getConnection()) {
-            String update = "UPDATE Employee SET Password = ? WHERE AccountID = ?";
+            String update = "UPDATE Account SET Password = ? WHERE AccountID = ?";
             PreparedStatement ps = conn.prepareStatement(update);
             ps.setString(1, account.getPassword());
             ps.setInt(2, account.getAccountId());
@@ -73,19 +73,10 @@ public class AccountServiceImpl implements AccountService {
     }
     @Override
     public void delete(int accountID) {
-        try (Connection conn = DBConnection.getConnection()) {
-            String sql = """
-                          DELETE FROM Account
-                          WHERE AccountID = ?;
-                          """;
+        Account account = getAccountByAccountID(accountID);
+        account.setPassword("bi mat");
+        save(account);
 
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, accountID);
-            ps.executeUpdate();
-            System.out.println("Deleted employee id: " + accountID);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

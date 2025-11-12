@@ -182,9 +182,41 @@ public class PrimaryController {
                     addSalary.setText(formatSalary(positionService.getPositionByPositionName(addPosition.getValue()).getSalary()));
                 }
                 addPosition.setOnAction(e -> {
-                    String sel = addPosition.getValue();
                     int s = positionService.getPositionByPositionName(addPosition.getValue()).getSalary();
                     if (addSalary != null) addSalary.setText(formatSalary(s));
+                });
+            }
+            
+            // Add real-time validation listeners
+            if (addFullName != null) {
+                addFullName.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validateFullNameField(newVal, addFullNameError);
+                });
+            }
+            
+            if (addPhone != null) {
+                addPhone.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validatePhoneField(newVal, addPhoneError);
+                });
+            }
+            
+            if (addUsername != null) {
+                addUsername.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validateUsernameField(newVal, addUsernameError);
+                });
+            }
+            
+            if (addPassword != null) {
+                addPassword.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validatePasswordField(newVal, addPasswordError);
+                });
+            }
+            
+            if (addPosition != null) {
+                addPosition.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal != null && !newVal.isEmpty()) {
+                        if (addPositionError != null) addPositionError.setText("");
+                    }
                 });
             }
         } catch (Exception ignored) {}
@@ -208,8 +240,34 @@ public class PrimaryController {
 
             if (editPosition != null) {
                 editPosition.setOnAction(e -> {
-                    String sel = editPosition.getValue();
-                    if (editSalary != null) editSalary.setText(formatSalary(positionService.getPositionByPositionName(sel).getSalary()));
+                    if (editSalary != null) editSalary.setText(formatSalary(positionService.getPositionByPositionName(editPosition.getValue()).getSalary()));
+                });
+            }
+            
+            // Add real-time validation listeners
+            if (editFullName != null) {
+                editFullName.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validateFullNameField(newVal, editFullNameError);
+                });
+            }
+            
+            if (editPhone != null) {
+                editPhone.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validatePhoneField(newVal, editPhoneError);
+                });
+            }
+            
+            if (editPassword != null) {
+                editPassword.textProperty().addListener((obs, oldVal, newVal) -> {
+                    validatePasswordFieldOptional(newVal, editPasswordError);
+                });
+            }
+            
+            if (editPosition != null) {
+                editPosition.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal != null && !newVal.isEmpty()) {
+                        if (editPositionError != null) editPositionError.setText("");
+                    }
                 });
             }
         } catch (Exception ignored) {}
@@ -262,6 +320,7 @@ public class PrimaryController {
                         int accID = selected.getAccountID();
                         accountService.delete(accID);
                         employeeService.delete(selected);
+                        bindDeleteTable();
                     }
                 }
             });
@@ -292,35 +351,32 @@ public class PrimaryController {
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;
     @FXML private javafx.scene.control.ComboBox<String> addPosition;
     @FXML private javafx.scene.control.PasswordField addPassword;
-    @FXML private javafx.scene.control.TextField editFullName, editAddress, editSalary, editPhone, editUsername;
+    @FXML private javafx.scene.control.Label addFullNameError, addPositionError, addPhoneError, addUsernameError, addPasswordError;
+    @FXML private javafx.scene.control.TextField editFullName, editAddress, editPhone;
+    @FXML private javafx.scene.control.Label editSalary, editUsername;
     @FXML private javafx.scene.control.ComboBox<String> editPosition;
     @FXML private javafx.scene.control.PasswordField editPassword;
+    @FXML private javafx.scene.control.Label editFullNameError, editPositionError, editPhoneError, editPasswordError;
 
     //Todo: Xong
     @FXML
     private void empAddSubmit() throws IOException {
-        String name = text(addFullName);
+        String name = text(addFullName).trim();
         String position = addPosition == null ? "" : addPosition.getValue();
-        String phone = text(addPhone);
-        String username = "";
-        if (!accountService.userNameIsPresent(addUsername.getText()))
-            username = text(addUsername);
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Thêm nhân viên thất bại!");
-            alert.setHeaderText(null);
-            alert.setContentText("Tên đăng nhập đã có người sử dụng. Nhập tên đăng nhập khác");
-            alert.showAndWait();
+        String phone = text(addPhone).trim();
+        String username = text(addUsername).trim();
+        String password = addPassword == null ? "" : addPassword.getText();
+        String address = text(addAddress).trim();
+        
+        // Validation
+        if (!validateEmployeeAddInput(name, position, phone, username, password, address)) {
             return;
         }
-        String password = addPassword == null ? "" : addPassword.getText();
-        String address = text(addAddress);
-        if (!name.isEmpty() && !position.isEmpty()) {
-            int accountID = accountService.create(new Account(username, password));
-            int positionID = positionService.getPositionByPositionName(position).getPositionId();
-            employeeService.create(new Employee(positionID, accountID, name, phone, address));
-            empShowList();
-        }
+        
+        int accountID = accountService.create(new Account(username, password));
+        int positionID = positionService.getPositionByPositionName(position).getPositionId();
+        employeeService.create(new Employee(positionID, accountID, name, phone, address));
+        empShowList();
     }
 
     @FXML
@@ -329,18 +385,30 @@ public class PrimaryController {
             Employee selected = employeeTable.getSelectionModel().getSelectedItem();
             Account accSeleted = accountService.getAccountByAccountID(selected.getAccountID());
             if (selected != null) {
-                selected.setFullName(text(editFullName));
-                selected.setAddress(text(editAddress));
+                String name = text(editFullName).trim();
+                String phone = text(editPhone).trim();
+                String position = editPosition == null ? "" : editPosition.getValue();
+                String password = editPassword == null ? "" : editPassword.getText();
+                String address = text(editAddress).trim();
+                
+                // Validation
+                if (!validateEmployeeEditInput(name, position, phone, password, address)) {
+                    return;
+                }
+                
+                selected.setFullName(name);
+                selected.setAddress(address);
                 if (editPosition != null)
                     selected.setPositionID(positionService.getPositionByPositionName(editPosition.getValue()).getPositionId());
-                selected.setPhoneNumber(text(editPhone));
-                selected.setFullName(text(editUsername));
-                if (editPassword != null && !editPassword.getText().isEmpty()) {
-                    accSeleted.setPassword(editPassword.getText());
+                selected.setPhoneNumber(phone);
+
+                if (!password.isEmpty()) {
+                    accSeleted.setPassword(password);
+                    accountService.save(accSeleted);
                 }
+                employeeService.save(selected);
+                showAlert("Thành công", "Chỉnh sửa nhân viên thành công!");
             }
-            accountService.save(accSeleted);
-            employeeService.save(selected);
         }
         empShowList();
     }
@@ -351,6 +419,265 @@ public class PrimaryController {
     }
 
     private String text(javafx.scene.control.TextField tf) { return tf == null ? "" : tf.getText(); }
+
+    // Validation methods
+    private boolean validateEmployeeAddInput(String name, String position, String phone, String username, String password, String address) {
+        // Validate name
+        if (name.isEmpty()) {
+            showAlert("Lỗi", "Họ và tên không được để trống!");
+            return false;
+        }
+        if (name.length() < 3) {
+            showAlert("Lỗi", "Họ và tên phải có ít nhất 3 ký tự!");
+            return false;
+        }
+        if (name.length() > 100) {
+            showAlert("Lỗi", "Họ và tên không được vượt quá 100 ký tự!");
+            return false;
+        }
+        if (!name.matches("^[a-zA-ZÀ-ỿ\\s]+$")) {
+            showAlert("Lỗi", "Họ và tên chỉ được chứa chữ cái và khoảng trắng!");
+            return false;
+        }
+        
+        // Validate position
+        if (position.isEmpty()) {
+            showAlert("Lỗi", "Chức vụ không được để trống!");
+            return false;
+        }
+        
+        // Validate phone
+        if (phone.isEmpty()) {
+            showAlert("Lỗi", "Số điện thoại không được để trống!");
+            return false;
+        }
+        if (!phone.matches("^\\d{10}$")) {
+            showAlert("Lỗi", "Số điện thoại phải đúng 10 chữ số!");
+            return false;
+        }
+        
+        // Validate username
+        if (username.isEmpty()) {
+            showAlert("Lỗi", "Tên đăng nhập không được để trống!");
+            return false;
+        }
+        if (username.length() < 4) {
+            showAlert("Lỗi", "Tên đăng nhập phải có ít nhất 4 ký tự!");
+            return false;
+        }
+        if (username.length() > 50) {
+            showAlert("Lỗi", "Tên đăng nhập không được vượt quá 50 ký tự!");
+            return false;
+        }
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            showAlert("Lỗi", "Tên đăng nhập chỉ được chứa chữ cái, số và gạch dưới!");
+            return false;
+        }
+        if (accountService.userNameIsPresent(username)) {
+            showAlert("Lỗi", "Tên đăng nhập đã có người sử dụng. Nhập tên đăng nhập khác!");
+            return false;
+        }
+        
+        // Validate password
+        if (password.isEmpty()) {
+            showAlert("Lỗi", "Mật khẩu không được để trống!");
+            return false;
+        }
+        if (password.length() < 6) {
+            showAlert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự!");
+            return false;
+        }
+        if (password.length() > 50) {
+            showAlert("Lỗi", "Mật khẩu không được vượt quá 50 ký tự!");
+            return false;
+        }
+        
+        // Validate address (optional but if provided, validate)
+        if (!address.isEmpty() && address.length() > 200) {
+            showAlert("Lỗi", "Địa chỉ không được vượt quá 200 ký tự!");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean validateEmployeeEditInput(String name, String position, String phone, String password, String address) {
+        // Validate name
+        if (name.isEmpty()) {
+            showAlert("Lỗi", "Họ và tên không được để trống!");
+            return false;
+        }
+        if (name.length() < 3) {
+            showAlert("Lỗi", "Họ và tên phải có ít nhất 3 ký tự!");
+            return false;
+        }
+        if (name.length() > 100) {
+            showAlert("Lỗi", "Họ và tên không được vượt quá 100 ký tự!");
+            return false;
+        }
+        if (!name.matches("^[a-zA-ZÀ-ỿ\\s]+$")) {
+            showAlert("Lỗi", "Họ và tên chỉ được chứa chữ cái và khoảng trắng!");
+            return false;
+        }
+        
+        // Validate position
+        if (position.isEmpty()) {
+            showAlert("Lỗi", "Chức vụ không được để trống!");
+            return false;
+        }
+        
+        // Validate phone
+        if (phone.isEmpty()) {
+            showAlert("Lỗi", "Số điện thoại không được để trống!");
+            return false;
+        }
+        if (!phone.matches("^\\d{10}$")) {
+            showAlert("Lỗi", "Số điện thoại phải đúng 10 chữ số!");
+            return false;
+        }
+        
+        // Validate password (optional if not changing password)
+        if (!password.isEmpty()) {
+            if (password.length() < 6) {
+                showAlert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự!");
+                return false;
+            }
+            if (password.length() > 50) {
+                showAlert("Lỗi", "Mật khẩu không được vượt quá 50 ký tự!");
+                return false;
+            }
+        }
+        
+        // Validate address (optional but if provided, validate)
+        if (!address.isEmpty() && address.length() > 200) {
+            showAlert("Lỗi", "Địa chỉ không được vượt quá 200 ký tự!");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Real-time validation helper methods
+    private void validateFullNameField(String value, javafx.scene.control.Label errorLabel) {
+        if (errorLabel == null) return;
+        
+        value = value.trim();
+        if (value.isEmpty()) {
+            errorLabel.setText("Họ và tên không được để trống!");
+            return;
+        }
+        if (value.length() < 3) {
+            errorLabel.setText("Họ và tên phải có ít nhất 3 ký tự!");
+            return;
+        }
+        if (value.length() > 100) {
+            errorLabel.setText("Họ và tên không được vượt quá 100 ký tự!");
+            return;
+        }
+        if (!value.matches("^[a-zA-ZÀ-ỿ\\s]+$")) {
+            errorLabel.setText("Họ và tên chỉ được chứa chữ cái!");
+            return;
+        }
+        errorLabel.setText("");
+    }
+    
+    private void validatePhoneField(String value, javafx.scene.control.Label errorLabel) {
+        if (errorLabel == null) return;
+        
+        value = value.trim();
+        if (value.isEmpty()) {
+            errorLabel.setText("Số điện thoại không được để trống!");
+            return;
+        }
+        if (!value.matches("^\\d*$")) {
+            errorLabel.setText("Số điện thoại chỉ được chứa chữ số!");
+            return;
+        }
+        if (value.length() > 10) {
+            errorLabel.setText("Số điện thoại không được vượt quá 10 chữ số!");
+            return;
+        }
+        if (value.length() == 10 && !value.matches("^\\d{10}$")) {
+            errorLabel.setText("Số điện thoại không hợp lệ!");
+            return;
+        }
+        if (value.length() > 0 && value.length() < 10) {
+            errorLabel.setText("Số điện thoại phải đúng 10 chữ số!");
+            return;
+        }
+        errorLabel.setText("");
+    }
+    
+    private void validateUsernameField(String value, javafx.scene.control.Label errorLabel) {
+        if (errorLabel == null) return;
+        
+        value = value.trim();
+        if (value.isEmpty()) {
+            errorLabel.setText("Tên đăng nhập không được để trống!");
+            return;
+        }
+        if (value.length() < 4) {
+            errorLabel.setText("Tên đăng nhập phải có ít nhất 4 ký tự!");
+            return;
+        }
+        if (value.length() > 50) {
+            errorLabel.setText("Tên đăng nhập không được vượt quá 50 ký tự!");
+            return;
+        }
+        if (!value.matches("^[a-zA-Z0-9_]+$")) {
+            errorLabel.setText("Chỉ được dùng chữ, số và gạch dưới!");
+            return;
+        }
+        if (accountService.userNameIsPresent(value)) {
+            errorLabel.setText("Tên đăng nhập này đã được sử dụng!");
+            return;
+        }
+        errorLabel.setText("");
+    }
+    
+    private void validatePasswordField(String value, javafx.scene.control.Label errorLabel) {
+        if (errorLabel == null) return;
+        
+        if (value.isEmpty()) {
+            errorLabel.setText("Mật khẩu không được để trống!");
+            return;
+        }
+        if (value.length() < 6) {
+            errorLabel.setText("Mật khẩu phải có ít nhất 6 ký tự!");
+            return;
+        }
+        if (value.length() > 50) {
+            errorLabel.setText("Mật khẩu không được vượt quá 50 ký tự!");
+            return;
+        }
+        errorLabel.setText("");
+    }
+    
+    private void validatePasswordFieldOptional(String value, javafx.scene.control.Label errorLabel) {
+        if (errorLabel == null) return;
+        
+        if (value.isEmpty()) {
+            errorLabel.setText("");
+            return;
+        }
+        if (value.length() < 6) {
+            errorLabel.setText("Mật khẩu phải có ít nhất 6 ký tự!");
+            return;
+        }
+        if (value.length() > 50) {
+            errorLabel.setText("Mật khẩu không được vượt quá 50 ký tự!");
+            return;
+        }
+        errorLabel.setText("");
+    }
 
     @FXML
     private void showQuanLyThucDon() throws IOException {

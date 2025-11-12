@@ -350,6 +350,16 @@ public class SalesController implements Initializable {
         phoneLabel.setPrefWidth(80);
         TextField phoneField = new TextField();
         phoneField.setPrefWidth(200);
+        
+        // Add phone number validation - only numbers, max 10 digits
+        phoneField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                phoneField.setText(newValue.replaceAll("[^\\d]", ""));
+            } else if (newValue.length() > 10) {
+                phoneField.setText(newValue.substring(0, 10));
+            }
+        });
+        
         phoneBox.getChildren().addAll(phoneLabel, phoneField);
 
         HBox dateBox = new HBox(10);
@@ -359,6 +369,7 @@ public class SalesController implements Initializable {
         DatePicker datePicker = new DatePicker();
         datePicker.setValue(LocalDate.now());
         datePicker.setPrefWidth(200);
+        datePicker.setEditable(false);
         dateBox.getChildren().addAll(dateLabel, datePicker);
 
         HBox timeBox = new HBox(10);
@@ -368,6 +379,58 @@ public class SalesController implements Initializable {
         TextField timeField = new TextField();
         timeField.setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
         timeField.setPrefWidth(200);
+        
+        // Add time input validation and auto-formatting with hour validation
+        timeField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.isEmpty()) {
+                timeField.setText("");
+                return;
+            }
+            
+            // Remove all non-digit characters
+            String digitsOnly = newValue.replaceAll("[^\\d]", "");
+            
+            // Limit to maximum 4 digits (HHMM)
+            if (digitsOnly.length() > 4) {
+                digitsOnly = digitsOnly.substring(0, 4);
+            }
+            
+            // Auto-format as HH:mm with validation
+            String formatted;
+            if (digitsOnly.isEmpty()) {
+                formatted = "";
+            } else if (digitsOnly.length() == 1) {
+                formatted = digitsOnly;
+            } else if (digitsOnly.length() == 2) {
+                int hour = Integer.parseInt(digitsOnly);
+                if (hour > 23) {
+                    // Keep only valid hours
+                    formatted = digitsOnly.substring(0, 1);
+                } else {
+                    formatted = digitsOnly;
+                }
+            } else if (digitsOnly.length() == 3) {
+                int hour = Integer.parseInt(digitsOnly.substring(0, 2));
+                if (hour > 23) {
+                    formatted = digitsOnly.substring(0, 1);
+                } else {
+                    formatted = digitsOnly.substring(0, 2) + ":" + digitsOnly.substring(2);
+                }
+            } else { // length == 4
+                int hour = Integer.parseInt(digitsOnly.substring(0, 2));
+                int minute = Integer.parseInt(digitsOnly.substring(2, 4));
+                if (hour > 23) {
+                    formatted = digitsOnly.substring(0, 1) + ":" + digitsOnly.substring(1, 3);
+                } else if (minute > 59) {
+                    formatted = digitsOnly.substring(0, 2) + ":" + digitsOnly.substring(2, 3);
+                } else {
+                    formatted = digitsOnly.substring(0, 2) + ":" + digitsOnly.substring(2);
+                }
+            }
+            
+            timeField.setText(formatted);
+        });
+        
         timeBox.getChildren().addAll(timeLabel, timeField);
 
         content.getChildren().addAll(customerBox, phoneBox, dateBox, timeBox);
@@ -380,6 +443,7 @@ public class SalesController implements Initializable {
         reserveButton.setOnAction(e -> {
             String customerName = customerField.getText().trim();
             String phone = phoneField.getText().trim();
+            String time = timeField.getText().trim();
 
             if (customerName.isEmpty()) {
                 showAlert("Lỗi", "Vui lòng nhập tên khách hàng!");
@@ -390,6 +454,22 @@ public class SalesController implements Initializable {
                 showAlert("Lỗi", "Vui lòng nhập số điện thoại!");
                 return;
             }
+
+            if (phone.length() != 10) {
+                showAlert("Lỗi", "Số điện thoại phải đúng 10 số!");
+                return;
+            }
+
+            if (time.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập giờ!");
+                return;
+            }
+
+            if (!time.matches("\\d{2}:\\d{2}")) {
+                showAlert("Lỗi", "Giờ phải có định dạng HH:mm!");
+                return;
+            }
+
             int newInvoiceId = invoiceService.create();
             LocalDate date = datePicker.getValue();
             BookingDetail b = new BookingDetail();
@@ -624,17 +704,16 @@ public class SalesController implements Initializable {
             dialogController.setTable(selectedTable);
             dialog.showAndWait();
 
-            if (dialogController.isResetTableSelected()) {
-                tableService.changeStatusTable(selectedTable);
+            tableService.changeStatusTable(selectedTable);
 
-                updateTableInfo();
-                refreshTableGrid();
+            updateTableInfo();
+            refreshTableGrid();
 
                 // List<InvoiceDetail> done =
                 // FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
                 // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
 
-            }
+            
 
         } catch (IOException e) {
             e.printStackTrace();
