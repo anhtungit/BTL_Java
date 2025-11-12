@@ -616,9 +616,9 @@ public class SalesController implements Initializable {
             }
 
             // 2. Chuẩn bị dữ liệu cần thiết
-            BookingDetail bookingDetail = bookingDetailService
-                    .getBookingDetailNewlestByTableID(selectedTable.getTableID());
-            int invoiceId = bookingDetail.getInvoiceID();
+            // BookingDetail bookingDetail = bookingDetailService
+            //         .getBookingDetailNewlestByTableID(selectedTable.getTableID());
+            int invoiceId = invoiceOfSelectedTable.getInvoiceID();
 
             // Tạo Map MenuItemId -> MenuItem từ danh sách gốc để truy cập nhanh chóng
             Map<Integer, MenuItem> menuMap = menuItems.stream()
@@ -644,6 +644,7 @@ public class SalesController implements Initializable {
             int newTotalAmount = updatedDetails.stream()
                     .mapToInt(InvoiceDetail::getLineTotal)
                     .sum();
+            
 
             Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
             invoiceToUpdate.setTotalAmount(newTotalAmount);
