@@ -154,7 +154,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             ps.setString(1, employee.getFullName());
             ps.setString(2, employee.getAddress());
             ps.setString(3, employee.getPhoneNumber());
-            ps.setInt(4, 7);
+            ps.setInt(4, 21);
             ps.setInt(5, employee.getEmployeeID());
 
             ps.executeUpdate();
