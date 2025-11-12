@@ -2,11 +2,9 @@ package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Account;
-import org.openjfx.entity.Employee;
 import org.openjfx.service.AccountService;
 
 import java.sql.*;
-import java.util.Optional;
 
 public class AccountServiceImpl implements AccountService {
 
@@ -108,7 +106,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean userNameIsPresent(String userName) {
-        Account account = null;
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
                     SELECT *

@@ -1,7 +1,6 @@
 package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
-import org.openjfx.entity.Account;
 import org.openjfx.entity.Position;
 import org.openjfx.service.PositionService;
 

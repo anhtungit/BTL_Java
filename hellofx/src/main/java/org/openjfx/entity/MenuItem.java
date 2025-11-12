@@ -1,10 +1,5 @@
 package org.openjfx.entity;
 
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 public class MenuItem {
     private int menuItemId;
     private String ItemName;

@@ -28,15 +28,6 @@ public class PrimaryController {
         App.setRoot("secondary");
     }
 
-    // @FXML
-    // private void noop() {
-    //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    //     alert.setTitle("Thông báo");
-    //     alert.setHeaderText(null);
-    //     alert.setContentText("Tính năng sẽ được bổ sung sau.");
-    //     alert.showAndWait();
-    // }
-
     @FXML
     private void showQuanLyBanHang() throws IOException {
         Node salesView = FXMLLoader.load(getClass().getResource("/org/openjfx/sales-management.fxml"));
@@ -131,7 +122,18 @@ public class PrimaryController {
 
     @FXML
     private void empShowEdit() throws IOException {
-        if (employeeTable != null && employeeTable.getSelectionModel().getSelectedItem() == null) {
+        Employee selected = null;
+        
+        // Check if employee is selected from employee list table
+        if (employeeTable != null && employeeTable.getSelectionModel().getSelectedItem() != null) {
+            selected = employeeTable.getSelectionModel().getSelectedItem();
+        } 
+        // Check if employee is selected from search table
+        else if (searchTable != null && searchTable.getSelectionModel().getSelectedItem() != null) {
+            selected = searchTable.getSelectionModel().getSelectedItem();
+        }
+        
+        if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cảnh báo");
             alert.setHeaderText(null);
@@ -139,6 +141,7 @@ public class PrimaryController {
             alert.showAndWait();
             return;
         }
+        
         loadEmployeeModule("employee_edit.fxml");
     }
 
@@ -187,6 +190,17 @@ public class PrimaryController {
                 });
             }
             
+            // Add phone number input restriction - only digits
+            if (addPhone != null) {
+                addPhone.textProperty().addListener((obs, oldVal, newVal) -> {
+                    if (!newVal.matches("\\d*")) {
+                        addPhone.setText(newVal.replaceAll("[^\\d]", ""));
+                    } else if (newVal.length() > 10) {
+                        addPhone.setText(newVal.substring(0, 10));
+                    }
+                });
+            }
+            
             // Add real-time validation listeners
             if (addFullName != null) {
                 addFullName.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -229,7 +243,16 @@ public class PrimaryController {
                 editPosition.getItems().setAll(positionService.getAllPosition().stream().map(p -> p.getPositionName()).toList());
             }
 
-            Employee selected = (employeeTable == null) ? null : employeeTable.getSelectionModel().getSelectedItem();
+            // Get selected employee from employeeTable or searchTable
+            Employee selected = null;
+            if (employeeTable != null && employeeTable.getSelectionModel().getSelectedItem() != null) {
+                selected = employeeTable.getSelectionModel().getSelectedItem();
+            } else if (searchTable != null && searchTable.getSelectionModel().getSelectedItem() != null) {
+                selected = searchTable.getSelectionModel().getSelectedItem();
+            }
+            
+            if (selected == null) return;
+            
             editFullName.setText(selected.getFullName());
             editAddress.setText(selected.getAddress());
             editPhone.setText(selected.getPhoneNumber());
@@ -241,6 +264,17 @@ public class PrimaryController {
             if (editPosition != null) {
                 editPosition.setOnAction(e -> {
                     if (editSalary != null) editSalary.setText(formatSalary(positionService.getPositionByPositionName(editPosition.getValue()).getSalary()));
+                });
+            }
+            
+            // Add phone number input restriction - only digits
+            if (editPhone != null) {
+                editPhone.textProperty().addListener((obs, oldVal, newVal) -> {
+                    if (!newVal.matches("\\d*")) {
+                        editPhone.setText(newVal.replaceAll("[^\\d]", ""));
+                    } else if (newVal.length() > 10) {
+                        editPhone.setText(newVal.substring(0, 10));
+                    }
                 });
             }
             
@@ -381,34 +415,41 @@ public class PrimaryController {
 
     @FXML
     private void empEditSubmit() throws IOException {
-        if (employeeTable != null) {
-            Employee selected = employeeTable.getSelectionModel().getSelectedItem();
+        Employee selected = null;
+        
+        // Get selected employee from employeeTable or searchTable
+        if (employeeTable != null && employeeTable.getSelectionModel().getSelectedItem() != null) {
+            selected = employeeTable.getSelectionModel().getSelectedItem();
+        } else if (searchTable != null && searchTable.getSelectionModel().getSelectedItem() != null) {
+            selected = searchTable.getSelectionModel().getSelectedItem();
+        }
+        
+        if (selected != null) {
             Account accSeleted = accountService.getAccountByAccountID(selected.getAccountID());
-            if (selected != null) {
-                String name = text(editFullName).trim();
-                String phone = text(editPhone).trim();
-                String position = editPosition == null ? "" : editPosition.getValue();
-                String password = editPassword == null ? "" : editPassword.getText();
-                String address = text(editAddress).trim();
-                
-                // Validation
-                if (!validateEmployeeEditInput(name, position, phone, password, address)) {
-                    return;
-                }
-                
-                selected.setFullName(name);
-                selected.setAddress(address);
-                if (editPosition != null)
-                    selected.setPositionID(positionService.getPositionByPositionName(editPosition.getValue()).getPositionId());
-                selected.setPhoneNumber(phone);
-
-                if (!password.isEmpty()) {
-                    accSeleted.setPassword(password);
-                    accountService.save(accSeleted);
-                }
-                employeeService.save(selected);
-                showAlert("Thành công", "Chỉnh sửa nhân viên thành công!");
+            
+            String name = text(editFullName).trim();
+            String phone = text(editPhone).trim();
+            String position = editPosition == null ? "" : editPosition.getValue();
+            String password = editPassword == null ? "" : editPassword.getText();
+            String address = text(editAddress).trim();
+            
+            // Validation
+            if (!validateEmployeeEditInput(name, position, phone, password, address)) {
+                return;
             }
+            
+            selected.setFullName(name);
+            selected.setAddress(address);
+            if (editPosition != null)
+                selected.setPositionID(positionService.getPositionByPositionName(editPosition.getValue()).getPositionId());
+            selected.setPhoneNumber(phone);
+
+            if (!password.isEmpty()) {
+                accSeleted.setPassword(password);
+                accountService.save(accSeleted);
+            }
+            employeeService.save(selected);
+            showAlert("Thành công", "Chỉnh sửa nhân viên thành công!");
         }
         empShowList();
     }
@@ -599,14 +640,6 @@ public class PrimaryController {
         }
         if (!value.matches("^\\d*$")) {
             errorLabel.setText("Số điện thoại chỉ được chứa chữ số!");
-            return;
-        }
-        if (value.length() > 10) {
-            errorLabel.setText("Số điện thoại không được vượt quá 10 chữ số!");
-            return;
-        }
-        if (value.length() == 10 && !value.matches("^\\d{10}$")) {
-            errorLabel.setText("Số điện thoại không hợp lệ!");
             return;
         }
         if (value.length() > 0 && value.length() < 10) {

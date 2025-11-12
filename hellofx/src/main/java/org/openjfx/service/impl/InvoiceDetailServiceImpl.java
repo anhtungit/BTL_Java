@@ -3,7 +3,6 @@ package org.openjfx.service.impl;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Invoice;
 import org.openjfx.entity.InvoiceDetail;
-import org.openjfx.entity.MenuItem;
 import org.openjfx.service.InvoiceDetailService;
 
 import java.sql.Connection;

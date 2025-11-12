@@ -1,9 +1,6 @@
 package org.openjfx.service.impl;
 
-import javafx.scene.control.Tab;
 import org.openjfx.DB.DBConnection;
-import org.openjfx.entity.Account;
-import org.openjfx.entity.Position;
 import org.openjfx.entity.Table;
 import org.openjfx.service.TableService;
 

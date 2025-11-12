@@ -3,7 +3,6 @@ package org.openjfx.service.impl;
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.Employee;
 import org.openjfx.service.EmployeeService;
-import org.openjfx.service.PositionService;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -2,7 +2,6 @@ package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
 import org.openjfx.entity.ExportNote;
-import org.openjfx.entity.ImportNote;
 import org.openjfx.service.ExportNoteService;
 
 import java.sql.*;
