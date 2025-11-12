@@ -201,7 +201,8 @@ public class SalesController implements Initializable {
         lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
         Label reserveInfo = new Label();
         String customer = ("Trống".equals(selectedTable.getStatus()) ? "-"
-                : bookingDetailOfSelectedTable.getCustomerName());
+                : "Name: " + bookingDetailOfSelectedTable.getCustomerName() + "\nNgày đặt: " + bookingDetailOfSelectedTable.getBookingDateTime() + "\nSố điện thoại: " + bookingDetailOfSelectedTable.getCustomerPhone());
+
         reserveInfo.setText("Đặt trước\n" + customer);
 
         ButtonType closeType = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
