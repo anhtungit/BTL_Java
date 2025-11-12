@@ -32,7 +32,7 @@
             <TableColumn fx:id="colAccountID" text="Account ID" prefWidth="150" />
             <TableColumn fx:id="colDate" text="Ngày" prefWidth="150"/>
             <TableColumn fx:id="colIncome" text="Thu (₫)" prefWidth="150"/>
-            <TableColumn fx:id="colOutcome" text="Chi (₫)" prefWidth="150"/>
+            <TableColumn fx:id="colAmount" text="Chi (₫)" prefWidth="150"/>
         </columns>
     </TableView>
 

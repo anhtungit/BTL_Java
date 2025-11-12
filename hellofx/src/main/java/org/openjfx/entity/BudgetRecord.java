@@ -8,10 +8,26 @@ public class BudgetRecord {
     private double income;
     private double outcome;
 
+    public BudgetRecord() {
+    }
+
     public BudgetRecord(int accountID, LocalDate date, double income, double outcome) {
         this.accountID = accountID;
         this.date = date;
         this.income = income;
+        this.outcome = outcome;
+    }
+
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
+    }
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    public void setIncome(double income) {
+        this.income = income;
+    }
+    public void setOutcome(double outcome) {
         this.outcome = outcome;
     }
 
