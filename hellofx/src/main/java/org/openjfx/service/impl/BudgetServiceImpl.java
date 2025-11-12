@@ -5,13 +5,18 @@ import org.openjfx.entity.BudgetRecord;
 import org.openjfx.entity.Expense;
 import org.openjfx.service.BudgetService;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Date;
 import java.util.List;
 
 
@@ -90,23 +95,21 @@ public class BudgetServiceImpl implements BudgetService {
         stmt.setDate(3, java.sql.Date.valueOf(from));
         stmt.setDate(4, java.sql.Date.valueOf(to));
 
-        ResultSet rs = stmt.executeQuery();
-        List<BudgetRecord> list = new ArrayList<>();
-
-        while (rs.next()) {
-            list.add(new BudgetRecord(
-                rs.getInt("AccountID"),
-                rs.getDate("date").toLocalDate(),
-                rs.getDouble("income"),
-                rs.getDouble("outcome")
-            ));
+            ResultSet rs = stmt.executeQuery();
+            List<BudgetRecord> buds = new ArrayList<>();
+            while (rs.next()) {
+                BudgetRecord bud = new BudgetRecord();
+                bud.setAccountID(rs.getInt("AccountID"));
+                bud.setDate(rs.getDate("date").toLocalDate());
+                bud.setIncome(rs.getInt("Income"));
+                bud.setOutcome(rs.getInt("Outcome"));
+                buds.add(bud);
+            }
+            return buds;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
-        return list;
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return Collections.emptyList();
     }
-}
 
 }

@@ -20,7 +20,7 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
         List<InvoiceDetail> invoiceDetails = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
             String sql = """
-                    SELECT InvoiceID, MenuItemID, Quantity, PriceAtSale
+                    SELECT InvoiceID, MenuItemID, Quantity, PriceAtSale, lineTotal
                     FROM InvoiceDetail
                     WHERE InvoiceID = ?
                     """;
@@ -35,6 +35,7 @@ public class InvoiceDetailServiceImpl implements InvoiceDetailService {
                 invoiceDetail.setMenuItemID(rs.getInt("MenuItemID"));
                 invoiceDetail.setQuantity(rs.getInt("Quantity"));
                 invoiceDetail.setPriceAtSale(rs.getInt("PriceAtSale"));
+                invoiceDetail.setLineTotal(rs.getInt("lineTotal"));
                 invoiceDetails.add(invoiceDetail);
             }
         } catch (SQLException e) {

@@ -1,7 +1,6 @@
 package org.openjfx.service.impl;
 
 import org.openjfx.DB.DBConnection;
-import org.openjfx.entity.Account;
 import org.openjfx.entity.BookingDetail;
 import org.openjfx.entity.Table;
 import org.openjfx.service.BookingDetailService;
@@ -96,4 +95,5 @@ public class BookingDetailServiceImpl implements BookingDetailService {
             e.printStackTrace();
         }
     }
+
 }

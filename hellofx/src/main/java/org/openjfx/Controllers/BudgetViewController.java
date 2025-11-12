@@ -9,7 +9,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.openjfx.entity.BudgetRecord;
 import org.openjfx.service.BudgetService;
 import org.openjfx.service.impl.BudgetServiceImpl;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,8 +33,10 @@ public class BudgetViewController {
     @FXML 
     private Label lblTotalExpense;
 
-    private ObservableList<BudgetRecord> records = FXCollections.observableArrayList();
-    private BudgetService budgetService = new BudgetServiceImpl();
+    private ObservableList<BudgetRecord> budgetRecords = FXCollections.observableArrayList();
+
+
+    BudgetService budgetService = new BudgetServiceImpl();
 
     @FXML
     public void initialize() {
@@ -52,7 +53,7 @@ public class BudgetViewController {
                 if (empty || value == null) {
                     setText(null);
                 } else {
-                    setText(String.format("%,.0f", value)); 
+                    setText(String.format("%,.0f", value));
                 }
             }
         });
@@ -68,14 +69,13 @@ public class BudgetViewController {
                 }
             }
         });
-        tableExpenses.setItems(records);
-
+        tableExpenses.setItems(budgetRecords);
         loadAll();
     }
 
     private void loadAll() {
-        List<BudgetRecord> data = budgetService.getIncomeOutcome(null, null);
-        records.setAll(data);
+        List<BudgetRecord> data = budgetService.getIncomeOutcome(LocalDate.of(2000, 1, 1), LocalDate.now());
+        budgetRecords.setAll(data);
         updateTotals(data);
     }
 
@@ -84,16 +84,17 @@ public class BudgetViewController {
         LocalDate from = dateFrom.getValue();
         LocalDate to = dateTo.getValue();
 
-        List<BudgetRecord> data = budgetService.getIncomeOutcome(from, to);
-        records.setAll(data);
-        updateTotals(data);
+        ObservableList<BudgetRecord> filtered = FXCollections.observableArrayList(budgetService.getIncomeOutcome(from, to));
+        budgetRecords.setAll(filtered);
+        updateTotals(filtered);
     }
 
-private void updateTotals(List<BudgetRecord> data) {
-    double totalIncome = data.stream().mapToDouble(BudgetRecord::getIncome).sum();
-    double totalOutcome = data.stream().mapToDouble(BudgetRecord::getOutcome).sum();
+    private void updateTotals(List<BudgetRecord> data) {
 
-    lblTotalIncome.setText(String.format("%,.0f", totalIncome));
-    lblTotalExpense.setText(String.format("%,.0f", totalOutcome));
+        double totalIncome = data.stream().mapToDouble(BudgetRecord::getIncome).sum();
+        double totalOutcome = data.stream().mapToDouble(BudgetRecord::getOutcome).sum();
+
+        lblTotalIncome.setText(String.format("%,.0f", totalIncome));
+        lblTotalExpense.setText(String.format("%,.0f", totalOutcome));
     }
 }
