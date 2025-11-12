@@ -292,7 +292,8 @@ public class PrimaryController {
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;
     @FXML private javafx.scene.control.ComboBox<String> addPosition;
     @FXML private javafx.scene.control.PasswordField addPassword;
-    @FXML private javafx.scene.control.TextField editFullName, editAddress, editSalary, editPhone, editUsername;
+    @FXML private javafx.scene.control.TextField editFullName, editAddress, editPhone;
+    @FXML private javafx.scene.control.Label editSalary, editUsername;
     @FXML private javafx.scene.control.ComboBox<String> editPosition;
     @FXML private javafx.scene.control.PasswordField editPassword;
 

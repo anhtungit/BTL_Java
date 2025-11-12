@@ -32,7 +32,7 @@ public class PaymentDialogController implements Initializable {
     @FXML private Label totalLabel;
     @FXML private TextField amountPaidField;
     @FXML private Label changeLabel;
-    @FXML private CheckBox resetTableCheckBox;
+    
     
     private Table currentTable;
     BookingDetail bookingDetail;
@@ -56,8 +56,6 @@ public class PaymentDialogController implements Initializable {
         
         setupDialogButtons();
         setupAmountPaidListener();
-        
-        resetTableCheckBox.setSelected(true);
         
         changeLabel.setText("0 đ");
         totalLabel.setText("0 đ");
@@ -213,10 +211,6 @@ public class PaymentDialogController implements Initializable {
         amountPaidField.clear();
         changeLabel.setText("0 đ");
         setPayButtonEnabled(false);
-    }
-    
-    public boolean isResetTableSelected() {
-        return resetTableCheckBox.isSelected();
     }
     
     public double getTotalAmount() {

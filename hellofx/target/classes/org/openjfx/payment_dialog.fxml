@@ -43,9 +43,6 @@
                        GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                 <Label fx:id="changeLabel" text="0đ" style="-fx-font-weight: bold;"
                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                       
-                <CheckBox fx:id="resetTableCheckBox" text="Đổi trạng thái bàn sang trống sau khi thanh toán"
-                         GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
             </GridPane>
         </VBox>
     </content>

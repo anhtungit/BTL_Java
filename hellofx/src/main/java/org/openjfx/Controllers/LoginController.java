@@ -32,7 +32,8 @@ public class LoginController {
         // Pressing Enter in usernameField moves focus to passwordField
         if (usernameField != null) {
             usernameField.setOnAction(e -> {
-                if (passwordField != null) passwordField.requestFocus();
+                if (passwordField != null)
+                    passwordField.requestFocus();
             });
         }
 
@@ -44,10 +45,9 @@ public class LoginController {
 
     @FXML
     private void onLogin() {
-//      String username = usernameField.getText();
-//      String password = passwordField.getText();
-       String username = "pv_son";
-       String password = "e10adc3949ba59abbe56e057f20f883e";
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
         Account account = accountService.getAccountByUserName(username);
 
         if (account != null && account.getPassword().equals(password)) {
@@ -61,7 +61,7 @@ public class LoginController {
                 alert.setHeaderText(null);
                 alert.setContentText("Không thể chuyển đến trang chính: " + e.getMessage());
                 alert.showAndWait();
-                e.printStackTrace(); 
+                e.printStackTrace();
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -72,5 +72,3 @@ public class LoginController {
         }
     }
 }
-
-
