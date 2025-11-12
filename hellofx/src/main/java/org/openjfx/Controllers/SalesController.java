@@ -10,11 +10,13 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.converter.IntegerStringConverter;
 import javafx.geometry.Insets;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +28,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.openjfx.App;
 import org.openjfx.entity.BookingDetail;
@@ -37,16 +41,25 @@ import org.openjfx.service.*;
 import org.openjfx.service.impl.*;
 
 public class SalesController implements Initializable {
-    
-    @FXML private GridPane tableGrid;
-    @FXML private Button btnViewTable;
-    @FXML private Button btnTransferTable;
-    @FXML private Button btnCancelTable;
-    @FXML private Button btnReserveTable;
-    @FXML private Button btnSelectMenu;
-    @FXML private Label lblSelectedTable;
-    @FXML private Label lblTableStatus;
-    @FXML private Label lblCustomerName;
+
+    @FXML
+    private GridPane tableGrid;
+    @FXML
+    private Button btnViewTable;
+    @FXML
+    private Button btnTransferTable;
+    @FXML
+    private Button btnCancelTable;
+    @FXML
+    private Button btnReserveTable;
+    @FXML
+    private Button btnSelectMenu;
+    @FXML
+    private Label lblSelectedTable;
+    @FXML
+    private Label lblTableStatus;
+    @FXML
+    private Label lblCustomerName;
 
     List<Table> tableList;
 
@@ -72,13 +85,13 @@ public class SalesController implements Initializable {
         // Tạo grid 5x4 cho 20 bàn
         for (int i = 0; i < tableList.size(); i++) {
             Table table = tableList.get(i);
-            
+
             Button tableButton = createTableButton(table);
-            
+
             // Tính toán vị trí trong grid (5 hàng, 4 cột)
             int row = i / 4;
             int col = i % 4;
-            
+
             tableGrid.add(tableButton, col, row);
         }
     }
@@ -88,23 +101,23 @@ public class SalesController implements Initializable {
         button.setText(table.getTableName());
         button.setPrefSize(120, 80);
         button.setFont(Font.font("System", FontWeight.BOLD, 12));
-        
+
         updateTableButtonStyle(button, table);
-        
+
         button.setOnAction(e -> selectTable(table));
-        
+
         return button;
     }
 
     private void updateTableButtonStyle(Button button, Table table) {
         String style = "-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; ";
-        
+
         if ("Trống".equals(table.getStatus())) {
             style += "-fx-background-color: #e0e0e0; -fx-border-color: #9e9e9e;";
         } else if ("Đã đặt".equals(table.getStatus())) {
             style += "-fx-background-color: #fff3e0; -fx-border-color: #ff9800;";
         }
-        
+
         button.setStyle(style);
     }
 
@@ -117,16 +130,18 @@ public class SalesController implements Initializable {
 
     private void updateTableInfo() {
         if (selectedTable != null) {
-            if (!"Trống".equals(selectedTable.getStatus())){
-                bookingDetailOfSelectedTable = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
-                invoiceOfSelectedTable = invoiceService.getInvoiceByInvoiceID(bookingDetailOfSelectedTable.getInvoiceID());
-                listOfInvoiceDetailOfSelectedTable = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceOfSelectedTable.getInvoiceID());
+            if (!"Trống".equals(selectedTable.getStatus())) {
+                bookingDetailOfSelectedTable = bookingDetailService
+                        .getBookingDetailNewlestByTableID(selectedTable.getTableID());
+                invoiceOfSelectedTable = invoiceService
+                        .getInvoiceByInvoiceID(bookingDetailOfSelectedTable.getInvoiceID());
+                listOfInvoiceDetailOfSelectedTable = invoiceDetailService
+                        .getInvoiceDetailByInvoiceID(invoiceOfSelectedTable.getInvoiceID());
 
                 lblSelectedTable.setText(selectedTable.getTableName());
                 lblTableStatus.setText(selectedTable.getStatus());
                 lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
-            }
-            else {
+            } else {
                 bookingDetailOfSelectedTable = new BookingDetail();
                 invoiceOfSelectedTable = new Invoice();
                 listOfInvoiceDetailOfSelectedTable = new ArrayList<>();
@@ -151,7 +166,7 @@ public class SalesController implements Initializable {
     }
 
     @FXML
-    private void viewTable() { //xong
+    private void viewTable() { // xong
         if (selectedTable == null) {
             showAlert("Thông báo", "Vui lòng chọn bàn để xem thông tin!");
             return;
@@ -168,10 +183,12 @@ public class SalesController implements Initializable {
 
         TableView<InvoiceDetail> orderTable = new TableView<>();
         orderTable.setPrefHeight(200);
-        orderTable.setItems(FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable));
+        orderTable.setItems(FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable)
+                .filtered(c -> c.getQuantity() > 0));
 
         TableColumn<InvoiceDetail, String> itemNameCol = new TableColumn<>("Tên món");
-        itemNameCol.setCellValueFactory(cd -> new SimpleStringProperty(menuItemService.getMenuItemByMenuItemID(cd.getValue().getMenuItemID()).getItemName()));
+        itemNameCol.setCellValueFactory(cd -> new SimpleStringProperty(
+                menuItemService.getMenuItemByMenuItemID(cd.getValue().getMenuItemID()).getItemName()));
         itemNameCol.setPrefWidth(220);
 
         TableColumn<InvoiceDetail, Integer> qtyCol = new TableColumn<>("SL");
@@ -185,7 +202,8 @@ public class SalesController implements Initializable {
         lblTableStatus.setText(selectedTable.getStatus());
         lblCustomerName.setText(bookingDetailOfSelectedTable.getCustomerName());
         Label reserveInfo = new Label();
-        String customer = ("Trống".equals(selectedTable.getStatus()) ? "-" : bookingDetailOfSelectedTable.getCustomerName());
+        String customer = ("Trống".equals(selectedTable.getStatus()) ? "-"
+                : bookingDetailOfSelectedTable.getCustomerName());
         reserveInfo.setText("Đặt trước\n" + customer);
 
         ButtonType closeType = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -228,7 +246,8 @@ public class SalesController implements Initializable {
             return;
         }
 
-        tableChoiceBox.getItems().addAll(availableTables.stream().map(a -> tableService.getTableByTableID(a).getTableName()).toList());
+        tableChoiceBox.getItems()
+                .addAll(availableTables.stream().map(a -> tableService.getTableByTableID(a).getTableName()).toList());
         tableChoiceBox.setValue(tableService.getTableByTableID(availableTables.get(0)).getTableName());
         content.getChildren().add(tableChoiceBox);
 
@@ -268,9 +287,8 @@ public class SalesController implements Initializable {
         dialog.showAndWait();
     }
 
-
     @FXML
-    private void cancelTable() { //gần xong
+    private void cancelTable() { // gần xong
         if (selectedTable == null) {
             showAlert("Lỗi", "Vui lòng chọn bàn để hủy!");
             return;
@@ -470,7 +488,7 @@ public class SalesController implements Initializable {
             dialog.close();
 
             javafx.application.Platform.runLater(() -> {
-        showAlert("Thành công", "Đã đặt bàn thành công!");
+                showAlert("Thành công", "Đã đặt bàn thành công!");
             });
         });
 
@@ -491,7 +509,6 @@ public class SalesController implements Initializable {
         dialog.showAndWait();
     }
 
-
     @FXML
     private void selectMenu() {
         if (selectedTable == null) {
@@ -507,150 +524,154 @@ public class SalesController implements Initializable {
         // Tạo popup chọn thực đơn
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Chọn món bàn " + selectedTable.getTableName());
-        
+
         // Tạo layout cho popup
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
-        
+
         // Label "Bàn XX"
         Label tableLabel = new Label("Bàn " + selectedTable.getTableName());
         tableLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
         content.getChildren().add(tableLabel);
-        
+
         // Tạo danh sách món ăn và danh sách tạm thời cho items được chọn
         ObservableList<MenuItem> menuItems = FXCollections.observableArrayList(menuItemService.getAllMenuItem());
-        List<MenuItem> tempSelectedItems = new ArrayList<>();
-        
+        // List<MenuItem> tempSelectedItems = new ArrayList<>();
+        // Sử dụng Map để lưu món ăn và số lượng (ví dụ: ID món ăn -> Số lượng)
+        Map<Integer, Integer> tempSelectedQuantities = new HashMap<>();
+        for (MenuItem item : menuItems) {
+            tempSelectedQuantities.put(item.getMenuItemId(), 0);
+        }
+        // ... (Các phần khởi tạo khác giữ nguyên)
+
         // Tạo TableView
         TableView<MenuItem> tableView = new TableView<>();
         tableView.setItems(menuItems);
         tableView.setPrefHeight(300);
         tableView.setMaxHeight(300);
         tableView.setMaxWidth(320);
-        
-        // Cột checkbox
-        TableColumn<MenuItem, Boolean> selectColumn = new TableColumn<>("Chọn");
-        selectColumn.setCellValueFactory(cellData -> {
-            MenuItem item = cellData.getValue();
-            SimpleBooleanProperty booleanProp = new SimpleBooleanProperty(tempSelectedItems.contains(item));
-            
-            // Listen to changes in the checkbox
-            booleanProp.addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    if (!tempSelectedItems.contains(item)) {
-                        tempSelectedItems.add(item);
-                    }
-                } else {
-                    tempSelectedItems.remove(item);
-                }
-            });
-            
-            return booleanProp;
+
+        // TẠO CỘT SỐ LƯỢNG (Quantity Column)
+        TableColumn<MenuItem, Integer> quantityColumn = new TableColumn<>("Số lượng");
+
+        // 1. Thiết lập giá trị ban đầu cho cột: Lấy số lượng từ Map tạm
+        quantityColumn.setCellValueFactory(cellData -> {
+            int itemId = cellData.getValue().getMenuItemId();
+            Integer initialQuantity = tempSelectedQuantities.getOrDefault(itemId, 0);
+            return new SimpleIntegerProperty(initialQuantity).asObject();
         });
-        selectColumn.setCellFactory(col -> {
-            CheckBox checkBox = new CheckBox();
-            TableCell<MenuItem, Boolean> cell = new TableCell<MenuItem, Boolean>() {
-                @Override
-                protected void updateItem(Boolean item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                    } else {
-                        setGraphic(checkBox);
-                        checkBox.setSelected(item);
-                    }
-                }
-            };
-            
-            checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
-                    MenuItem item = cell.getTableRow().getItem();
-                    if (isSelected) {
-                        if (!tempSelectedItems.contains(item)) {
-                            tempSelectedItems.add(item);
-                        }
-                    } else {
-                        tempSelectedItems.remove(item);
-                    }
-                }
-            });
-            
-            return cell;
+
+        // 2. Cho phép chỉnh sửa bằng TextField và chỉ chấp nhận số nguyên
+        quantityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+
+        // 3. Cập nhật Map khi người dùng hoàn thành chỉnh sửa
+        quantityColumn.setOnEditCommit(e -> {
+            MenuItem item = e.getRowValue();
+            Integer newQuantity = e.getNewValue();
+
+            if (newQuantity != null && newQuantity > 0) {
+                tempSelectedQuantities.put(item.getMenuItemId(), newQuantity);
+            } else {
+                // Nếu nhập 0 hoặc giá trị không hợp lệ, xóa khỏi danh sách chọn (hoặc đặt về 0)
+                tempSelectedQuantities.put(item.getMenuItemId(), 0);
+                // Có thể cần refresh lại bảng để hiển thị giá trị 0 nếu người dùng nhập số âm
+                tableView.refresh();
+            }
         });
-        
+        quantityColumn.setPrefWidth(60);
+
+        // THÊM CỘT SỐ LƯỢNG VÀO BẢNG (thay vì cột checkbox)
+
         // Cột tên món
         TableColumn<MenuItem, String> nameColumn = new TableColumn<>("Tên món");
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getItemName()));
         nameColumn.setPrefWidth(200);
-        
+
         // Cột số lượng
         TableColumn<MenuItem, Integer> priceColumn = new TableColumn<>("Giá (VNĐ)");
-        priceColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getCurrentPrice()).asObject());
+        priceColumn.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getCurrentPrice()).asObject());
         priceColumn.setPrefWidth(80);
-        
+
         tableView.setEditable(true);
-        tableView.getColumns().add(selectColumn);
+        tableView.getColumns().add(quantityColumn); // Thêm cột mới
         tableView.getColumns().add(nameColumn);
         tableView.getColumns().add(priceColumn);
-        
-        // Thêm TableView trực tiếp vào content (không cần ScrollPane)
+
         content.getChildren().add(tableView);
-        
-        // Nút Lưu và Hủy
+
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
-        
+
         Button saveButton = new Button("Lưu");
         saveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16;");
+
         saveButton.setOnAction(e -> {
-        if (tempSelectedItems.isEmpty()) {
-            showAlert("Thông báo", "Vui lòng chọn ít nhất một món!");
-            return;
-        }
+            // 1. Kiểm tra điều kiện: Lọc ra các món có số lượng > 0
+            List<Map.Entry<Integer, Integer>> selectedEntries = tempSelectedQuantities.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 0)
+                    .collect(Collectors.toList());
 
-        BookingDetail bookingDetail = bookingDetailService.getBookingDetailNewlestByTableID(selectedTable.getTableID());
-        int invoiceId = bookingDetail.getInvoiceID(); 
+            if (selectedEntries.isEmpty()) {
+                showAlert("Thông báo", "Vui lòng nhập số lượng cho ít nhất một món!");
+                return;
+            }
 
+            // 2. Chuẩn bị dữ liệu cần thiết
+            BookingDetail bookingDetail = bookingDetailService
+                    .getBookingDetailNewlestByTableID(selectedTable.getTableID());
+            int invoiceId = bookingDetail.getInvoiceID();
 
-        for (MenuItem item : tempSelectedItems) {
-            int quantity = 1; 
-            int price = item.getCurrentPrice();
-            int total = quantity * price;
+            // Tạo Map MenuItemId -> MenuItem từ danh sách gốc để truy cập nhanh chóng
+            Map<Integer, MenuItem> menuMap = menuItems.stream()
+                    .collect(Collectors.toMap(MenuItem::getMenuItemId, item -> item));
 
-            InvoiceDetail detail = new InvoiceDetail(invoiceId, item.getMenuItemId(), quantity, price, total);
-            invoiceDetailService.addInvoiceDetail(detail);
-            // invoiceService.save(invoiceService.getInvoiceByInvoiceID(invoiceId));
+            // 3. Xử lý lưu các món đã chọn (chỉ các mục có Quantity > 0)
+            for (Map.Entry<Integer, Integer> entry : selectedEntries) {
+                int itemId = entry.getKey();
+                int quantity = entry.getValue();
+                MenuItem item = menuMap.get(itemId); 
 
-        }
-        List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
-        int newTotalAmount = updatedDetails.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
-        Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
-        invoiceToUpdate.setTotalAmount(newTotalAmount);
-        invoiceService.save(invoiceToUpdate);
+                if (item != null) {
+                    int price = item.getCurrentPrice();
+                    int total = quantity * price;
 
+                    InvoiceDetail detail = new InvoiceDetail(invoiceId, itemId, quantity, price, total);
+                    invoiceDetailService.addInvoiceDetail(detail);
+                }
+            }
 
-        dialog.close();
-        Platform.runLater(() -> showAlert("Thành công", "Đã thêm món vào hóa đơn!"));
+            // 4. Cập nhật tổng hóa đơn
+            List<InvoiceDetail> updatedDetails = invoiceDetailService.getInvoiceDetailByInvoiceID(invoiceId);
+            int newTotalAmount = updatedDetails.stream()
+                    .mapToInt(InvoiceDetail::getLineTotal)
+                    .sum();
+
+            Invoice invoiceToUpdate = invoiceService.getInvoiceByInvoiceID(invoiceId);
+            invoiceToUpdate.setTotalAmount(newTotalAmount);
+            invoiceService.save(invoiceToUpdate);
+
+            dialog.close();
+            Platform.runLater(() -> showAlert("Thành công", "Đã thêm món vào hóa đơn!"));
         });
-        
+
         Button cancelButton = new Button("Hủy");
         cancelButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 16;");
         cancelButton.setOnAction(e -> dialog.close());
-        
+
         buttonBox.getChildren().addAll(saveButton, cancelButton);
         content.getChildren().add(buttonBox);
-        
+
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.setResizable(false);
-        
+
         dialog.setOnCloseRequest(e -> {
             // Không cần làm gì đặc biệt khi đóng
         });
-        
+
         dialog.showAndWait();
     }
-
 
     @FXML
     private void payment() {
@@ -686,6 +707,12 @@ public class SalesController implements Initializable {
 
             updateTableInfo();
             refreshTableGrid();
+
+                // List<InvoiceDetail> done =
+                // FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
+                // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
+
+            
 
         } catch (IOException e) {
             e.printStackTrace();
