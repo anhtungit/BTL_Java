@@ -702,17 +702,8 @@ public class SalesController implements Initializable {
             dialogController.setTable(selectedTable);
             dialog.showAndWait();
 
-            tableService.changeStatusTable(selectedTable);
-
             updateTableInfo();
             refreshTableGrid();
-
-                // List<InvoiceDetail> done =
-                // FXCollections.observableArrayList(listOfInvoiceDetailOfSelectedTable);
-                // int priceTotal = done.stream().mapToInt(InvoiceDetail::getLineTotal).sum();
-
-            
-
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Lỗi", "Không thể mở cửa sổ thanh toán!");

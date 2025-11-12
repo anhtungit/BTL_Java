@@ -165,6 +165,7 @@ public class PaymentDialogController implements Initializable {
         alert.setHeaderText(null);
         
         try {
+            tableService.changeStatusTable(currentTable);
             StringBuilder message = new StringBuilder();
             message.append("Thanh toán thành công!\n\n");
             message.append(String.format("Tổng tiền: %s đ\n", currencyFormat.format(totalAmount)));
