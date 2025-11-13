@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MenuItemEditController extends MenuItemControllerBase {
@@ -48,6 +49,33 @@ public class MenuItemEditController extends MenuItemControllerBase {
                 txtCurrentPrice.setText(String.valueOf(newSel.getCurrentPrice()));
             }
         });
+
+        txtCurrentPrice.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            
+            if(newText.isEmpty()){
+                return change;
+            }
+
+            //bỏ qua dấu phẩy nếu người dùng nhập
+            String cleanText = newText.replaceAll(",", "");
+
+            //Không cho nhập chữ
+            if(!cleanText.matches("\\d*")){
+                return null;
+            }
+
+            try{
+                long val = Long.parseLong(cleanText);
+                if(val > 10_000_000_000L){
+                    return null;
+                }
+            } catch(NumberFormatException e){
+                return null;
+            }
+
+            return change;
+        }));
     }
 
     @FXML
