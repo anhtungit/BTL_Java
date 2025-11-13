@@ -10,12 +10,17 @@
     </padding>
 
     <!-- Top Controls -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <TextField fx:id="searchField" promptText="Tìm kiếm..." HBox.hgrow="ALWAYS"/>
-        <Button text="Tìm kiếm" onAction="#handleSearch"/>
-        <Region HBox.hgrow="ALWAYS" />
-        <Button text="Nhập hàng hóa" onAction="#showAddDialog"/>
-    </HBox>
+    <VBox spacing="10">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Tìm kiếm..." HBox.hgrow="ALWAYS"/>
+            <Button text="Tìm kiếm" onAction="#handleSearch"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Nhập hàng hóa" onAction="#showAddDialog"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <CheckBox fx:id="filterQuantityCheckBox" text="Số lượng > 100" onAction="#handleSearch"/>
+        </HBox>
+    </VBox>
 
     <!-- Table View -->
     <TableView fx:id="inventoryTable" VBox.vgrow="ALWAYS">

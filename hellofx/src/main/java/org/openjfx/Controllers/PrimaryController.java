@@ -367,6 +367,7 @@ public class PrimaryController {
     @FXML private javafx.scene.control.TableColumn<Employee, String> sColName;
     @FXML private javafx.scene.control.TableColumn<Employee, String> sColPosition;
     @FXML private javafx.scene.control.TableColumn<Employee, String> sColSalary;
+    @FXML private javafx.scene.control.CheckBox filterHighSalaryCheckBox;
 
     private void bindSearchTable(javafx.collections.ObservableList<Employee> data) {
         if (searchTable == null) return;
@@ -379,7 +380,20 @@ public class PrimaryController {
     @FXML
     private void empSearchSubmit() throws IOException {
         String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        bindSearchTable(FXCollections.observableArrayList(employeeService.getEmployeeByName(query)));
+        java.util.List<Employee> employees = employeeService.getEmployeeByName(query);
+        
+        // Apply high salary filter if checkbox is selected
+        if (filterHighSalaryCheckBox != null && filterHighSalaryCheckBox.isSelected()) {
+            employees = employees.stream()
+                .filter(emp -> {
+                    int positionId = emp.getPositionID();
+                    long salary = positionService.getPositionByPositionID(positionId).getSalary();
+                    return salary > 10000000;
+                })
+                .toList();
+        }
+        
+        bindSearchTable(FXCollections.observableArrayList(employees));
     }
 
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;

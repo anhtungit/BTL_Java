@@ -39,6 +39,7 @@ public class InventoryController {
     @FXML private TableColumn<InventoryItem, String> unitColumn;
     @FXML private TableColumn<InventoryItem, Integer> priceColumn;
     @FXML private TableColumn<InventoryItem, Integer> totalColumn;
+    @FXML private CheckBox filterQuantityCheckBox;
 
     private ObservableList<InventoryItem> inventoryItems;
     private FilteredList<InventoryItem> filteredItems;
@@ -92,19 +93,41 @@ public class InventoryController {
         inventoryTable.setItems(filteredItems);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredItems.setPredicate(item -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-                String lowerCaseFilter = newValue.toLowerCase();
-                return item.getItemName().toLowerCase().contains(lowerCaseFilter);
+            updateFilterPredicate();
+        });
+        
+        if (filterQuantityCheckBox != null) {
+            filterQuantityCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                updateFilterPredicate();
             });
+        }
+    }
+    
+    private void updateFilterPredicate() {
+        filteredItems.setPredicate(item -> {
+            String searchText = searchField.getText();
+            if (searchText == null || searchText.isEmpty()) {
+                searchText = "";
+            }
+            String lowerCaseFilter = searchText.toLowerCase();
+            
+            // Check search filter
+            boolean matchesSearch = item.getItemName().toLowerCase().contains(lowerCaseFilter);
+            
+            // Check quantity filter
+            boolean matchesQuantityFilter = true;
+            if (filterQuantityCheckBox != null && filterQuantityCheckBox.isSelected()) {
+                matchesQuantityFilter = item.getStockQuantity() > 100;
+            }
+            
+            return matchesSearch && matchesQuantityFilter;
         });
     }
 
     @FXML
     private void handleSearch() {
-        // Search is already handled by FilteredList listener
+        // Search is handled by updateFilterPredicate method
+        updateFilterPredicate();
     }
 
     @FXML

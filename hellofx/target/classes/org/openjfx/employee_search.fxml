@@ -6,20 +6,31 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" prefWidth="500.0" prefHeight="400.0">
     <top>
-        <HBox spacing="10" BorderPane.alignment="CENTER_LEFT">
+        <VBox spacing="10" BorderPane.alignment="CENTER_LEFT">
             <children>
-                <TextField fx:id="searchField" promptText="Tìm theo tên..." />
-                <Button text="Tìm kiếm" onAction="#empSearchSubmit" />
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <TextField fx:id="searchField" promptText="Tìm theo tên..." />
+                        <Button text="Tìm kiếm" onAction="#empSearchSubmit" />
+                    </children>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <CheckBox fx:id="filterHighSalaryCheckBox" text="Lương trên 10.000.000 VNĐ" onAction="#empSearchSubmit" />
+                    </children>
+                </HBox>
             </children>
             <padding>
                 <Insets top="10" bottom="10" left="10" right="10" />
             </padding>
-        </HBox>
+        </VBox>
     </top>
     <center>
         <TableView fx:id="searchTable">
