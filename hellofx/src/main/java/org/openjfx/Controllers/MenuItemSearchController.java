@@ -39,7 +39,20 @@ public class MenuItemSearchController {
 
         tableResult.setItems(filteredItems);
 
-        txtSearchKeyword.setOnAction(e -> handleSearch());
+        txtSearchKeyword.textProperty().addListener((obs, oldValue, newValue) -> {
+            filteredTable(newValue);
+        });
+    }
+
+    //lọc mà không cần enter
+    public void filteredTable(String keyword){
+        if(keyword == null || keyword.isBlank()){
+            filteredItems.setAll(allItems);
+            return;
+        }
+
+        String lowerKeyword = keyword.toLowerCase();
+        filteredItems.setAll(allItems.filtered(item -> item.getItemName().toLowerCase().contains(lowerKeyword)));
     }
 
     @FXML
