@@ -11,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 
 public class MenuItemAddController extends MenuItemControllerBase {
@@ -54,6 +56,45 @@ public class MenuItemAddController extends MenuItemControllerBase {
         for (int i = 0; i < 3; i++) {
             ingredients.add(new Ingredient("", "", ""));
         }
+
+        //Chi nhap so va gioi han la 10 ty cho gia tien
+
+        txtCurrentPrice.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+
+            //Neu xoa het thi cho phep
+            if(newText.isEmpty()){
+                txtCurrentPrice.setStyle("-fx-border-color: red; -fx-border-width: 1.5;");
+                txtCurrentPrice.setTooltip(new Tooltip("Giá tiền không được bỏ trống!"));
+                return change;
+            }
+            else{
+                txtCurrentPrice.setStyle(null);
+                txtCurrentPrice.setTooltip(null);
+            }
+
+            //bỏ qua dấu phẩy nếu người dùng nhập
+            String cleanText = newText.replaceAll(",", "");
+
+            //Không cho nhập chữ
+            if(!cleanText.matches("\\d*")){
+                return null;
+            }
+
+            try{
+                long val = Long.parseLong(cleanText);
+                if(val > 10_000_000_000L){
+                    return null;
+                }
+            } catch(NumberFormatException e){
+                return null;
+            }
+
+            return change;
+
+        }));
+
+        
     }
 
     @FXML
