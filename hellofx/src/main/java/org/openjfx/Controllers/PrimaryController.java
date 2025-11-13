@@ -379,7 +379,8 @@ public class PrimaryController {
     @FXML
     private void empSearchSubmit() throws IOException {
         String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        bindSearchTable(FXCollections.observableArrayList(employeeService.getEmployeeByName(query)));
+        java.util.List<Employee> employees = employeeService.getEmployeeByName(query);
+        bindSearchTable(FXCollections.observableArrayList(employees));
     }
 
     @FXML private javafx.scene.control.TextField addFullName, addAddress, addSalary, addPhone, addUsername;
